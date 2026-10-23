@@ -1,0 +1,48 @@
+/* Glossaire du jeu : une seule source pour les infobulles, le glossaire consultable et le vocabulaire. Aucune logique de jeu ici. */
+(function (root) {
+  var BL = root.BL = root.BL || {};
+  /* id, terme, définition (une ou deux phrases), libellés rencontrés dans l'interface (pour accrocher les infobulles automatiquement) */
+  var LIST = [
+    ["arsenal", "Arsenal", "Ton stock de matériel : armes, protections, accessoires et véhicules. Chaque équipier porte un objet par emplacement. Capacité limitée, extensible avec de l’argent du jeu.", ["Arsenal"]],
+    ["wear", "Usure", "Un objet utilisé en opération perd de la solidité et devient moins efficace. Il n’est jamais détruit : une réparation payée en argent du jeu le remet à neuf.", ["Solidité"]],
+    ["hurt", "Blessé", "Après une opération difficile, un équipier peut être indisponible un moment. C’est toujours temporaire : aucun équipier n’est perdu.", ["Blessé"]],
+    ["loot", "Butin", "Les objets gagnés en opération. Les probabilités de chaque rareté sont affichées sur la fiche de l’opération. Aucun butin ne s’achète avec de l’argent réel.", ["Butin"]],
+    ["convoy", "Convoi rival", "Opération qui intercepte le convoi d’une faction. Réussite : elle perd un peu d’influence ; dans tous les cas sa relation avec toi baisse. Impossible contre une alliée du moment.", ["Convoi rival", "Convois rivaux"]],
+    ["raid", "Raid de quartier", "Opération contre le repaire d’une faction : l’effet sur son influence est plus fort qu’avec un convoi, et sa rancune aussi. Impossible contre une alliée du moment.", ["Raid", "Raids de quartier"]],
+    ["mythique", "Mythique", "La rareté la plus haute, au-dessus du Légendaire. Ces objets ne se trouvent que dans la Box Légende. Leur puissance reste plafonnée : un cran au-dessus du Légendaire, jamais démesurée.", ["Mythique", "Mythiques"]],
+    ["box", "Box", "Un coffre payé en lingots qui contient un objet d’équipement tiré au hasard. Les pourcentages de chaque rareté sont affichés sur la fiche. Un doublon est converti en un peu d’argent du jeu, jamais en lingots.", ["Box", "Boxs"]],
+    ["pitie", "Pitié", "Compteur visible d’une box : si tu n’as pas obtenu de Légendaire (ou de Mythique) depuis un certain nombre d’ouvertures, le suivant est garanti.", ["Pitié"]],
+    ["finition", "Finition", "Décoration payée en lingots qui colore le cadre des objets de l’Arsenal. Aucune statistique, aucun effet sur les chances de réussite.", ["Finition", "Finitions"]],
+    ["op_chance", "Chances de réussite", "Calculées à partir des statistiques de ton équipe (équipement compris) face à ce que demande l’opération, avec une part de hasard bornée : jamais sous 10 %, jamais au-dessus de 92 %.", ["Chances de réussite"]],
+    ["money", "Argent ($)", "L’argent du jeu. Il vient de tes revenus et sert à améliorer et construire des bâtiments, acheter des bonus permanents, prendre des quartiers et recruter. Il s’affiche en $.", ["Argent disponible", "Argent"]],
+    ["income_net", "Revenus nets ($/s)", "Revenus nets = revenus bruts − entretien. C’est ce que ton argent gagne chaque seconde, une fois l’entretien payé.", ["Revenus nets par seconde", "Revenus nets", "Revenus par seconde"]],
+    ["income_gross", "Revenus bruts ($/s)", "Tout ce que rapportent tes bâtiments chaque seconde, avant l’entretien. Ils tiennent compte des paliers, des bonus, de la réputation, des quartiers et de l’équipe.", ["Revenus bruts", "Revenus", "Revenus de l’activité", "Revenus de toute l’activité"]],
+    ["upkeep", "Entretien ($/s)", "Ce que coûtent tes activités chaque seconde. Il dépend du meilleur bâtiment de chaque activité : un bâtiment annexe n’ajoute pas d’entretien.", ["Entretien", "Entretien par seconde", "Entretien de l’activité"]],
+    ["activity", "Activité", "Un type d’affaire (salle de jeux, convoyage, recel…). Chaque activité peut avoir jusqu’à 4 bâtiments sur la carte. Les activités se débloquent l’une après l’autre.", ["Activité", "Activités"]],
+    ["building", "Bâtiment", "Un lieu d’une activité, visible sur la carte. Chaque bâtiment a son propre niveau : améliorer un bâtiment ne change que lui. Le 1er bâtiment pèse 100 % du revenu, les suivants 40, 30 et 20 %.", ["Bâtiment", "Bâtiments", "Bâtiments construits"]],
+    ["building_level", "Niveau d’un bâtiment", "Le niveau de CE bâtiment, de 1 à 100. Chaque niveau coûte plus cher que le précédent et rapporte plus. Aux niveaux 5, 10, 20, 25, 30 et ainsi de suite jusqu’à 100, le bâtiment franchit un palier de revenus. Au-delà du niveau 50 l’effort devient très long : c’est l’objectif de fin de partie.", ["Niveau de ce bâtiment", "Revenus de ce bâtiment", "Amélioration de ce bâtiment", "Part dans les revenus de l’activité"]],
+    ["best_building", "Meilleur bâtiment", "Le bâtiment de plus haut niveau d’une activité. C’est lui qui compte pour débloquer l’activité suivante, un nouveau bâtiment, un bonus ou un objectif.", ["Meilleur bâtiment", "Meilleur niv.", "Meilleur achat"]],
+    ["milestone", "Palier", "Un bonus automatique de revenus quand un bâtiment atteint le niveau 5, 10, 20, 25 (×1,25, ×1,5, ×2, ×2), puis 30, 35, 40, 45 et 50 (de ×1,1 à ×1,2). Il s’applique à ce bâtiment.", ["Palier", "Prochain palier"]],
+    ["design", "Design", "L’apparence d’un bâtiment, qui change 10 fois, aux niveaux 1, 5, 10, 15, 20, 25, 30, 35, 40 et 45 (Délabré → Éternel). C’est visuel seulement : le design n’a aucun effet sur les revenus.", ["Design", "Prochain design"]],
+    ["empire_level", "Niveau d’empire", "Ton niveau global, de 1 à 100. Il monte avec le total d’argent gagné depuis le début ; après le niveau 50, chaque niveau demande nettement plus. Chaque niveau donne un petit bonus de revenus et un nouveau statut tous les quelques niveaux.", ["Niveau d’empire", "Prochain niveau d’empire"]],
+    ["status", "Statut", "Ton titre dans le milieu (de Petit voyou à Légende de l’ombre). Il change selon ton niveau d’empire ; c’est une marque de prestige, sans bonus supplémentaire.", ["Statut"]],
+    ["reputation", "Réputation", "Elle monte avec ton total gagné, tes succès et tes missions. Chaque point augmente un peu tes revenus (avec un plafond).", ["Réputation", "Multiplicateur de réputation"]],
+    ["influence", "Influence", "Elle vient du nombre d’activités, des quartiers contrôlés, de l’équipe et de certains bonus. Elle réduit les pertes lors des événements risqués.", ["Influence", "Influence territoriale"]],
+    ["district", "Quartier", "Une zone de la ville que tu peux prendre à une faction rivale. Un quartier contrôlé rapporte un bonus et peut être amélioré, mais il peut être attaqué.", ["Quartier", "Quartiers", "Quartiers contrôlés"]],
+    ["faction", "Faction rivale", "Un gang qui tient certains quartiers. Ta relation avec elle change ses attaques, ses trêves et les alliances possibles.", ["Faction", "Factions rivales"]],
+    ["ingot", "Lingot d’or", "Une monnaie rare, gardée dans le coffre. Elle ne sert qu’au QG et à la boutique, jamais aux activités. On l’obtient en échangeant de l’argent du jeu. Aucun achat avec de l’argent réel.", ["Lingots", "Lingots d’or", "Lingots d’or dans le coffre"]],
+    ["vault", "Coffre", "Là où tes lingots sont gardés, avec une capacité limitée. Tu peux l’agrandir. S’il est plein, tu ne peux plus échanger d’argent en lingots.", ["Coffre", "En réserve"]],
+    ["boost", "Boost", "Un bonus de revenus temporaire acheté avec des lingots à la boutique. Il a une durée réelle : il se termine à l’heure affichée.", ["Boost", "Boost de revenus actif"]],
+    ["event", "Événement", "Une situation qui arrive de temps en temps et demande une décision (gagner, risquer, négocier). Le résultat dépend de ton choix.", ["Événement en cours", "Événement"]],
+    ["mission", "Objectif et mission", "Un but précis avec une récompense (argent, réputation ou influence). Quand la barre est pleine, tu réclames la récompense.", ["Objectif actuel", "Missions réclamées"]],
+    ["permanent", "Bonus permanent", "Un achat unique en argent qui améliore durablement tes revenus ou réduit tes coûts. Il se débloque quand le meilleur bâtiment d’une activité atteint un niveau.", ["Bonus permanents", "Bonus permanents acquis", "Améliorations acquises"]],
+    ["crew", "Équipier", "Un personnage que tu recrutes. Les équipiers actifs (nombre de places limité) donnent des bonus de revenus, de défense ou d’influence, et gagnent de l’expérience.", ["Équipe", "Équipe active / recrutée"]],
+    ["offline", "Revenus hors ligne", "Quand tu quittes le jeu, ton empire continue de rapporter, mais moins vite et pendant une durée limitée. Le bilan s’affiche à ton retour.", ["Rendement hors ligne"]],
+    ["progress", "Progression globale", "La moyenne de cinq avancements : niveau d’empire, missions réclamées, succès, bonus permanents acquis et quartiers contrôlés.", ["Progression globale", "Progression"]],
+    ["total", "Total gagné", "Tout l’argent gagné depuis le début de la partie (sans soustraire tes dépenses). C’est ce total qui fait monter ton niveau d’empire.", ["Total gagné", "Total encaissé"]]
+  ];
+  var BY = {}, LABEL = {};
+  function norm(x) { return String(x).toLowerCase().replace(/\s+/g, " ").replace(/[’']/g, "'").trim(); }
+  var items = LIST.map(function (r) { var o = { id: r[0], term: r[1], text: r[2], labels: r[3] || [] }; BY[o.id] = o; o.labels.forEach(function (l) { LABEL[norm(l)] = o.id; }); LABEL[norm(o.term)] = o.id; return o; });
+  BL.glossary = { list: items, get: function (id) { return BY[id] || null; }, byLabel: function (label) { var id = LABEL[norm(label)]; return id || null; }, norm: norm };
+})(typeof globalThis !== "undefined" ? globalThis : this);

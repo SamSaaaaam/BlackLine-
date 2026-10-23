@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blackline : Underworld Empire</title>
+<meta name="description" content="Blackline : Underworld Empire, un jeu de gestion d’empire criminel fictif. Gère tes activités, tes quartiers, ton équipe et ton histoire de parrain. Gratuit, sans compte, entièrement dans ton navigateur.">
+<meta name="theme-color" content="#0b0e14">
+<meta property="og:type" content="website"><meta property="og:title" content="Blackline : Underworld Empire"><meta property="og:description" content="Construis un empire criminel fictif : activités, quartiers, équipe, braquages et histoire de parrain. Gratuit, sans compte, 100 % dans ton navigateur."><meta property="og:image" content="assets/share.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Blackline : Underworld Empire"><meta name="twitter:description" content="Un jeu de gestion d’empire criminel fictif, gratuit et sans compte."><meta name="twitter:image" content="assets/share.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs id="artDefs">
+  <linearGradient id="gGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8cd8a"/><stop offset=".55" stop-color="#c8a45e"/><stop offset="1" stop-color="#8f7640"/></linearGradient>
+  <linearGradient id="gGoldD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a98943"/><stop offset="1" stop-color="#6f5b32"/></linearGradient>
+  <linearGradient id="gSlate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c323c"/><stop offset="1" stop-color="#14171c"/></linearGradient>
+  <linearGradient id="gNight" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d1118"/><stop offset=".7" stop-color="#1a2230"/><stop offset="1" stop-color="#262e3b"/></linearGradient>
+  <linearGradient id="gRoom" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#101319"/><stop offset="1" stop-color="#1d222b"/></linearGradient>
+  <linearGradient id="gDusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c2236"/><stop offset=".55" stop-color="#5a4350"/><stop offset="1" stop-color="#b98a62"/></linearGradient>
+  <linearGradient id="gArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8a45e" stop-opacity=".38"/><stop offset="1" stop-color="#c8a45e" stop-opacity="0"/></linearGradient>
+  <radialGradient id="gGlow"><stop offset="0" stop-color="#f6e7b0" stop-opacity=".55"/><stop offset="1" stop-color="#f6e7b0" stop-opacity="0"/></radialGradient>
+  <linearGradient id="gCone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1d98f" stop-opacity=".42"/><stop offset="1" stop-color="#f1d98f" stop-opacity="0"/></linearGradient>
+  <linearGradient id="gBeam" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#f6e7b0" stop-opacity=".5"/><stop offset="1" stop-color="#f6e7b0" stop-opacity="0"/></linearGradient>
+</defs></svg>
+<div id="city" aria-hidden="true"></div>
+<div class="app" id="app">
+  <aside class="side" id="side">
+    <div class="brand"><span id="crest"></span><span class="bt"><span class="wm">BLACKLINE</span><span class="sub"><span class="subt">Underworld Empire</span></span></span></div>
+    <nav class="nav" id="nav" aria-label="Sections"></nav>
+    <div class="sfoot"><span id="saveinfo" class="muted">Pas encore sauvegardé</span>
+      <button class="btn" id="btnSave">Sauvegarder</button><button class="btn ghost" id="btnMenu">Menu principal</button><button class="btn ghost" id="btnReset">Réinitialiser</button></div>
+  </aside>
+  <div id="scrim"></div>
+  <div class="main">
+    <header class="bar">
+      <button class="icon-btn" id="menuBtn" aria-label="Ouvrir le menu" aria-expanded="false"></button>
+      <div class="emp"><span class="empav" id="empAv" aria-hidden="true"></span><div class="empt"><div class="en" id="empName"></div><div class="lv"><span id="lvTxt"></span><span class="meter"><i id="lvBar"></i></span></div></div></div>
+      <div class="res" id="res"></div>
+      <button class="icon-btn radiobtn" id="radioBtn" aria-label="Radio (touche T)" title="Radio (T)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h18v11H3zM7 9l10-5M7 14h6M7 17h6M17 15a1.6 1.6 0 1 0 .01 0"/></svg></button>
+      <button class="icon-btn gear" id="gearBtn" aria-label="Paramètres" title="Paramètres"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+    </header>
+    <div class="goalbar" id="goalbar" role="status" aria-live="polite">
+      <div class="gi" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg></div>
+      <div class="gt"><span class="gl">Objectif actuel</span><b id="nxName"></b><span class="gs" id="nxSub"></span></div>
+      <div class="gm"><span class="meter wide"><i id="nxBar"></i></span></div>
+      <button class="btn" id="nxBtn" hidden>Réclamer</button>
+    </div>
+    <main>
+      <nav class="subnav" id="subnav" aria-label="Sections"></nav>
+      <h1 id="pageTitle">Tableau de bord</h1>
+      <p class="psub muted" id="pageSub"></p>
+      <div id="alert" class="notice warn" role="alert" hidden><span id="alertText"></span><span class="acts" id="alertActs"></span></div>
+      <div id="offline" class="notice back" role="status" hidden>
+        <div class="rb"><div class="rt" id="offlineTitle"></div><dl class="rr" id="offlineRows"></dl><ul class="rn" id="offlineNotes"></ul><div class="oacts" id="offlineActs" hidden></div></div>
+        <button class="btn" id="offlineClose">Reprendre la partie</button>
+      </div>
+      <section id="v_dash" class="view">
+        <div class="stats kpi4" id="stats"></div>
+        <div class="card todo" id="todoDash"><h2>Que faire maintenant ?</h2><div id="todoList" class="todolist"></div></div>
+        <div class="card"><h2>Événement en cours</h2><div id="event"></div></div>
+        <details class="card more" id="d_inc" open><summary>Revenus de la session</summary>
+          <div class="dbody"><div id="chart"></div><div class="muted" id="chartNote"></div></div></details>
+        <details class="card more" id="d_bd"><summary>D’où viennent tes revenus</summary>
+          <div class="dbody"><dl id="bilan" class="dl"></dl><h3 class="h3">Répartition par activité</h3><div id="breakdown" class="bd"></div></div></details>
+        <details class="card more" id="d_stats"><summary>Chiffres de la partie</summary><div class="dbody"><dl id="statsList" class="dl"></dl></div></details>
+        <details class="card more" id="d_log"><summary>Événements récents</summary><div class="dbody"><ul id="log" class="log"></ul></div></details>
+      </section>
+      <section id="v_map" class="view" hidden>
+        <div class="mapbar2"><button class="btn todobtn" id="todoBtn" aria-expanded="false" aria-controls="todoMap">Que faire ?<span class="todon" id="todoN"></span></button><div class="mchips" id="mapChips" role="group" aria-label="Aller à un bâtiment"></div>
+          <div class="mctl" role="group" aria-label="Caméra"><button class="btn ghost" id="mZoomOut" aria-label="Dézoomer">−</button><button class="btn ghost" id="mZoomIn" aria-label="Zoomer">+</button><button class="btn ghost" id="mHome">Recentrer</button></div></div>
+        <div class="todomap card" id="todoMap" hidden><div class="todolist" id="todoMapList"></div></div>
+        <div class="mapWrap" id="mapWrap">
+          <canvas id="cityCanvas" tabindex="0" role="application" aria-label="Carte de la ville. Flèches : déplacer. Plus et moins : zoomer. Les boutons au-dessus permettent d’aller à un bâtiment."></canvas>
+          <div class="mevents" id="mEvents" hidden></div>
+          <aside class="mappanel" id="mapPanel" hidden aria-live="polite"></aside>
+          <div class="maphint" aria-hidden="true">Glisse pour te déplacer · molette ou pincement pour zoomer · clique un bâtiment</div>
+        </div>
+      </section>
+      <section id="v_hq" class="view" hidden></section>
+      <section id="v_saga" class="view" hidden></section>
+      <section id="v_shop" class="view" hidden></section>
+      <section id="v_boxes" class="view" hidden></section>
+      <section id="v_radio" class="view" hidden></section>
+      <section id="v_empire" class="view" hidden><div id="acts" class="list"></div></section>
+      <section id="v_terr" class="view" hidden>
+        <div id="cflt" class="card conflict" hidden>
+          <div class="nm">Conflit en cours</div><p class="ds" id="cText"></p>
+          <div class="acts row"><button class="btn" id="bDef"></button><button class="btn" id="bTruce"></button></div>
+        </div>
+        <div class="subtabs" role="tablist" aria-label="Territoires">
+          <button class="stab on" role="tab" data-tt="q" aria-selected="true">Quartiers <i class="stc" id="ttQ"></i></button>
+          <button class="stab" role="tab" data-tt="f" aria-selected="false">Factions <i class="stc" id="ttF"></i></button>
+          <button class="stab" role="tab" data-tt="r" aria-selected="false">Rivalités <i class="stc" id="ttR"></i></button>
+        </div>
+        <div id="tt_q" class="tpane">
+        <div class="terr-grid">
+          <div class="card mapcard">
+            <div class="mh"><h2>Port-Mirage</h2><span class="muted" id="tSum"></span></div>
+            <div id="map"></div>
+            <ul class="legend" aria-label="Légende"><li><i class="lg controlled"></i>Contrôlé</li><li><i class="lg available"></i>Disponible</li><li><i class="lg locked"></i>Hors de portée</li><li><i class="lg contested"></i>Attaqué</li><li><i class="lg pressure"></i>Sous pression</li><li><i class="lg built"></i>Vos bâtiments</li></ul>
+          </div>
+          <div class="card dpanel" id="dpanel"><div id="dEmpty" class="muted">Sélectionne un quartier sur la carte pour voir ses revenus, ses conditions et tes options.</div><div id="dBody" hidden></div></div>
+        </div>
+        </div>
+        <div id="tt_f" class="tpane" hidden><p class="muted">Les quatre factions se partagent la ville. Leur relation avec toi change ce qu’elles font quand tu prends un quartier.</p><div id="factions" class="list"></div></div>
+        <div id="tt_r" class="tpane" hidden><div id="rivals" class="list"></div></div>
+      </section>
+      <section id="v_team" class="view" hidden>
+        <div class="card crewhead"><div class="mh"><h2>Ton équipe</h2><span class="muted" id="cSum"></span></div><p class="muted cintro">Chaque équipier actif coûte un entretien mais renforce ton empire. Les effets s’additionnent avec des rendements décroissants : mieux vaut des profils complémentaires.</p><div id="cEff" class="effs"></div></div>
+        <section id="cFiche" class="card fiche" aria-label="Fiche personnage"></section>
+        <div id="cmp" class="card" hidden><div class="mh"><h2>Comparaison</h2><button class="btn ghost" id="cmpClose">Fermer</button></div><div id="cmpBody"></div></div>
+        <div id="roster" class="roster"></div>
+      </section>
+      <section id="v_arsenal" class="view" hidden></section>
+      <section id="v_ops" class="view" hidden></section>
+      <section id="v_upg" class="view" hidden><div id="upgs" class="list"></div></section>
+      <section id="v_goals" class="view" hidden>
+        <div class="jr" id="jrNowBox"><h2 class="sec jr-h">À faire maintenant <span class="jr-n" id="jrNowN"></span></h2><div id="jrNow" class="jrl"></div></div>
+        <div class="jr" id="jrDoBox"><h2 class="sec jr-h">En cours <span class="jr-n" id="jrDoN"></span></h2><div id="jrDo" class="jrl"></div></div>
+        <h2 class="sec jr-h">Objectifs <span class="jr-n" id="jrGoN"></span></h2>
+        <div class="card"><h2>Déblocages à venir</h2><ul id="unlocks" class="log"></ul></div>
+        <div><h2 class="sec">Court terme</h2><div id="mShort" class="list"></div></div>
+        <div><h2 class="sec">Moyen terme</h2><div id="mMid" class="list"></div></div>
+        <div><h2 class="sec">Long terme</h2><div id="mLong" class="list"></div></div>
+        <div><h2 class="sec">Succès <span class="muted" id="achCount"></span></h2><div id="achs" class="achs"></div></div>
+        <details class="card jrlog" id="jrStory"><summary><h2>Chroniques de l’empire <span class="jr-n" id="jrStoryN"></span></h2></summary><p class="muted">Un chapitre s’écrit chaque fois qu’un bâtiment atteint un nouveau design. Rien à faire : c’est juste ton histoire.</p><ol class="chron" id="jrStoryL"></ol></details>
+        <details class="card jrlog" id="jrLogBox"><summary><h2>Dernières notifications <span class="jr-n" id="jrLogN"></span></h2></summary><p class="muted">Les 30 dernières. Quand plusieurs messages arrivent d’un coup, ils sont regroupés à l’écran, mais rien n’est perdu : tout est ici.</p><ul id="jrLog" class="log"></ul></details>
+      </section>
+      <section id="v_glossary" class="view" hidden><label class="gsearch"><span class="muted">Chercher un mot</span><input type="search" id="gsInput" placeholder="Ex. revenus nets, lingot, palier" autocomplete="off"></label><dl id="gsList" class="gslist"></dl><p class="muted" id="gsEmpty" hidden>Aucun mot ne correspond. Essaie « revenus », « lingot » ou « bâtiment ».</p></section>
+    </main>
+  </div>
+</div>
+<div id="room" class="room" hidden role="dialog" aria-modal="true" aria-label="Intérieur du QG"></div>
+<div id="fade" aria-hidden="true"></div>
+<div id="banner" class="nbn" hidden aria-live="assertive"></div>
+<div id="np" class="np" hidden aria-live="polite"></div>
+<div id="rwheel" class="rwheel" hidden></div>
+<div id="toasts" aria-live="polite"></div>
+<div id="menu" class="menu" hidden></div>
+<div id="sheet" class="modal sheetm" hidden><div class="mbox sheet" id="sheetBox" role="dialog" aria-modal="true"></div></div>
+<div id="modal" class="modal" hidden><div class="mbox" id="mBox" role="dialog" aria-modal="true" aria-labelledby="mTitle"></div></div>
+<script src="js/data.js"></script>
+<script src="js/data-crew.js"></script>
+<script src="js/data-events.js"></script>
+<script src="js/glossary.js"></script>
+<script src="js/tips.js"></script>
+<script src="js/status.js"></script>
+<script src="js/avatars.js"></script>
+<script src="js/radio.js"></script>
+<script src="js/bus.js"></script>
+<script src="js/economy.js"></script>
+<script src="js/gold.js"></script>
+<script src="js/hq.js"></script>
+<script src="js/shop.js"></script>
+<script src="js/territory.js"></script>
+<script src="js/data-equip.js"></script>
+<script src="js/data-equip-art.js"></script>
+<script src="js/data-equip-art2.js"></script>
+<script src="js/data-boxes.js"></script>
+<script src="js/data-walls.js"></script>
+<script src="js/walls-art.js"></script>
+<script src="js/crew.js"></script>
+<script src="js/equip.js"></script>
+<script src="js/boxes.js"></script>
+<script src="js/walls.js"></script>
+<script src="js/factions.js"></script>
+<script src="js/state10.js"></script>
+<script src="js/data-districts.js"></script>
+<script src="js/dbuild.js"></script>
+<script src="js/venues.js"></script>
+<script src="js/dbuild-art.js"></script>
+<script src="js/casino.js"></script>
+<script src="js/data-casino-ev.js"></script>
+<script src="js/casino-ev.js"></script>
+<script src="js/casino-art.js"></script>
+<script src="js/rivals.js"></script>
+<script src="js/heat.js"></script>
+<script src="js/advice.js"></script>
+<script src="js/explain.js"></script>
+<script src="js/data-story.js"></script>
+<script src="js/data-saga.js"></script>
+<script src="js/story.js"></script>
+<script src="js/saga.js"></script>
+<script src="js/data-bonds.js"></script>
+<script src="js/bonds.js"></script>
+<script src="js/data-meta.js"></script>
+<script src="js/meta.js"></script>
+<script src="js/data-heist.js"></script>
+<script src="js/heist.js"></script>
+<script src="js/data-war.js"></script>
+<script src="js/war.js"></script>
+<script src="js/save.js"></script>
+<script src="js/art.js"></script>
+<script src="js/build-art.js"></script>
+<script src="js/city.js"></script>
+<script src="js/atmos.js"></script>
+<script src="js/map-data.js"></script>
+<script src="js/map-render.js"></script>
+<script src="assets/crew/manifest.js"></script>
+<script src="js/portraits.js"></script>
+<script src="js/profile.js"></script>
+<script src="js/notify-core.js"></script>
+<script src="js/notify.js"></script>
+<script src="js/events.js"></script>
+<script src="js/journal.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/territory-ui.js"></script>
+<script src="js/bonds-ui.js"></script>
+<script src="js/crew-ui.js"></script>
+<script src="js/ops-art.js"></script>
+<script src="js/ops-art2.js"></script>
+<script src="js/arsenal-dnd.js"></script>
+<script src="js/ops-scene.js"></script>
+<script src="js/ops-scene-art.js"></script>
+<script src="js/ops-scene-ui.js"></script>
+<script src="js/equip-ui.js"></script>
+<script src="js/room.js"></script>
+<script src="js/hq-ui.js"></script>
+<script src="js/room-ui.js"></script>
+<script src="js/shop-ui.js"></script>
+<script src="js/boxes-ui.js"></script>
+<script src="js/results.js"></script>
+<script src="js/explain-ui.js"></script>
+<script src="js/walls-ui.js"></script>
+<script src="js/radio-ui.js"></script>
+<script src="js/build-menu.js"></script>
+<script src="js/heat-ui.js"></script>
+<script src="js/report.js"></script>
+<script src="js/saga-ui.js"></script>
+<script src="js/war-ui.js"></script>
+<script src="js/meta-ui.js"></script>
+<script src="js/heist-ui.js"></script>
+<script src="js/hq-rooms.js"></script>
+<script src="js/teaser.js"></script>
+<script src="js/event-result.js"></script>
+<script src="js/casino-ui.js"></script>
+<script src="js/map-ui.js"></script>
+<script src="js/system-ui.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/ambience.js"></script>
+<script src="js/tutorial.js"></script>
+<script src="js/assistant.js"></script>
+<script src="js/assistant-ui.js"></script>
+<script src="js/menu-bg.js"></script>
+<script src="js/menu.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
