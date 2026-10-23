@@ -303,7 +303,7 @@
     defend: function () { return decide("defend"); },
     truce: function () { return decide("negotiate"); },
     save: function () { U.toast(doSave(false) ? "Progression sauvegardée." : "Sauvegarde impossible : voir l’alerte en haut de page.", "ok"); },
-    setting: function (k, v) { settings[k] = v; var c = S.sanitizeSettings(settings); Object.keys(c).forEach(function (q) { settings[q] = c[q]; }); SY.applySettings(settings); doSave(false); },
+    setting: function (k, v) { if (k === "lbon" && v === true && !settings.lbname) { if (BL.menu && BL.menu.visible && BL.menu.visible()) BL.menu.openSheet("board"); else if (U.go) U.go("board"); SY.applySettings(settings); return; } settings[k] = v; var c = S.sanitizeSettings(settings); Object.keys(c).forEach(function (q) { settings[q] = c[q]; }); SY.applySettings(settings); doSave(false); },
     exportSave: exportNow,
     importSave: function (text) {
       var r = S.importText(text, Date.now()); if (!r.ok) { SY.msg(r.error); U.toast(r.error, "evt"); return; }

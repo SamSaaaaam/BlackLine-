@@ -13,10 +13,10 @@
   function del(k) { try { var st = store(); if (st) st.removeItem(k); } catch (e) {} }
 
   /* ---------- Paramètres ---------- */
-  function defaultSettings() { return { toasts: true, motion: true, large: false, sound: true, music: 0.6, sfx: 0.7, ambient: true, ambmode: "live", amb: 0.5, fx: "full", numbers: "short", tips: true, name: "", notif: "full", avatar: "fedora", setup: false, radio: "mix", tutorial: "todo", tstep: 0, assistant: "on", wall: "all", boxspeed: "normal", opscene: "ask", exportAt: 0 }; }
+  function defaultSettings() { return { toasts: true, motion: true, large: false, sound: true, music: 0.6, sfx: 0.7, ambient: true, ambmode: "live", lbon: false, lbname: "", amb: 0.5, fx: "full", numbers: "short", tips: true, name: "", notif: "full", avatar: "fedora", setup: false, radio: "mix", tutorial: "todo", tstep: 0, assistant: "on", wall: "all", boxspeed: "normal", opscene: "ask", exportAt: 0 }; }
   function sanitizeSettings(r) {
     var d = defaultSettings(); if (!r || typeof r !== "object") return d;
-    ["toasts", "motion", "large", "sound", "tips", "ambient"].forEach(function (k) { if (typeof r[k] === "boolean") d[k] = r[k]; });
+    ["toasts", "motion", "large", "sound", "tips", "ambient", "lbon"].forEach(function (k) { if (typeof r[k] === "boolean") d[k] = r[k]; });
     ["music", "sfx", "amb"].forEach(function (k) { if (typeof r[k] === "number" && isFinite(r[k])) d[k] = Math.max(0, Math.min(1, r[k])); });
     if (r.fx === "full" || r.fx === "low") d.fx = r.fx; if (r.numbers === "short" || r.numbers === "detailed") d.numbers = r.numbers;
     if (r.notif === "full" || r.notif === "quiet" || r.notif === "off") d.notif = r.notif; if (typeof r.avatar === "string" && BL.avatars && BL.avatars.has(r.avatar)) d.avatar = r.avatar; if (typeof r.setup === "boolean") d.setup = r.setup; if (typeof r.radio === "string" && BL.radio && BL.radio.valid(r.radio)) d.radio = r.radio;
@@ -27,6 +27,8 @@
     if (r.wall === "all" || r.wall === "home" || r.wall === "hq" || r.wall === "off") d.wall = r.wall;
     if (r.assistant === "on" || r.assistant === "quiet" || r.assistant === "off") d.assistant = r.assistant;
     d.exportAt = typeof r.exportAt === "number" && isFinite(r.exportAt) ? Math.max(0, Math.min(8.64e15, Math.floor(r.exportAt))) : 0;   /* Partie 13 : dernier export (rappel régulier) */
+    if (typeof r.lbname === "string") d.lbname = r.lbname.normalize("NFKC").replace(/[^A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF0-9 _-]/g, "").replace(/\s+/g, " ").trim().slice(0, 16);
+    if (d.lbon && !d.lbname) d.lbon = false;   /* classement activé sans pseudo : impossible */
     if (typeof r.name === "string") d.name = r.name.replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 20);
     return d;
   }

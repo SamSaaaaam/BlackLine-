@@ -20,12 +20,12 @@
     box.appendChild(el("p", "mtag", "Bâtis ton empire dans l’ombre de la ville."));
     var nav = el("nav", "mnav"); nav.setAttribute("aria-label", "Menu principal"); box.appendChild(nav);
     function btn(id, label, sub, cls) { var b = el("button", "mbtn " + (cls || ""), "<span>" + label + "</span>" + (sub ? "<small>" + sub + "</small>" : "")); b.id = id; nav.appendChild(b); return b; }
-    btn("mPlay", "JOUER", "", "primary"); btn("mStory", "HISTOIRE", "", "story"); btn("mNew", "NOUVELLE PARTIE", "", "sec"); btn("mProfile", "PROFIL"); btn("mSettings", "PARAMÈTRES"); btn("mQuit", "QUITTER");
+    btn("mPlay", "JOUER", "", "primary"); btn("mStory", "HISTOIRE", "", "story"); btn("mNew", "NOUVELLE PARTIE", "", "sec"); btn("mProfile", "PROFIL"); if (BL.lb && BL.lb.configured() && BL.lbUI) btn("mBoard", "CLASSEMENT"); btn("mSettings", "PARAMÈTRES"); btn("mQuit", "QUITTER");
     var sn = el("button", "msoon", '<span class="sn-b">Bientôt</span><span class="sn-t"><b>Une nouvelle ville arrive</b><small>Nouvelles activités, nouveaux quartiers, personnages iconiques</small></span>'); sn.id = "mSoon"; sn.type = "button"; sn.setAttribute("aria-haspopup", "dialog"); box.appendChild(sn);
     box.appendChild(el("div", "mfoot", '<span id="mHello" class="mhello"></span><span>v' + VERSION + "</span>")); box.appendChild(el("div", "mcredit", "Créé par Samy Snéoual"));
     $("menuCrest").innerHTML = BL.art.crest();
     $("mSoon").onclick = function () { BL.audio.sfx("open"); openSheet("soon"); };
-    $("mPlay").onclick = play; $("mStory").onclick = function () { play(); setTimeout(function () { if (BL.sagaUI) BL.sagaUI.open(); }, 600); }; $("mNew").onclick = function () { h.newGame(); }; $("mProfile").onclick = function () { openSheet("profile"); }; $("mSettings").onclick = function () { openSheet("settings"); }; $("mQuit").onclick = function () { openSheet("quit"); };
+    $("mPlay").onclick = play; $("mStory").onclick = function () { play(); setTimeout(function () { if (BL.sagaUI) BL.sagaUI.open(); }, 600); }; $("mNew").onclick = function () { h.newGame(); }; $("mProfile").onclick = function () { openSheet("profile"); }; if ($("mBoard")) $("mBoard").onclick = function () { BL.audio.sfx("open"); openSheet("board"); }; $("mSettings").onclick = function () { openSheet("settings"); }; $("mQuit").onclick = function () { openSheet("quit"); };
   }
   function refresh() {
     var has = h.hasSave(), s = h.state(), L = E.level(s), nm = h.settings().name;
@@ -46,10 +46,10 @@
   function visible() { return !$("menu").hidden && !$("menu").classList.contains("out"); }
 
   /* ---------- fenêtres : profil, paramètres, quitter ---------- */
-  function closeSheet() { var s = $("sheet"); if (s.hidden || sheetKind === "setup" && !h.settings().setup) return; s.hidden = true; clearInterval(sheetTimer); sheetKind = ""; if (visible()) { var p = $("mPlay"); p && p.focus({ preventScroll: true }); } }
+  function closeSheet() { var s = $("sheet"); if (s.hidden || sheetKind === "setup" && !h.settings().setup) return; if (sheetKind === "board" && BL.lbUI) BL.lbUI.unmount(); s.hidden = true; clearInterval(sheetTimer); sheetKind = ""; if (visible()) { var p = $("mPlay"); p && p.focus({ preventScroll: true }); } }
   function openSheet(kind) {
-    var s = $("sheet"), box = $("sheetBox"); clearInterval(sheetTimer); sheetKind = kind; box.innerHTML = "";
-    var head = el("div", "sh", "<h2></h2>"), x = el("button", "pclose", "&times;"); x.setAttribute("aria-label", "Fermer"); x.onclick = closeSheet; head.querySelector("h2").textContent = { profile: "Profil", settings: "Paramètres", quit: "Quitter et à propos", setup: "Crée ton personnage", soon: "La nouvelle ville" }[kind]; if (kind !== "setup") head.appendChild(x); box.appendChild(head);
+    var s = $("sheet"), box = $("sheetBox"); clearInterval(sheetTimer); if (sheetKind === "board" && kind !== "board" && BL.lbUI) BL.lbUI.unmount(); sheetKind = kind; box.innerHTML = "";
+    var head = el("div", "sh", "<h2></h2>"), x = el("button", "pclose", "&times;"); x.setAttribute("aria-label", "Fermer"); x.onclick = closeSheet; head.querySelector("h2").textContent = { profile: "Profil", settings: "Paramètres", quit: "Quitter et à propos", setup: "Crée ton personnage", soon: "La nouvelle ville", board: "Classement" }[kind]; if (kind !== "setup") head.appendChild(x); box.appendChild(head);
     var body = el("div", "sb"); box.appendChild(body);
     if (kind === "settings") {
       body.appendChild(BL.sysUI.settingsPanel());
@@ -59,6 +59,7 @@
     else if (kind === "profile") profile(body);
     else if (kind === "setup") setup(body);
     else if (kind === "soon") soon(body);
+    else if (kind === "board") BL.lbUI.mount(body);
     else quit(body);
     s.hidden = false; s.onclick = function (e) { if (e.target === s && sheetKind !== "setup") closeSheet(); }; (box.querySelector("input,button.btn,select") || x).focus({ preventScroll: true });
   }
