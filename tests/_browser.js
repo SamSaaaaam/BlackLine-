@@ -47,6 +47,7 @@ let fails = 0, passes = 0;
 function check(cond, msg) { if (cond) { passes++; console.log("  ok  " + msg); } else { fails++; console.log("  ÉCHEC " + msg); } }
 function done(name) { console.log((fails ? "ÉCHEC" : "OK") + " " + name + " : " + passes + " vérifications, " + fails + " échec(s)"); process.exitCode = fails ? 1 : 0; }
 const WIDTHS = [[1366, 768], [390, 844], [320, 568]];
-const SHOTS = path.join(ROOT, "shots");
+/* captures : dans shots/ seulement avec SHOTS=1 (livrables) ; sinon dans un dossier temporaire, pour ne jamais écraser les captures validées */
+const SHOTS = process.env.SHOTS === "1" ? path.join(ROOT, "shots") : path.join(require("os").tmpdir(), "blackline-shots");
 function shotPath(n) { if (!fs.existsSync(SHOTS)) fs.mkdirSync(SHOTS); return path.join(SHOTS, n + ".png"); }
 module.exports = { calm, serve, launch, open, saveEnv, noHScroll, smallText, check, done, WIDTHS, shotPath, ROOT };
