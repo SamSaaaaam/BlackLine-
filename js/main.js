@@ -23,6 +23,8 @@
   function report(o, title) {
     var rows = [["Durée d’absence", SY.dur(o.elapsed) + (o.capped ? " (comptés : " + SY.dur(o.sec) + ")" : "")], ["Rendement hors ligne", Math.round(B.offlineEfficiency * 100) + " % de tes revenus nets, " + SY.dur(B.offlineCapSec) + " au plus"], ["Revenus obtenus", "+" + U.money(o.gain), "pos"]];
     var tot = 0, parts = BL.data.activities.map(function (a) { var v = E.actIncome(state, a); tot += v; return { a: a, v: v }; }).filter(function (x) { return x.v > 0; }).sort(function (x, y) { return y.v - x.v; }).slice(0, 3);
+    if (o.works && o.works.length) rows.push(["Chantiers terminés", o.works.length + " (" + o.works.slice(0, 3).map(function (e) { var a = E.find(BL.data.activities, e.id); return a.name + " niv. " + e.to; }).join(" · ") + (o.works.length > 3 ? "…" : "") + ")", "pos"]);
+    if (BL.works && BL.works.list(state).length) rows.push(["Chantiers en cours", BL.works.active(state).length + " (" + BL.works.waiting(state).length + " en file)"]);
     if (tot > 0 && parts.length) rows.push(["Principaux contributeurs", parts.map(function (x) { return x.a.name + " " + Math.round(x.v / tot * 100) + " %"; }).join(" · ")]);
     var notes = E.offlineNotes(state, o); notes.push("Reste actif : tes gains hors-ligne sont limités (" + Math.round(B.offlineEfficiency * 100) + " %, " + SY.dur(B.offlineCapSec) + " au plus)." + (BL.works ? " Tes chantiers, eux, avancent à 100 % pendant ton absence." : ""));   /* Partie 17 · B */
     SY.bilan({ title: title, rows: rows, notes: notes, acts: BL.ui && BL.ui.welcome ? BL.ui.welcome(state) : [] });
@@ -32,8 +34,9 @@
     if (BL.heat && o.sec > 0) { var h0 = BL.heat.state(state).v; BL.heat.advance(state, o.sec, true); o.heat = { from: h0, to: BL.heat.state(state).v, name: BL.heat.tier(state).name }; }   /* C9 : jamais de descente ni d'amende hors ligne */
     if (BL.rivals && o.sec > 0) o.rivals = BL.rivals.advance(state, o.sec, true);   /* les rivaux avancent pendant l'absence : plafonné, sans attaque automatique */
     if (o.sec > 0 && BL.equip) BL.equip.credit(state, o.sec);        /* le temps d'absence compte pour l'opération en cours et les blessures */
+    if (BL.works) { o.works = BL.works.absence(state, o.elapsed); worksDone(o.works, true); }   /* Partie 17 · D : les chantiers avancent à 100 % pendant l'absence (24 h au plus, rien si l'horloge recule) */
     if (o.gain > 0) E.addLog(state, "Revenus hors ligne : +" + U.money(o.gain) + " (" + SY.dur(o.sec) + ").");
-    if ((o.elapsed >= 60 && o.gain > 0) || (o.elapsed >= 60 && E.offlineNotes(state, o).length)) report(o, title);
+    if ((o.elapsed >= 60 && o.gain > 0) || (o.elapsed >= 60 && E.offlineNotes(state, o).length) || (o.works && o.works.length)) report(o, title);
     doSave(false);                                       /* enregistré tout de suite : un rechargement ne peut pas réclamer deux fois */
   }
   /* Locks anti double clic : après un achat réussi, la même cible est ignorée pendant buyLockMs. */
@@ -46,6 +49,14 @@
     var m = r.type === "won" ? "Attaque repoussée : " + r.district.name + " tient bon face à " + r.faction.name + "." : r.type === "truce" ? "Trêve conclue avec " + r.faction.name + " pour protéger " + r.district.name + "." :
       "Défense perdue : " + r.district.name + (r.dropped ? " perd un niveau de contrôle." : " résiste de justesse.");
     E.addLog(state, m); U.toast(m, r.type === "lost" ? "evt" : "ok"); return true;
+  }
+  /* Partie 17 · D : chantier terminé (inauguration) */
+  function worksDone(list, away) {
+    if (!list.length) return; var acts = BL.data.activities;
+    list.forEach(function (e) { var a = E.find(acts, e.id), m = e.to === 1 ? (e.i ? "Inauguration : nouveau bâtiment " + (e.i + 1) + " de " + a.name + "." : "Inauguration : " + a.name + " ouvre ses portes.") : "Chantier terminé : " + a.name + " · bâtiment " + (e.i + 1) + " au niveau " + e.to + "."; E.addLog(state, m); if (!away) { U.toast(m, "ok"); if (BL.worksUI) BL.worksUI.inaugurate(e); } });
+    if (away) return; var last = list[list.length - 1], la = E.find(acts, last.id), big = list.some(function (e) { return BL.works.duration(e.id, e.i, e.to) >= 120; });
+    if (big && BL.notify) BL.notify.push({ type: "design", key: "works-" + last.id + last.i, title: list.length > 1 ? list.length + " chantiers terminés" : "Chantier terminé", text: la.name + " · bâtiment " + (last.i + 1) + " : niveau " + last.to + ".", target: { type: "lot", act: last.id, id: last.id + "#" + last.i }, mark: { type: "lot", act: last.id, id: last.id + "#" + last.i } });
+    BL.audio.sfx(big ? "inaug" : "success");
   }
   function bondNotice(n) {
     var m = n.id && BL.crew.get(n.id), nm = m ? m.name : "Un équipier", a = n.a && BL.crew.get(n.a), b = n.b && BL.crew.get(n.b), tx, ty = "attack", key = "bond-" + n.type + (n.id || "");
@@ -100,14 +111,27 @@
   }
   BL.city.build(document.getElementById("city"));
   U.init({
+    /* Partie 17 · D : acheter ou améliorer un bâtiment lance un CHANTIER (payé tout de suite, niveau appliqué à la fin) */
     buyActivity: function (id, idx) {
-      idx = idx || 0; if (locked("a" + id + "_" + idx)) return false;
-      var ok = E.buyActivity(state, id, idx); if (ok) { arm("a" + id + "_" + idx); var lv = E.bLevel(state, id, idx); BL.audio.sfx(lv === 1 ? "buy" : "upgrade"); U.toast(lv === 1 ? "Construit : " + E.find(BL.data.activities, id).name + "." : E.find(BL.data.activities, id).name + " · bâtiment " + (idx + 1) + " : niveau " + lv + ".", "ok"); } return ok;
+      idx = idx || 0; if (locked("a" + id + "_" + idx)) return false; var W = BL.works, a = E.find(BL.data.activities, id), ck = W.canOrder(state, id, idx);
+      if (!ck.ok) { if (ck.why === "full") U.toast("File de chantiers pleine : attends qu’un ouvrier se libère.", "warn"); else if (ck.why === "busy") U.toast("Ce bâtiment est déjà en chantier.", "warn"); return false; }
+      var e = W.order(state, id, idx); if (!e) return false; arm("a" + id + "_" + idx); BL.audio.sfx(e.to === 1 ? "buy" : "upgrade");
+      var m = (e.to === 1 ? "Chantier lancé : " + a.name : a.name + " · bâtiment " + (idx + 1) + " : chantier vers le niveau " + e.to) + (e.at === null ? " (en file d’attente)" : " · " + SY.dur(e.dur)) + ".";
+      U.toast(m, "ok"); if (e.dur >= 60) E.addLog(state, m); doSave(false); return true;
     },
     buyBuilding: function (id) {
-      if (locked("b" + id)) return false; var a = E.find(BL.data.activities, id), nb = E.nextBuilding(state, a), c = nb ? nb.cost : 0;
-      if (!E.buyBuilding(state, id)) { BL.audio.sfx("error"); return false; } arm("b" + id); BL.audio.sfx("buy");
-      var m = "Nouveau bâtiment : " + a.name + " (" + E.buildings(state, id) + " / " + BL.mapData.LOTS.perActivity + ", niveau 1, −" + U.money(c) + ")."; E.addLog(state, m); U.toast(m, "ok"); doSave(false); return true;
+      if (locked("b" + id)) return false; var a = E.find(BL.data.activities, id), ck = BL.works.canBuilding(state, id);
+      if (!ck.ok) { BL.audio.sfx("error"); if (ck.why === "full") U.toast("File de chantiers pleine : attends qu’un ouvrier se libère.", "warn"); return false; }
+      var e = BL.works.orderBuilding(state, id); if (!e) { BL.audio.sfx("error"); return false; } arm("b" + id); BL.audio.sfx("buy");
+      var m = "Chantier lancé : nouveau bâtiment " + a.name + " (" + (e.i + 1) + " / " + BL.mapData.LOTS.perActivity + ", −" + U.money(ck.cost) + ", " + (e.at === null ? "en file d’attente" : SY.dur(e.dur)) + ")."; E.addLog(state, m); U.toast(m, "ok"); doSave(false); return true;
+    },
+    worksBribe: function (id, i) {
+      if (locked("wb" + id + i)) return null; var r = BL.works.bribe(state, id, i); if (!r) { BL.audio.sfx("error"); return null; } arm("wb" + id + i); BL.audio.sfx("buy");
+      var m = "Pot-de-vin versé (−" + U.money(r.cost) + ") : le chantier gagne " + SY.dur(r.cut) + "."; E.addLog(state, m); U.toast(m, "ok"); doSave(false); return r;
+    },
+    worksForeman: function (id, i, score) {
+      var r = BL.works.foreman(state, id, i, score); if (!r) return null; BL.audio.sfx("success");
+      var m = "Contremaître : −" + Math.round(r.pct * 100) + " % sur le chantier (" + SY.dur(r.cut) + " gagnées)."; E.addLog(state, m); U.toast(m, "ok"); doSave(false); return r;
     },
     casinoSaved: function () { doSave(true); },
     heatBribe: function () { var r = BL.heat.bribe(state); if (!r) return false; E.addLog(state, "Un inspecteur a perdu un dossier (−" + U.money(r.cost) + ") : chaleur " + Math.round(r.v) + "."); doSave(true); return true; },
@@ -329,6 +353,7 @@
   var emp = document.querySelector(".bar .emp"); emp.setAttribute("role", "button"); emp.tabIndex = 0; emp.title = "Ouvrir le profil"; emp.style.cursor = "pointer";
   emp.onclick = function () { BL.menu.openSheet("profile"); }; emp.onkeydown = function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); BL.menu.openSheet("profile"); } };
   BL.explainUI.init({ state: function () { return state; }, money: U.money });
+  if (BL.worksUI) { BL.worksUI.init(U.handlers, U); BL.worksUI.update(state); }   /* Partie 17 · D */
   BL.results.init({ state: function () { return state; }, go: U.go, money: U.money, save: function () { doSave(false); } });
   BL.bus.on("ops", function () { BL.equipUI.render(); U.invalidate(); });
   BL.bus.on("hurt", function () { BL.equipUI.render(); });
@@ -363,6 +388,7 @@
     else if (gap < 0) gap = 0;                                                                                  /* horloge reculée : rien */
     var dt = gap;
     E.tick(state, dt);
+    if (BL.works) worksDone(BL.works.advance(state, dt), false);
     E.checkAch(state).forEach(function (a) { var m = "Succès débloqué : " + a.name + " (+1 réputation)."; E.addLog(state, m); U.toast(m, "ok"); });
     var ev = E.updateEvents(state, Math.random); if (ev) { var et = E.fText(ev.title, state.pendingFac, state.pendingCrew); E.addLog(state, "Nouvel événement : " + et + "."); BL.notify.push({ type: "event", key: "evt", title: "Nouvel événement", text: et + ".", target: { view: "dash" }, mark: { type: "hq" } }); }
     T.step(state, Math.random).forEach(notice);
@@ -388,7 +414,7 @@
     finishOps();
     BL.watch.scan(state).forEach(function (d) { BL.bus.emit(d, state); });
     if (BL.saga && !(BL.notify.current && BL.notify.current())) { var pc_ = BL.saga.pending(state); if (pc_ && !sagaDue) { sagaDue = Date.now() + 2500; pc_ = null; } else if (pc_ && Date.now() < sagaDue) pc_ = null; else if (!pc_) sagaDue = 0;   /* l'annonce d'un chapitre attend qu'aucune autre bannière (promotion, alerte) ne soit à l'écran */ if (pc_) { BL.saga.markSeen(state, pc_.id); BL.notify.push({ type: "saga", key: "saga-" + pc_.id, title: "Histoire : " + pc_.title, text: "Un nouveau chapitre de ta trame est ouvert.", target: { saga: 1 }, mark: null }); } }
-    if (!BL.press.active() && (t - uiAt >= 200 || gap > 5 || (U.dirty && U.dirty()))) { uiAt = t; [function () { U.update(state); }, function () { BL.results.tick(state); }, function () { BL.audio.setIntensity(E.level(state) / B.maxEmpireLevel); }, function () { BL.assistantUI.tick(state); }].forEach(function (f) { try { f(); } catch (e) { if (!uiFail) { uiFail = 1; try { console.error("[BLACKLINE] erreur d'interface (le jeu continue) :", e); } catch (x) {} } } }); }   /* C11 : l'économie avance toutes les 100 ms, mais l'interface ne se redessine que 5 fois par seconde */
+    if (!BL.press.active() && (t - uiAt >= 200 || gap > 5 || (U.dirty && U.dirty()))) { uiAt = t; [function () { U.update(state); }, function () { if (BL.worksUI) BL.worksUI.update(state); }, function () { BL.results.tick(state); }, function () { BL.audio.setIntensity(E.level(state) / B.maxEmpireLevel); }, function () { BL.assistantUI.tick(state); }].forEach(function (f) { try { f(); } catch (e) { if (!uiFail) { uiFail = 1; try { console.error("[BLACKLINE] erreur d'interface (le jeu continue) :", e); } catch (x) {} } } }); }   /* C11 : l'économie avance toutes les 100 ms, mais l'interface ne se redessine que 5 fois par seconde */
   }
   /* Opération terminée : résolue ici, une seule fois, et sauvegardée tout de suite (un rechargement ne la rejoue pas). */
   function finishOps() {

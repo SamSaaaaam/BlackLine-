@@ -200,6 +200,7 @@
     shot: [0, 120, 0.9], hit: [0, 110, 0.3], step: [0, 150, 0.1], ricochet: [0, 140, 0.25], metal: [0, 130, 0.5], glass: [0, 160, 0.5], siren: [1, 2500, 1.6], engine: [0, 900, 1.3], alarm: [1, 2500, 1.1], lock: [0, 300, 0.5], tire: [0, 400, 0.5], hover: [0, 90, 0.1], click: [0, 55, 0.15], select: [0, 70, 0.15], place: [0, 120, 0.2], open: [0, 140, 0.5], tune: [0, 300, 0.45], error: [0, 160, 0.3],
     buy: [1, 110, 0.5], upgrade: [1, 90, 0.4], gold: [1, 140, 0.6], success: [1, 140, 0.6], claim: [1, 200, 0.6], expire: [1, 400, 0.7], boost: [1, 400, 0.7],
     chip: [0, 50, 0.15], chips: [1, 200, 0.5], cardDeal: [0, 60, 0.25], cardFlip: [0, 60, 0.15], shuffle: [1, 500, 1.1], coin: [0, 30, 0.3], loseCasino: [1, 400, 0.8], bust: [1, 400, 0.6], winSmall: [1, 300, 1.0], winMed: [1, 300, 1.6], winBig: [2, 800, 2.6], jackpot: [2, 1500, 4.6], bjwin: [1, 400, 1.5],
+    build: [0, 1800, 0.9], inaug: [2, 1200, 1.6],   /* Partie 17 · D : bruit de chantier (synthèse locale) et inauguration */
     unlock: [2, 700, 1.1], saga: [2, 800, 1.3], promo: [2, 1200, 1.6], levelup: [2, 900, 1.0], design: [2, 900, 1.0], loot: [2, 600, 1.0], vault: [2, 900, 1.0], event: [2, 700, 0.8], alert: [2, 1500, 0.9], heat1: [2, 1500, 1.2], heat2: [2, 1800, 1.6], heat3: [2, 2400, 2.3]
   };
   var MAXV = [4, 5, 7], WIN = 1000, WINMAX = [6, 10, 12], MAJOR_GAP = 350, SOFT_GAP = 30;
@@ -280,6 +281,14 @@
     else if (name === "bust") { osc("sawtooth", 120, t, 0.26, d, 0.12, 0.004, 500, 0); osc("square", 90, t + 0.12, 0.3, d, 0.09, 0.004, 400, 0); noise(t, 0.15, "lowpass", 400, 0.16, d); }
     else if (name === "winSmall" || name === "winMed" || name === "winBig" || name === "jackpot" || name === "bjwin") winSound(name, t, d);
     else if (name === "saga") { [57, 62, 66, 69].forEach(function (m, i) { osc("triangle", hz(m), t + i * 0.16, 0.7, d, 0.12, 0.01, 3200, 0.45); }); osc("sine", hz(45), t, 1.2, d, 0.08, 0.01, 800, 0.2); }
+    else if (name === "build") {   /* chantier : deux coups de marteau sur du métal, un grincement de grue, un peu de poussière (bruit filtré) */
+      [0, 0.32].forEach(function (dl, k) { noise(t + dl, 0.05, "bandpass", 2400 + k * 500, 0.16, d, 3); osc("triangle", 820 + k * 140, t + dl, 0.18, d, 0.05, 0.001, 4000, 0.1); osc("sine", 180, t + dl, 0.08, d, 0.08, 0.002, 600, 0); });
+      var g = ctx.createOscillator(), gg = ctx.createGain(); g.type = "sawtooth"; g.frequency.setValueAtTime(260, t + 0.55); g.frequency.linearRampToValueAtTime(310, t + 0.85); gg.gain.setValueAtTime(0.0001, t + 0.55); gg.gain.exponentialRampToValueAtTime(0.012, t + 0.6); gg.gain.exponentialRampToValueAtTime(0.0001, t + 0.88); g.connect(gg); gg.connect(d); g.start(t + 0.55); g.stop(t + 0.9);
+      noise(t + 0.1, 0.6, "lowpass", 700, 0.03, d);
+    }
+    else if (name === "inaug") {   /* inauguration : ruban coupé (petit bruit sec) puis fanfare de cloches */
+      noise(t, 0.04, "highpass", 4200, 0.12, d); [67, 72, 76, 79].forEach(function (m, i) { bell(m, t + 0.12 + i * 0.11, 0.9, 0.09, d); }); osc("sine", hz(84), t + 0.6, 0.7, d, 0.05, 0.004, 7000, 0.5);
+    }
     else if (name === "unlock") { [60, 67, 72].forEach(function (m, i) { osc("triangle", hz(m), t + i * 0.1, 0.45, d, 0.14, 0.006, 4200, 0.35); }); osc("sine", hz(84), t + 0.3, 0.6, d, 0.07, 0.004, 7000, 0.5); noise(t, 0.1, "highpass", 5000, 0.05, d); }
     else if (name === "promo") { [[60, 0], [64, 0], [67, 0], [72, 0.22], [76, 0.22], [79, 0.22], [84, 0.5]].forEach(function (n) { osc("sawtooth", hz(n[0]), t + n[1], n[1] === 0.5 ? 1 : 0.34, d, 0.075, 0.01, 3200, 0.35); }); osc("sine", hz(84), t + 0.5, 1.1, d, 0.1, 0.01, 6000, 0.6); noise(t + 0.5, 0.5, "highpass", 5500, 0.05, d, 0.6); }
     else if (name === "levelup") { [67, 71, 74, 79, 83].forEach(function (m, i) { osc("triangle", hz(m), t + i * 0.075, 0.3, d, 0.17, 0.004, 5000, 0.3); }); osc("sine", hz(95), t + 0.38, 0.5, d, 0.06, 0.004, 8000, 0.5); }

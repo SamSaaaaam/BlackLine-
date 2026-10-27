@@ -21,6 +21,7 @@
     if (BL.saga) BL.saga.initState(s);
     if (BL.war) BL.war.initState(s);
     if (BL.meta) BL.meta.initState(s);
+    if (BL.works) BL.works.initState(s);   /* Partie 17 · D : chantiers */
     return s;
   }
   function count(o) { var n = 0; for (var k in o) n += typeof o[k] === "number" ? o[k] : (o[k] ? 1 : 0); return n; }

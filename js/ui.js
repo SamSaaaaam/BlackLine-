@@ -114,6 +114,9 @@
       var d = gb.querySelector(".gdot"); if (on && !d) { d = document.createElement("i"); d.className = "gdot"; d.setAttribute("aria-label", "Nouveauté"); gb.appendChild(d); } else if (!on && d) gb.removeChild(d);
     });
   }
+  /* Partie 17 · D : texte « en chantier » d'un bâtiment (ou null), et bouton bloqué si chantier ou file pleine */
+  function wkS(s, id, i) { var x = BL.worksUI && BL.worksUI.lotState(s, id, i); return x ? x.label : null; }
+  function wkB(s, id, i) { return !!(BL.works && (BL.works.busyLot(s, id, i) || BL.works.full(s))); }
   function init(handlers) {
     D = BL.data; E = BL.economy; B = D.balance; h = handlers; BL.ui.handlers = handlers;
     GROUPS.forEach(function (g) {
@@ -262,10 +265,10 @@
       u.rows.forEach(function (R, i) {
         var built = i < cnt, isNext = i === cnt && cnt >= 1, show = i > 0 && (built || isNext); R.r.hidden = !show; if (!show) return;
         if (built) { var L = lvs[i], mxb = L >= a.maxLevel, cc = E.cost(a, L, s, i); set(R.nm, "Bâtiment " + (i + 1)); set(R.lv, "niv. " + L + " / " + a.maxLevel); set(R.inc, money(E.bldIncome(s, a, i, L) * bm) + "/s");
-          set(R.b, mxb ? "Maximal" : "Améliorer · " + money(cc)); R.b.disabled = !ok || mxb || s.money + 1e-9 < cc; R.r.classList.toggle("best", i === bestI && !mxb); }
-        else { set(R.nm, "Bâtiment " + (i + 1)); set(R.lv, nb && nb.ok ? "à construire" : "verrouillé"); set(R.inc, nb && nb.ok ? "part " + Math.round(E.BLD_W[i] * 100) + " %" : "meilleur bât. niv. " + (nb ? nb.need : "—"));
-          set(R.b, nb && nb.ok ? "Construire · " + money(nb.cost) : "Niv. " + (nb ? nb.need : "—") + " requis"); R.b.disabled = !(nb && nb.ok) || s.money + 1e-9 < nb.cost; R.r.classList.remove("best"); }
-        R.b.classList.toggle("can", !R.b.disabled);
+          set(R.b, wkS(s, a.id, i) || (mxb ? "Maximal" : "Améliorer · " + money(cc))); R.b.disabled = !ok || mxb || s.money + 1e-9 < cc || wkB(s, a.id, i); R.r.classList.toggle("best", i === bestI && !mxb); }
+        else { set(R.nm, "Bâtiment " + (i + 1)); set(R.lv, wkS(s, a.id, i) ? "nouveau bâtiment" : nb && nb.ok ? "à construire" : "verrouillé"); set(R.inc, nb && nb.ok ? "part " + Math.round(E.BLD_W[i] * 100) + " %" : "meilleur bât. niv. " + (nb ? nb.need : "—"));
+          set(R.b, wkS(s, a.id, i) || (nb && nb.ok ? "Construire · " + money(nb.cost) : "Niv. " + (nb ? nb.need : "—") + " requis")); R.b.disabled = !(nb && nb.ok) || s.money + 1e-9 < nb.cost || wkB(s, a.id, i); R.r.classList.remove("best"); }
+        R.r.classList.toggle("wbusy", !!wkS(s, a.id, i)); R.b.classList.toggle("can", !R.b.disabled);
       });
       if (!ok) { set(u.et, "Requiert le meilleur bâtiment de " + actName(a.unlock.id) + " au niveau " + a.unlock.lvl); BL.bar(u.eb, Math.min(100, (s.owned[a.unlock.id] || 0) / a.unlock.lvl * 100)); }
       else if (nx) { set(u.et, "Prochain palier : niveau " + nx.lvl + " (revenus ×" + num(nx.mult) + ")"); BL.bar(u.eb, Math.min(100, n / nx.lvl * 100)); }
@@ -273,8 +276,8 @@
       if (BL.buildArt) { var dt0 = E.designTier(n0), dn = E.nextDesign(n0), dtn = dn ? E.designTier(dn) : -1, dsg = dt0 + "/" + dtn + "/" + (dn || 0); if (u.dsg.dataset.sg !== dsg) { u.dsg.dataset.sg = dsg; u.dsg.innerHTML = '<figure class="dsg-c">' + BL.buildArt.svg(a.id, dt0) + "<figcaption>Design actuel<b>" + E.DESIGN_NAMES[dt0] + "</b></figcaption></figure>" + (dn ? '<figure class="dsg-n">' + BL.buildArt.svg(a.id, dtn) + "<figcaption>Au niveau " + dn + "<b>" + E.DESIGN_NAMES[dtn] + "</b></figcaption></figure>" : '<p class="dsg-m">Design maximal atteint.</p>'); } }
       var up = null; D.upgrades.some(function (g) { if (!s.upg[g.id] && g.fx.inc && g.fx.inc[a.id]) { up = g; return true; } });
       set(u.et2, up ? "Bonus permanent lié : " + up.name + (E.unlocked(s, up) ? " (disponible)" : " (niveau " + up.req[a.id] + ")") : "Bonus permanents liés : tous acquis");
-      var mx0 = n0 >= a.maxLevel, txt = !ok ? "Verrouillé" : mx0 ? "Niveau maximal" : (cnt > 1 ? "Améliorer le bâtiment 1 · " : "Améliorer · ") + money(c);
-      set(u.b, txt); u.b.disabled = !ok || mx0 || s.money + 1e-9 < c; u.b.classList.toggle("can", !u.b.disabled);
+      var mx0 = n0 >= a.maxLevel, txt = wkS(s, a.id, 0) || (!ok ? "Verrouillé" : mx0 ? "Niveau maximal" : (cnt > 1 ? "Améliorer le bâtiment 1 · " : cnt ? "Améliorer · " : "Construire · ") + money(c));
+      set(u.b, txt); u.b.disabled = !ok || mx0 || s.money + 1e-9 < c || wkB(s, a.id, 0); u.b.classList.toggle("can", !u.b.disabled); u.c.classList.toggle("wbusy", !!wkS(s, a.id, 0));
       set(ui.bd[a.id].v, money(v) + "/s"); BL.bar(ui.bd[a.id].bar, (tot ? Math.min(100, v / tot * 100) : 0));
     });
     if (ui.aun) D.activities.forEach(function (a) { if (aun[a.id] && !ui.aun[a.id]) { var um = "Nouvelle activité débloquée : " + a.name + "."; E.addLog(s, um); BL.notify.push({ type: "unlock", key: "unl" + a.id, once: "unl:" + a.id, title: a.name, text: "Nouvelle activité : tu peux construire ton premier bâtiment.", art: BL.buildArt ? BL.buildArt.svg(a.id, 0) : "", target: { type: "lot", act: a.id, id: a.id + "#0" }, mark: { type: "lot", act: a.id, id: a.id + "#0" } }); } });

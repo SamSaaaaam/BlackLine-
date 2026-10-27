@@ -1710,3 +1710,45 @@ body.nomotion .mlb-row.sk i,body.lowfx .mlb-row.sk i{animation:none}@media(prefe
 @media (max-width:700px){.fx{grid-template-columns:minmax(0,1fr)}.fxartw .fxart,.fxartw .fxart.hasfull{aspect-ratio:4/5;max-height:62vh;width:100%}.fxartw::after{background:linear-gradient(0deg,rgba(8,9,15,.9),transparent 35%)}.fxname{font-size:clamp(26px,8vw,34px)}.fxcrown{width:30px;height:30px}}
 .fxartw{align-self:start}
 @media (min-width:701px){.fxartw{position:sticky;top:72px}}
+
+/* ===== Partie 17 · D : chantiers ===== */
+.wk{margin-bottom:14px}
+.wk-h{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;justify-content:space-between}.wk-h h2{margin:0}
+.wk-w{font:600 13px var(--font-display);color:var(--gold)}
+.wk-hint{margin:6px 0 8px;font-size:13px}
+.wk-l{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.wk-r{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:rgba(240,194,74,.05)}
+.wk-r.wait{opacity:.8;background:rgba(255,255,255,.02)}
+.wk-b{display:grid;gap:4px;min-width:0}.wk-b b{font:600 14px var(--font-display);overflow-wrap:anywhere}.wk-b small{font-size:12px;color:var(--mut)}
+.wk-b .meter{display:block;height:6px;border-radius:3px;background:#232a35;overflow:hidden}.wk-b .meter i{display:block;height:100%;transform-origin:left;background:linear-gradient(90deg,#d9a441,#f0c24a)}
+.wk-ra{display:flex;flex-direction:column;gap:6px}.wk-ra .btn{min-height:40px;font-size:13px;white-space:nowrap}
+.wk-acts{margin-top:10px}.wk-acts .btn{width:100%;min-height:44px}
+.wart{display:block;width:64px;height:48px;overflow:visible}.wart.sm{width:64px;height:48px}
+.wdock{margin:8px 0 0}.wkd>summary{list-style:none;cursor:pointer;display:flex;gap:10px;align-items:center;min-height:40px;padding:6px 12px;border:1px solid var(--line);border-radius:10px;background:rgba(16,18,22,.9);font:600 13px var(--font-display)}
+.wkd>summary::-webkit-details-marker{display:none}.wkd.on>summary{border-color:#d9a441}.wk-sumt::before{content:"▸ ";color:var(--gold)}.wkd[open] .wk-sumt::before{content:"▾ "}.wk-sumv{color:var(--mut);font-weight:500}
+.wkd .wk{margin:8px 0 0}
+.card.act.wbusy .banner{box-shadow:inset 0 -3px 0 #f0c24a}.brow.wbusy .bbtn{border-style:dashed}
+/* panneau du bâtiment sur la carte */
+.pwk{margin:6px 0}.wlot{display:grid;grid-template-columns:64px minmax(0,1fr);gap:10px;align-items:center;padding:8px;border:1px dashed #d9a441;border-radius:10px;background:rgba(240,194,74,.06)}
+.wlot-a{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.wlot-a .btn{flex:1 1 140px;min-height:40px;font-size:13px}
+/* échafaudages sur la carte */
+.wover{position:absolute;inset:0;pointer-events:none;z-index:3;overflow:hidden}
+.wsite{position:absolute;left:0;top:0;width:96px;transform-origin:50% 100%;will-change:transform}.wsite .wart{width:96px;height:72px}
+.wsite-t{display:flex;flex-direction:column;align-items:center;gap:2px;margin-top:-4px}.wsite-t .meter{display:block;width:70px;height:6px;border-radius:3px;background:rgba(10,12,16,.85);border:1px solid #d9a441;overflow:hidden}.wsite-t .meter i{display:block;height:100%;transform-origin:left;background:#f0c24a}
+.wsite-t b{font:700 12px var(--font-display);color:#fff4d0;background:rgba(10,12,16,.85);padding:1px 6px;border-radius:6px;white-space:nowrap}
+.wsite.wait .wart{opacity:.55;filter:grayscale(.6)}
+.w-crane{transform-origin:96px 14px;animation:wCrane 5s ease-in-out infinite}.w-hook{animation:wHook 2.6s ease-in-out infinite}
+.w-truck{animation:wTruck 6s ease-in-out infinite}.w-man{animation:wMan .9s ease-in-out infinite}.w-man.b{animation-delay:.45s}
+.w-spark{animation:wSpark .7s steps(2,end) infinite}.w-dust circle{transform-box:fill-box;transform-origin:center;animation:wDust 2.4s ease-out infinite}.w-dust circle+circle{animation-delay:1.2s}
+@keyframes wCrane{0%,100%{transform:rotate(0)}50%{transform:rotate(-4deg)}}@keyframes wHook{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+@keyframes wTruck{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}@keyframes wMan{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.2px)}}
+@keyframes wSpark{0%{opacity:1}100%{opacity:0}}@keyframes wDust{0%{transform:scale(.6);opacity:.5}100%{transform:scale(1.8);opacity:0}}
+/* inauguration */
+.winaug{position:absolute;left:0;top:0;display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:none;animation:wIn 2.6s ease-out forwards}
+.winaug svg{width:110px;height:55px}.winaug b{font:800 13px var(--font-display);letter-spacing:.12em;text-transform:uppercase;color:#fff3c4;text-shadow:0 0 10px #f0c24a,0 1px 3px #000}
+.winaug .wa-l{position:absolute;left:50%;top:50%;width:160px;height:160px;margin:-80px 0 0 -80px;border-radius:50%;background:radial-gradient(circle,rgba(255,236,170,.75),rgba(255,236,170,0) 65%);animation:wGlow 2.6s ease-out forwards}
+.winaug.still,.winaug.still .wa-l{animation:none}
+@keyframes wIn{0%{opacity:0;transform:var(--t,none) scale(.6)}15%{opacity:1}80%{opacity:1}100%{opacity:0}}@keyframes wGlow{0%{transform:scale(.3);opacity:0}25%{opacity:1}100%{transform:scale(1.4);opacity:0}}
+body.nomotion .wart *,body.lowfx .wart *,body.nomotion .winaug,body.nomotion .winaug .wa-l{animation:none!important}
+@media(prefers-reduced-motion:reduce){.wart *,.winaug,.winaug .wa-l{animation:none!important}}
+@media(max-width:600px){.wk-r{grid-template-columns:48px minmax(0,1fr);}.wk-r .wart{width:48px;height:36px}.wk-ra{grid-column:1/-1;flex-direction:row;flex-wrap:wrap}.wk-ra .btn{flex:1 1 120px;white-space:normal}.wlot{grid-template-columns:48px minmax(0,1fr)}.wlot .wart{width:48px;height:36px}}

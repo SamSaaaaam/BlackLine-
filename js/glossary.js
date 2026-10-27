@@ -37,7 +37,7 @@
     ["mission", "Objectif et mission", "Un but précis avec une récompense (argent, réputation ou influence). Quand la barre est pleine, tu réclames la récompense.", ["Objectif actuel", "Missions réclamées"]],
     ["permanent", "Bonus permanent", "Un achat unique en argent qui améliore durablement tes revenus ou réduit tes coûts. Il se débloque quand le meilleur bâtiment d’une activité atteint un niveau.", ["Bonus permanents", "Bonus permanents acquis", "Améliorations acquises"]],
     ["crew", "Équipier", "Un personnage que tu recrutes. Les équipiers actifs (nombre de places limité) donnent des bonus de revenus, de défense ou d’influence, et gagnent de l’expérience.", ["Équipe", "Équipe active / recrutée"]],
-    ["offline", "Revenus hors ligne", "Quand tu quittes le jeu, ton empire continue de rapporter, mais moins vite et pendant une durée limitée. Le bilan s’affiche à ton retour.", ["Rendement hors ligne"]],
+    ["offline", "Revenus hors ligne", "Quand tu quittes le jeu, ton empire continue de rapporter, mais beaucoup moins vite (20 % de tes revenus nets) et 4 h au plus. Tes chantiers, eux, avancent normalement. Le bilan s’affiche à ton retour.", ["Rendement hors ligne"]],
     ["progress", "Progression globale", "La moyenne de cinq avancements : niveau d’empire, missions réclamées, succès, bonus permanents acquis et quartiers contrôlés.", ["Progression globale", "Progression"]],
     ["total", "Total gagné", "Tout l’argent gagné depuis le début de la partie (sans soustraire tes dépenses). C’est ce total qui fait monter ton niveau d’empire.", ["Total gagné", "Total encaissé"]]
   ];

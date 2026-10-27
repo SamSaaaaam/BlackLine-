@@ -1,8 +1,8 @@
 /* Audit d'économie (Partie 17). Usage : AUDIT=1 node tests/simulate.js   (sans AUDIT : contrôles rapides, code de sortie ≠ 0 si un objectif n'est pas tenu)
-   Options : SIM_H=48 (heures simulées), PARAMS=old (anciens réglages hors-ligne 50 % / 8 h), WORKS=0 (sans chantiers : achats instantanés, comme avant la Partie 17).
+   Options : SIM_H=24 (heures simulées), PARAMS=old (anciens réglages hors-ligne 50 % / 8 h), WORKS=0 (sans chantiers : achats instantanés, comme avant la Partie 17).
    Joueur simulé : tests/_bot.js (cœur de l'économie seulement : voir ses limites en tête du fichier). */
 const { load } = require("./_load"), { makeBot } = require("./_bot");
-const AUDIT = !!process.env.AUDIT, H = +(process.env.SIM_H || 48), OLD = { eff: 0.5, cap: 8 * 3600 };
+const AUDIT = !!process.env.AUDIT, H = +(process.env.SIM_H || 24), OLD = { eff: 0.5, cap: 8 * 3600 };
 function fresh(opts) { const env = load(); const BL = env.BL; if (opts && opts.noWorks) BL.works = null; return BL; }
 function clone(BL, s) { return BL.economy && JSON.parse(JSON.stringify(s)); }
 function fmt(n) { if (!isFinite(n)) return String(n); const a = Math.abs(n); if (a >= 1e12) return (n / 1e12).toFixed(2) + " T"; if (a >= 1e9) return (n / 1e9).toFixed(2) + " Md"; if (a >= 1e6) return (n / 1e6).toFixed(2) + " M"; if (a >= 1e3) return (n / 1e3).toFixed(1) + " k"; return n.toFixed(a < 10 ? 2 : 0); }
@@ -48,7 +48,7 @@ if (AUDIT) {
   console.log("\n## Absence : gain hors-ligne / gain en jeu actif pendant la même durée (même stade)\n");
   console.log("| Stade | Absence | Jeu actif | Hors-ligne avant (50 % / 8 h) | ratio | Hors-ligne après (" + pct(B.offlineEfficiency) + " / " + hm(B.offlineCapSec) + ") | ratio |\n|---|---|---|---|---|---|---|");
 }
-const stages = [[300, "début (5 min)"], [3600, "≈ 1 h"], [10 * 3600, "≈ 10 h"], [Math.min(H, 48) * 3600, "fin (" + Math.min(H, 48) + " h)"]];
+const stages = [[300, "début (5 min)"], [3600, "≈ 1 h"], [10 * 3600, "≈ 10 h"], [Math.min(H, 48) * 3600, "fin (" + Math.min(H, 48) + " h)"]].filter(x => base.snaps[x[0]]);
 const goals = [];
 stages.forEach(([st, name]) => [300, 3600, 8 * 3600].forEach(aw => {
   const a = offlineVsActive(base, st, aw, "old"), b = offlineVsActive(base, st, aw, "new"); if (!a) return;
@@ -66,6 +66,41 @@ if (AUDIT) {
 /* paliers en jeu actif (pour l'objectif « pas plus de +15 % ») */
 const ms = ["backroom@10", "backroom@25", "backroom@50", "freight@10", "freight@25", "fence@10", "fence@25", "estate@10", "holding@10"];
 if (AUDIT) { console.log("\n## Paliers en jeu actif (premier bâtiment de chaque activité)\n\n| Palier | Atteint à |\n|---|---|"); ms.forEach(k => console.log("| " + k.replace("@", " niveau ") + " | " + hm(base.bot.stats.firstAt[k]) + " |")); }
+/* ===== Partie 17 · D : chantiers ===== */
+function cumul(BL, id, upTo, mode) {   /* temps de chantier cumulé (bâtiment principal) pour aller du niveau 0 au niveau upTo */
+  const W = BL.works, F = W.P.foreman, Bb = W.P.bribe; let t = 0;
+  for (let L = 1; L <= upTo; L++) {
+    let rem = W.duration(id, 0, L), tt = 0, b = 0;
+    if (mode === "bribe") while (b < Bb.per) { const floor = Math.max(Bb.minLeft, W.duration(id, 0, L) * Bb.minFrac), cut = Math.min(rem * Bb.cut, rem - floor); if (cut < 1) break; rem -= cut; b++; }
+    if (mode === "foreman" || mode === "bribe") { while (rem > F.cd) { tt += F.cd; rem -= F.cd; rem *= 1 - W.foremanPct(0.5); } }
+    t += tt + rem;
+  }
+  return t;
+}
+if (AUDIT && base.BL.works) {
+  const BL = base.BL, W = BL.works, acts = BL.data.activities.map(a => a.id);
+  console.log("\n# Chantiers (Partie 17 · D)\n\nOuvriers : 1 au départ, 2 au niveau d'empire " + W.P.workers[1] + ", 3 au niveau " + W.P.workers[2] + ". File d'attente : " + W.P.queueMax + " chantiers payés d'avance. Plafond : " + hm(W.P.maxDur) + " par chantier.\n");
+  console.log("## Durée d'un chantier (bâtiment principal ; bâtiments 2 à 4 : ×" + W.P.annex + ")\n\n| Activité | niv. 1 | 5 | 10 | 20 | 30 | 45 | 60 | 80 | 100 |\n|---|---|---|---|---|---|---|---|---|---|");
+  acts.forEach(id => console.log("| " + id + " | " + [1, 5, 10, 20, 30, 45, 60, 80, 100].map(L => hm(W.duration(id, 0, L))).join(" | ") + " |"));
+  console.log("\n## Temps de chantier cumulé pour atteindre un niveau (bâtiment principal, un ouvrier dessus en continu)\n\nContremaître : joué dès qu'il est prêt (toutes les 10 min) avec un score moyen (−" + Math.round(W.foremanPct(0.5) * 100) + " % du temps restant). Pot-de-vin : 3 par chantier (−30 % chacun, jamais jusqu'au bout).\n\n| Activité | Aides | niv. 5 | 10 | 25 | 50 | 100 |\n|---|---|---|---|---|---|---|");
+  acts.forEach(id => [["sans mini-jeu", "none"], ["Contremaître", "foreman"], ["Contremaître + pots-de-vin", "bribe"]].forEach(([n, m]) => console.log("| " + id + " | " + n + " | " + [5, 10, 25, 50, 100].map(L => hm(cumul(BL, id, L, m))).join(" | ") + " |")));
+  console.log("\n## Joueur simulé : progression avec et sans chantiers (" + Math.min(H, 10) + " h de jeu actif)\n");
+  const pols = [["sans chantiers (avant)", { works: false }], ["chantiers, sans aide", {}], ["chantiers + Contremaître", { foreman: 0.5 }], ["chantiers + Contremaître + pots-de-vin", { foreman: 0.5, bribe: 0.25 }]];
+  const marks = [900, 3600, 4 * 3600, 10 * 3600].filter(m => m <= H * 3600), res = [];
+  pols.forEach(([name, o]) => { const env = load(), B2 = env.BL; if (o.works === false) B2.works = null; const E2 = B2.economy, s2 = E2.newState(0), bot = makeBot(B2, s2, o), row = { name, at: [] };
+    marks.forEach(m => { bot.run(m - s2.t); row.at.push({ lvl: E2.level(s2), inc: E2.income(s2), best: B2.data.activities.map(a => E2.best(s2, a.id)).join("/") }); });
+    const sp = bot.stats.idleSpans.concat(bot.stats.idleCur ? [[bot.stats.idleStart, bot.stats.idleCur]] : []).filter(x => x[0] < 4 * 3600);
+    row.idleMax = Math.max(0, ...sp.map(x => x[1])); row.idleTot = sp.reduce((a, x) => a + Math.min(x[1], 4 * 3600 - x[0]), 0);
+    const gp = bot.stats.gaps.filter(x => x[0] < 4 * 3600); row.gapMax = Math.max(0, ...gp.map(x => x[1])); row.gap1h = Math.max(0, ...gp.filter(x => x[0] < 3600).map(x => x[1])); row.orders4h = gp.length; row.first = bot.stats.firstAt; row.foreman = bot.stats.foreman; row.bribes = bot.stats.bribes; res.push(row); });
+  console.log("| Joueur | " + marks.map(m => hm(m)).join(" | ") + " |\n|---|" + marks.map(() => "---|").join(""));
+  res.forEach(r => console.log("| " + r.name + " | " + r.at.map(x => "niv. " + x.lvl + ", " + fmt(x.inc) + "/s, meilleurs " + x.best).join(" | ") + " |"));
+  console.log("\n| Joueur | plus long écart entre deux commandes de bâtiment (1re heure) | idem (4 premières heures) | commandes en 4 h | temps « file pleine » (4 h) | Contremaître joués | pots-de-vin |\n|---|---|---|---|---|---|---|");
+  res.forEach(r => console.log("| " + r.name + " | " + hm(r.gap1h) + " | " + hm(r.gapMax) + " | " + r.orders4h + " | " + hm(r.idleTot) + " | " + r.foreman + " | " + r.bribes + " |"));
+  console.log("\nÉcart entre deux commandes : temps pendant lequel le joueur ne peut rien construire de nouveau (faute d'argent, d'ouvrier ou de place dans la file). « File pleine » : 3 ouvriers occupés et 5 chantiers en attente ; les travaux avancent, mais rien de neuf à commander.\n\n| Palier (bâtiment principal) | " + res.map(r => r.name).join(" | ") + " |\n|---|" + res.map(() => "---|").join(""));
+  ["backroom@5", "backroom@10", "backroom@25", "freight@10", "freight@25", "fence@10", "fence@25", "estate@10", "holding@10", "backroom@50"].forEach(k => console.log("| " + k.replace("@", " niveau ") + " | " + res.map(r => hm(r.first[k])).join(" | ") + " |"));
+  goals.push(["chantiers : jamais plus de 10 min sans pouvoir commander un bâtiment pendant les 4 premières heures (sans aide) : " + hm(res[1].gapMax), res[1].gapMax <= 600]);
+  goals.push(["chantiers : premier achat ≤ 10 s, niveau 10 ≤ 3 min, plafond 24 h", W.duration("backroom", 0, 1) <= 10 && acts.every(id => W.duration(id, 0, 1) >= 2 && W.duration(id, 0, 1) <= 10 && W.duration(id, 0, 10) <= 180 && W.duration(id, 0, 100) <= 86400)]);
+}
 if (process.env.JSON_OUT) require("fs").writeFileSync(process.env.JSON_OUT, JSON.stringify({ firstAt: base.bot.stats.firstAt, snaps: Object.fromEntries(Object.entries(base.snaps).map(([k, v]) => [k, { inc: v.inc, lvl: v.lvl, total: v.total }])), stats: base.bot.stats }));
 if (AUDIT) { console.log("\n## Objectifs\n"); goals.forEach(g => console.log("- " + (g[1] ? "✔" : "✘") + " " + g[0])); console.log("\n(" + ((Date.now() - t0) / 1000).toFixed(1) + " s de calcul)"); }
 module.exports = { activeRun, offlineVsActive, sessions };

@@ -16,12 +16,14 @@
     try { if (BL.heat && s.heat && BL.heat.state(s).v >= 75) add({ id: "heat", kind: "heat", score: 88, name: "Chaleur", v: Math.round(BL.heat.state(s).v), act: { type: "go", view: "map", heat: true } }); } catch (x) {}
     /* achats rentables : meilleur rapport gain / coût en premier */
     var econ = [];
+    var Wk = BL.works, busy = function (id, i) { return !!(Wk && Wk.busyLot(s, id, i)); }, qfull = !!(Wk && Wk.full(s));   /* Partie 17 · D : jamais de conseil sur un bâtiment déjà en chantier ni quand la file est pleine */
     d.activities.forEach(function (a) {
-      if (!e.actUnlocked(s, a)) return;
+      if (qfull || !e.actUnlocked(s, a)) return;
       var cnt = e.buildings(s, a.id);
+      if (cnt === 0 && busy(a.id, 0)) return;
       if (cnt === 0) { var c0 = e.cost(a, 0, s), g0 = e.gainOf(s, a, 0) - a.baseIncome * a.upkeep * e.upkeepMult(s); if (g0 > 0) econ.push({ kind: "upgrade", first: true, a: a, i: 0, cost: c0, gain: g0 }); return; }
-      for (var i = 0; i < cnt; i++) { var L = e.bLevel(s, a.id, i); if (L >= a.maxLevel) continue; var c1 = e.cost(a, L, s, i), g1 = e.netGainOf(s, a, i); if (g1 > 0) econ.push({ kind: "upgrade", a: a, i: i, cost: c1, gain: g1, level: L }); }
-      var nb = e.nextBuilding(s, a); if (nb && nb.ok) { var g2 = e.bldIncome(s, a, nb.idx, 1); if (g2 > 0) econ.push({ kind: "build", a: a, i: nb.idx, cost: nb.cost, gain: g2 }); }
+      for (var i = 0; i < cnt; i++) { var L = e.bLevel(s, a.id, i); if (L >= a.maxLevel || busy(a.id, i)) continue; var c1 = e.cost(a, L, s, i), g1 = e.netGainOf(s, a, i); if (g1 > 0) econ.push({ kind: "upgrade", a: a, i: i, cost: c1, gain: g1, level: L }); }
+      var nb = e.nextBuilding(s, a); if (nb && nb.ok && !busy(a.id, nb.idx)) { var g2 = e.bldIncome(s, a, nb.idx, 1); if (g2 > 0) econ.push({ kind: "build", a: a, i: nb.idx, cost: nb.cost, gain: g2 }); }
     });
     d.upgrades.forEach(function (u) {
       if (s.upg[u.id] || !e.unlocked(s, u)) return; var base = e.incomeBase(s); s.upg[u.id] = true; var g = e.incomeBase(s) - base; delete s.upg[u.id];
