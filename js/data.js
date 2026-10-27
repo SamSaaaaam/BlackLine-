@@ -6,7 +6,7 @@
     saveKey: "blackline.save.v1",
     balance: {
       startMoney: 25,
-      offlineCapSec: 8 * 3600, offlineEfficiency: 0.5, sleepGapSec: 300, /* une pause de plus de 5 min (veille, onglet gelé) est comptée comme une absence */
+      offlineCapSec: 4 * 3600, offlineEfficiency: 0.2, sleepGapSec: 300, /* Partie 17 · B : 20 % des revenus nets, 4 h au plus (≈ 48 min de revenu actif par absence ; avant : 50 % / 8 h). Une pause de plus de 5 min (veille, onglet gelé) est comptée comme une absence, avec les mêmes règles */
       levelBase: 60, levelExp: 5, maxEmpireLevel: 100, levelFrom2: 50, levelBase2: 1e13, levelRatio2: 1.151,   /* niveaux 1 à 50 : levelBase × (L-1)^levelExp ; niveaux 51 à 100 : levelBase2 × levelRatio2^(L-51), progression géométrique pour que le niveau 100 reste un objectif de très long terme */
        levelIncomePerLevel: 0.005, /* total requis pour le niveau L : levelBase × (L-1)^levelExp */
       repDivisor: 100, repIncomePerPoint: 0.005, repIncomeCap: 0.5,                     /* réputation = √total / repDivisor + bonus ; +1 % de revenus par point, plafonné */

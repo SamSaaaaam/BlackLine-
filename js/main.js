@@ -21,10 +21,11 @@
   }
   /* Bilan d'une absence : durée, gains, faits notables. */
   function report(o, title) {
-    var rows = [["Durée d’absence", SY.dur(o.elapsed) + (o.capped ? " (comptés : " + SY.dur(o.sec) + ")" : "")], ["Rendement hors ligne", Math.round(B.offlineEfficiency * 100) + " % de tes revenus nets"], ["Revenus obtenus", "+" + U.money(o.gain), "pos"]];
+    var rows = [["Durée d’absence", SY.dur(o.elapsed) + (o.capped ? " (comptés : " + SY.dur(o.sec) + ")" : "")], ["Rendement hors ligne", Math.round(B.offlineEfficiency * 100) + " % de tes revenus nets, " + SY.dur(B.offlineCapSec) + " au plus"], ["Revenus obtenus", "+" + U.money(o.gain), "pos"]];
     var tot = 0, parts = BL.data.activities.map(function (a) { var v = E.actIncome(state, a); tot += v; return { a: a, v: v }; }).filter(function (x) { return x.v > 0; }).sort(function (x, y) { return y.v - x.v; }).slice(0, 3);
     if (tot > 0 && parts.length) rows.push(["Principaux contributeurs", parts.map(function (x) { return x.a.name + " " + Math.round(x.v / tot * 100) + " %"; }).join(" · ")]);
-    SY.bilan({ title: title, rows: rows, notes: E.offlineNotes(state, o), acts: BL.ui && BL.ui.welcome ? BL.ui.welcome(state) : [] });
+    var notes = E.offlineNotes(state, o); notes.push("Reste actif : tes gains hors-ligne sont limités (" + Math.round(B.offlineEfficiency * 100) + " %, " + SY.dur(B.offlineCapSec) + " au plus)." + (BL.works ? " Tes chantiers, eux, avancent à 100 % pendant ton absence." : ""));   /* Partie 17 · B */
+    SY.bilan({ title: title, rows: rows, notes: notes, acts: BL.ui && BL.ui.welcome ? BL.ui.welcome(state) : [] });
   }
   function applyAbsence(o, title) {
     if (BL.bonds && o.sec > 0) BL.bonds.advance(state, o.sec, true);   /* loyauté hors ligne : plafonnée, aucun avertissement ni départ */
