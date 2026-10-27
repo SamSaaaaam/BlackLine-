@@ -27,18 +27,11 @@
   function $(id) { return document.getElementById(id); }
   function el(tag, cls, html) { var e = document.createElement(tag); e.className = cls || ""; e.innerHTML = html || ""; return e; }
   function set(e, t) { if (e.textContent !== t) e.textContent = t; }
-  /* Nombres : forme courte par défaut (950 · 1,2 K · 25 K · 1,4 M · 3,2 Md). Affichage seulement : les valeurs stockées ne changent jamais. */
-  var numMode = "short", SUF = ["K", "M", "Md", "Bn", "Bd"];
-  function fmt(n) {
-    if (!isFinite(n)) return "—"; var neg = n < 0 ? "−" : ""; n = Math.abs(n);
-    if (n < 1000) return neg + (n < 10 ? (Math.round(n * 10) / 10).toString().replace(".", ",") : String(Math.floor(n)));
-    var i = 0; while (n >= 1000 && i < SUF.length) { n /= 1000; i++; }
-    if (numMode === "detailed") return neg + n.toFixed(n < 10 ? 2 : n < 100 ? 1 : 0).replace(".", ",") + " " + SUF[i - 1];
-    if (n >= 999.5 && i < SUF.length) { n /= 1000; i++; }
-    return neg + (n < 10 ? (Math.round(n * 10) / 10).toString().replace(".", ",") : String(Math.round(n))) + " " + SUF[i - 1];
-  }
+  /* Nombres : un seul formateur pour tout le jeu (js/fmt.js, Partie 19 · D). Affichage seulement : les valeurs stockées ne changent jamais. */
+  var numMode = "short";
+  function fmt(n) { return BL.fmt ? BL.fmt.num(n, numMode) : String(n); }
   function exact(n) { return isFinite(n) ? Math.floor(n).toLocaleString("fr-FR") : "—"; }
-  function money(n) { return "$" + fmt(n); }
+  function money(n) { return BL.fmt ? BL.fmt.money(n, numMode) : "$" + n; }
   function tipOld(id, t) { var e = $(id); if (e && ui.tips !== false && e.parentNode.title !== t) e.parentNode.title = t; else if (e && ui.tips === false && e.parentNode.title) e.parentNode.removeAttribute("title"); }
   function num(x) { return String(x).replace(".", ","); }
   function hms(s) { s = Math.floor(s); var a = Math.floor(s / 3600), b = Math.floor(s % 3600 / 60); return (a ? a + " h " : "") + b + " min " + (s % 60) + " s"; }
@@ -279,7 +272,7 @@
     set($("s_lvl"), "Niveau " + L + (L >= B.maxEmpireLevel ? " (max)" : "")); set($("n_lvl"), (stn ? stn.name + " · " : "") + (L >= B.maxEmpireLevel ? "niveau maximal" : money(Math.max(0, hi - s.total)) + " à gagner pour le niveau " + (L + 1)));
     $("k_lvl").hidden = false; BL.bar($("k_lvl").firstElementChild, (L >= B.maxEmpireLevel ? 100 : Math.min(100, (s.total - lo) / (hi - lo) * 100)));
     set($("s_prog"), Math.round(pg * 100) + " %"); set($("n_prog"), "Niveau, missions, succès, bonus, quartiers"); $("k_prog").hidden = false; BL.bar($("k_prog").firstElementChild, Math.round(pg * 100));
-    ui.tipx = { money: "Exactement : $" + exact(s.money), income_net: "Exactement : $" + (Math.round(inc * 10) / 10).toLocaleString("fr-FR") + " par seconde. Brut $" + fmt(bd.gross) + " − entretien $" + fmt(bd.upkeep), ingot: s.gold + " lingot" + (s.gold > 1 ? "s" : "") + " sur " + BL.gold.capacity(s) + " dans le coffre", reputation: "Revenus +" + Math.round((rm - 1) * 100) + " % (max +" + Math.round(B.repIncomeCap * 100) + " %)", influence: "Pertes d’événements −" + Math.round(E.lossCut(s) * 100) + " %", progress: "Aujourd’hui : " + Math.round(pg * 100) + " %", empire_level: "Niveau " + L + " sur " + B.maxEmpireLevel };
+    ui.tipx = { money: "Exactement : $" + exact(s.money), income_net: "Exactement : $" + (Math.round(inc * 10) / 10).toLocaleString("fr-FR") + " par seconde. Brut " + money(bd.gross) + " − entretien " + money(bd.upkeep), ingot: s.gold + " lingot" + (s.gold > 1 ? "s" : "") + " sur " + BL.gold.capacity(s) + " dans le coffre", reputation: "Revenus +" + Math.round((rm - 1) * 100) + " % (max +" + Math.round(B.repIncomeCap * 100) + " %)", influence: "Pertes d’événements −" + Math.round(E.lossCut(s) * 100) + " %", progress: "Aujourd’hui : " + Math.round(pg * 100) + " %", empire_level: "Niveau " + L + " sur " + B.maxEmpireLevel };
     var tot = bd.gross, ms = {}, aun = {};
     updBuyBar(s);
     D.activities.forEach(function (a) {
@@ -347,7 +340,7 @@
         var grp = function (title, list) { return '<div class="sg"><h3 class="h3">' + title + '</h3><dl class="dl">' + rows(list) + "</dl></div>"; };
         var sh = grp("Argent", [["Total gagné", money(s.total)], ["Revenus nets par seconde", money(inc) + "/s"], ["Entretien par seconde", "−" + money(bd.upkeep) + "/s"], ["Dépenses totales", money(s.st.spent)], ["Entretien payé", money(s.st.upkeep)], ["Récompenses reçues", money(s.st.rewards)]]) +
           grp("Progression", [["Temps de jeu", hms(s.t)], ["Niveau d’empire", L + " / " + B.maxEmpireLevel], ["Prochain niveau d’empire", L >= B.maxEmpireLevel ? "Niveau maximal" : money(Math.max(0, hi - s.total)) + " à gagner"], ["Bâtiments construits", bl + " / " + D.activities.length * BL.mapData.LOTS.perActivity], ["Niveaux des meilleurs bâtiments", own + " / " + D.activities.length * D.activities[0].maxLevel], ["Bonus permanents acquis", upn + " / " + D.upgrades.length], ["Missions réclamées", E.count(s.claimed) + " / " + D.missions.length], ["Succès", E.count(s.ach) + " / " + D.achievements.length]]) +
-          grp("Réputation et territoire", [["Réputation", fmt(rep) + " (revenus ×" + num(rm.toFixed(2)) + ")"], ["Influence", fmt(infl)], ["Quartiers contrôlés", BL.territory.count(s) + " / " + D.territory.districts.length], ["Attaques repoussées / perdues", s.terr.won + " / " + s.terr.lost], ["Équipe active / recrutée", BL.crew.active(s).length + " / " + BL.crew.owned(s).length], ["Alliances conclues", String(s.dip.formed)]]);
+          grp("Réputation et territoire", [["Réputation", fmt(rep) + " (revenus ×" + fmt(rm) + ")"], ["Influence", fmt(infl)], ["Quartiers contrôlés", BL.territory.count(s) + " / " + D.territory.districts.length], ["Attaques repoussées / perdues", s.terr.won + " / " + s.terr.lost], ["Équipe active / recrutée", BL.crew.active(s).length + " / " + BL.crew.owned(s).length], ["Alliances conclues", String(s.dip.formed)]]);
         if ($("statsList").dataset.sg !== sh) { $("statsList").dataset.sg = sh; $("statsList").innerHTML = sh; }
       }
     }
@@ -451,5 +444,5 @@
   function welcome(s) {
     if (!BL.advice) return []; return BL.advice.top(s, 3).map(function (x) { var tx = todoText(x); return { label: tx[0], sub: tx[1], btn: tx[2], run: function () { runAdvice(x); } }; });
   }
-  BL.ui = { welcome: welcome, notices: function () { return core ? core.journal() : []; }, noticeStats: function () { return core ? core.stats() : null; }, quiet: function (ms) { if (core) core.quiet(ms); }, noticeCore: function () { return core; }, condText: condText, invalidate: function () { ui.evKey = null; ui.tick = 0; ui.todoSig = null; ui.osig = null; }, qmHtml: qmHtml, dur: dur, renderGlossary: renderGlossary, progressAll: progressAll, go: show, init: init, update: update, setNumbers: function (m) { numMode = m === "detailed" ? "detailed" : "short"; }, setTips: function (on) { ui.tips = !!on; if (BL.tip) BL.tip.enable(!!on); }, exact: exact, setToasts: function (on) { ui.toasts = on; }, toast: toast, fmt: fmt, money: money };
+  BL.ui = { welcome: welcome, notices: function () { return core ? core.journal() : []; }, noticeStats: function () { return core ? core.stats() : null; }, quiet: function (ms) { if (core) core.quiet(ms); }, noticeCore: function () { return core; }, condText: condText, invalidate: function () { ui.evKey = null; ui.tick = 0; ui.todoSig = null; ui.osig = null; }, qmHtml: qmHtml, dur: dur, renderGlossary: renderGlossary, progressAll: progressAll, go: show, init: init, update: update, setNumbers: function (m) { numMode = m === "detailed" ? "detailed" : "short"; if (BL.fmt) BL.fmt.setMode(numMode); }, setTips: function (on) { ui.tips = !!on; if (BL.tip) BL.tip.enable(!!on); }, exact: exact, setToasts: function (on) { ui.toasts = on; }, toast: toast, fmt: fmt, money: money };
 })(window);

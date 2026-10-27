@@ -65,12 +65,12 @@
       if (ui.qty > Math.max(1, sp)) ui.qty = Math.max(1, sp), q = G.quote(s, ui.qty);
       var sg = [q.n, q.cost, q.ok, s.money > 1e15 ? 0 : Math.floor(s.money / Math.max(1, nx)), sp].join("|");
       if (sg !== ui.sgq) {
-        ui.sgq = sg; u.set(u.$("cvGive"), "$" + u.fmt(q.cost)); u.$("cvGet").innerHTML = '<i class="ingot-i"></i>' + q.n;
+        ui.sgq = sg; u.set(u.$("cvGive"), u.money(q.cost)); u.$("cvGet").innerHTML = '<i class="ingot-i"></i>' + q.n;
         var inp = u.$("cvN"); if (root.document.activeElement !== inp) inp.value = String(q.n); inp.max = String(Math.max(1, sp)); var r = u.$("cvR"); r.max = String(cap0); r.value = String(Math.min(q.n, cap0)); r.disabled = cap0 < 2;
         u.$("cvMinus").disabled = q.n <= 1; u.$("cvPlus").disabled = q.n >= sp;
-        u.$("cInfo").innerHTML = [["Prix d’un lingot", "$" + u.fmt(q.price)], ["Total pour ce lot", "$" + u.fmt(q.cost)], ["Argent après conversion", u.money(Math.max(0, q.left))], ["Lingots après conversion", (q.goldAfter) + " / " + cap], ["Achetables maintenant", String(mx)]].map(function (x) { return "<dt>" + x[0] + "</dt><dd>" + x[1] + "</dd>"; }).join("");
+        u.$("cInfo").innerHTML = [["Prix d’un lingot", u.money(q.price)], ["Total pour ce lot", u.money(q.cost)], ["Argent après conversion", u.money(Math.max(0, q.left))], ["Lingots après conversion", (q.goldAfter) + " / " + cap], ["Achetables maintenant", String(mx)]].map(function (x) { return "<dt>" + x[0] + "</dt><dd>" + x[1] + "</dd>"; }).join("");
         var go = u.$("cvGo"); go.t = go.t || go.firstChild; go.s = go.s || go.lastChild;
-        setBtn(go, q.ok ? "Confirmer : " + q.n + " lingot" + (q.n > 1 ? "s" : "") : "Conversion impossible", q.ok ? "pour $" + u.fmt(q.cost) : (s.money + 1e-9 < q.cost && sp >= q.n ? "Il te manque $" + u.fmt(q.cost - s.money) : q.why), !q.ok);
+        setBtn(go, q.ok ? "Confirmer : " + q.n + " lingot" + (q.n > 1 ? "s" : "") : "Conversion impossible", q.ok ? "pour " + u.money(q.cost) : (s.money + 1e-9 < q.cost && sp >= q.n ? "Il te manque " + u.money(q.cost - s.money) : q.why), !q.ok);
         u.set(u.$("cvErr"), q.ok ? "" : q.why);
         Object.keys(ui.btn).forEach(function (k) { var d = k === "max" ? Math.max(1, mx) : +k; ui.btn[k].classList.toggle("on", q.n === d); ui.btn[k].disabled = d > sp || sp < 1; });
       }

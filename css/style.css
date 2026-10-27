@@ -1838,3 +1838,6 @@ body.nomotion .wart *,body.lowfx .wart *,body.nomotion .winaug,body.nomotion .wi
 .gtodo{display:block;max-width:100%;margin-top:2px;padding:2px 0;border:0;background:none;color:var(--gold);font:600 13px var(--font-display);text-align:left;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:24px}
 .gtodo:hover{text-decoration:underline}.gtodo:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .gt{min-width:0}
+
+/* Partie 19 · D : chiffres tabulaires partout (les montants ne « dansent » plus en changeant) */
+body{font-variant-numeric:tabular-nums}

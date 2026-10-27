@@ -4,7 +4,7 @@
 (function (root) {
   var BL = root.BL = root.BL || {}, doc = root.document, h = null, box = null, cur = null, timer = 0, sig = "";
   function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]; }); }
-  function money(v) { return h && h.money ? h.money(v) : "$" + Math.round(v); }
+  function money(v) { return h && h.money ? h.money(v) : BL.fmt.money(v); }
   function fmt(v, unit, signed) {
     var a = Math.abs(v), body = unit === "" ? String(Math.round(a)) : money(a) + (unit === "$/s" ? "/s" : ""), s = v < 0 ? "−" : signed && v > 0 ? "+" : "";
     return s + body;

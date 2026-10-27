@@ -72,7 +72,7 @@
       o += '<div class="rv"><b class="rvn">' + s.gold + '</b><span> / ' + cap + ' lingots</span><i class="mt"><i style="width:' + Math.min(100, s.gold / cap * 100) + '%"></i></i></div>';
       o += '<p class="rnote">Prochain lingot : <b>$' + u.fmt(G.nextPrice(s)) + "</b> (commission 5 % incluse). Argent : <b>" + u.money(s.money) + "</b>. Sens unique : un lingot ne se rend pas en dollars.</p>";
       [["1", 1], ["10", 10], ["max", 0]].forEach(function (d) {
-        var q = d[1] || Math.max(1, mx), c = G.costFor(s, q), off = sp < 1 || q > sp || s.money + 1e-9 < c, sub = sp < 1 ? "Coffre plein" : q > sp ? "Place pour " + sp : s.money + 1e-9 < c ? "Il te manque $" + u.fmt(c - s.money) : "$" + u.fmt(c);
+        var q = d[1] || Math.max(1, mx), c = G.costFor(s, q), off = sp < 1 || q > sp || s.money + 1e-9 < c, sub = sp < 1 ? "Coffre plein" : q > sp ? "Place pour " + sp : s.money + 1e-9 < c ? "Il te manque " + u.money(c - s.money) : u.money(c);
         o += '<button class="btn wide ' + (off ? "" : "can") + '" data-act="conv" data-id="' + d[0] + '"' + (off ? " disabled" : "") + ">" + (d[0] === "max" ? "Convertir le maximum" + (mx ? " (" + mx + ")" : "") : "Convertir " + q) + "<small>" + sub + "</small></button>";
       });
       o += '<button class="btn wide ' + (vc && s.gold >= vc ? "can" : "") + '" data-act="vup"' + (vc && s.gold >= vc ? "" : " disabled") + ">" + (vc ? "Agrandir le coffre (+" + G.P.capPerLevel + ")" : "Coffre au maximum") + "<small>" + (vc ? vc + " lingots" + (s.gold < vc ? " · il t’en manque " + (vc - s.gold) : "") : "") + "</small></button>";

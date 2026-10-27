@@ -4,7 +4,7 @@
 (function (root) {
   var BL = root.BL = root.BL || {}, MAX = 3, LEN = 60;
   function cut(t) { t = String(t); return t.length <= LEN ? t : t.slice(0, LEN - 1).replace(/\s+\S*$/, "") + "…"; }
-  function money(n) { return BL.fmt ? BL.fmt.money(n) : BL.ui && BL.ui.money ? BL.ui.money(n) : "$" + Math.round(n); }
+  function money(n) { return BL.ui && BL.ui.money ? BL.ui.money(n) : BL.fmt.money(n); }
   function obj(o) { return !!o && typeof o === "object" && !Array.isArray(o); }   /* les modules du jeu initialisent l'état à la lecture : on ne les appelle que si leur partie existe déjà */
   function tryIt(f) { try { return f(); } catch (e) { return null; } }
   function next(s, now) {

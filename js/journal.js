@@ -20,7 +20,7 @@
         cta: { label: e.kind === "conflict" ? "Décider" : e.kind === "event" ? "Décider" : e.kind === "op" ? (now ? "Récupérer" : "Voir") : "Voir", type: "go", view: view, target: e.target }, prio: e.kind === "conflict" ? 0 : e.kind === "event" ? 1 : 3 });
     });
     D.missions.forEach(function (m) {
-      if (s.claimed[m.id]) return; var p = E().progress(s, m.cond), r = m.reward || {}, rw = (r.money ? "+$" + Math.round(r.money) : "") + (r.rep ? " +" + r.rep + " réputation" : "") + (r.infl ? " +" + r.infl + " influence" : "");
+      if (s.claimed[m.id]) return; var p = E().progress(s, m.cond), r = m.reward || {}, rw = (r.money ? "+" + BL.fmt.money(r.money) : "") + (r.rep ? " +" + r.rep + " réputation" : "") + (r.infl ? " +" + r.infl + " influence" : "");
       var zone = p.done ? "now" : p.p > 0 ? "doing" : "goals";
       out.push({ id: "mission:" + m.id, kind: "mission", zone: zone, tier: m.tier, title: m.name, sub: p.done ? "Terminée : récompense " + rw.trim() : condText(m.cond), p: p.done ? null : p.p, left: null, cta: p.done ? { label: "Réclamer", type: "claim", id: m.id } : null, prio: p.done ? 2 : 5 - p.p });
     });

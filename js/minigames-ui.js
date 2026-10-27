@@ -122,7 +122,7 @@
   GAMES.compta = {
     start: function (c) { c.p = L().genCompta(c.seed); c.sel = []; this.paint(c); },
     paint: function (c) {
-      var money = function (n) { return "$" + n; }, o = '<table class="ac-t"><caption class="sr">Registre de Gino : coche les lignes fausses</caption><thead><tr><th scope="col">Poste</th><th scope="col">Registre</th><th scope="col">Reçu</th><th scope="col">Erreur ?</th></tr></thead><tbody>';
+      var money = function (n) { return BL.fmt.money(n, "detailed"); },   /* registre : montants à 3 ou 4 chiffres, formateur commun */ o = '<table class="ac-t"><caption class="sr">Registre de Gino : coche les lignes fausses</caption><thead><tr><th scope="col">Poste</th><th scope="col">Registre</th><th scope="col">Reçu</th><th scope="col">Erreur ?</th></tr></thead><tbody>';
       c.p.lines.forEach(function (l, i) { var on = c.sel.indexOf(i) >= 0; o += "<tr" + (on ? ' class="on"' : "") + "><th scope=\"row\">" + esc(l.label) + "</th><td>" + money(l.book) + "</td><td>" + money(l.receipt) + '</td><td><button type="button" class="ac-b" data-m="tog" data-i="' + i + '" aria-pressed="' + on + '" aria-label="Ligne ' + esc(l.label) + (on ? " : marquée fausse" : " : marquer comme fausse") + '">' + (on ? "✗ fausse" : "ok ?") + "</button></td></tr>"; });
       el.body.innerHTML = o + '</tbody></table><div class="pl-go"><button type="button" class="btn buy can" data-m="ok">Rendre le registre (' + c.sel.length + " ligne" + (c.sel.length > 1 ? "s" : "") + " cochée" + (c.sel.length > 1 ? "s" : "") + ")</button></div>"; el.sc.textContent = "Lignes cochées : " + c.sel.length;
     },
