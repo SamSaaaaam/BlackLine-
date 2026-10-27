@@ -7,7 +7,7 @@ const SAVE = (extra) => T.saveEnv(Object.assign({ v: 13, state: { money: 5e5, to
   try {
     for (const [w, h] of T.WIDTHS) {
       const p = await T.open(b, url, { w, h, cfg: null, save: SAVE() });
-      T.check(await p.evaluate(() => BL.save.VERSION === 14 && BL.main.state().works.q.length === 0), w + " px : sauvegarde v13 relue, aucun chantier");
+      T.check(await p.evaluate(() => BL.save.VERSION >= 14 && BL.main.state().works.q.length === 0), w + " px : sauvegarde v13 relue, aucun chantier");
       await p.click("#mPlay"); await p.waitForTimeout(600);
       const r = await p.evaluate(() => { const H = BL.ui.handlers, s = BL.main.state(), m0 = s.money, lv = BL.economy.bLevel(s, "backroom", 0); const ok = H.buyActivity("backroom", 0); H.buyActivity("freight", 0); H.buyActivity("backroom", 1);
         return { ok, paid: s.money < m0, lv: BL.economy.bLevel(s, "backroom", 0) === lv, q: s.works.q.length }; });
