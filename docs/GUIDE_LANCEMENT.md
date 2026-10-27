@@ -18,7 +18,7 @@ Si le navigateur refuse d'enregistrer (navigation privée, stockage désactivé)
 
 Points à savoir :
 - Les sauvegardes sont **par adresse** : une partie faite en ouvrant `index.html` sur ton ordinateur n'apparaît pas sur le site. Passe par Exporter / Importer.
-- Le jeu n'envoie rien et ne reçoit rien : aucune donnée ne quitte le navigateur.
+- La partie ne quitte jamais le navigateur. Seul le classement en ligne (facultatif, `js/config-classement.js`) contacte un serveur : lecture du top 10 à l'ouverture du menu (coupable dans Paramètres), et envoi du score seulement si le joueur l'active.
 - Les dossiers `tests/`, `docs/` et `shots/` ne servent pas en ligne : tu peux ne pas les envoyer (poids déployé ≈ 15 Mo).
 - Avant de publier, vérifie que `about.html` et `assets/share.png` (image de partage) sont bien envoyés avec le reste ; `og:image` est relatif, donc certains réseaux sociaux n'afficheront l'image qu'avec une adresse absolue (à ajuster dans `index.html` après avoir choisi ton adresse).
 - Vérification automatique avant de publier : `node tests/pages-ready.test.js` (chemins relatifs, casse des noms de fichiers, aucune requête réseau).

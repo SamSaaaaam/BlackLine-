@@ -18,14 +18,14 @@
     box.appendChild(el("div", "mlogo", '<span id="menuCrest"></span><div class="brand mbrand"><span class="bt"><span class="wm">BLACKLINE</span><span class="sub"><span class="subt">Underworld Empire</span></span></span></div>'));
     box.appendChild(el("h1", "mtitle", '<span>IDLE</span><span>EMPIRE</span><span class="neon">CRIMINEL</span>'));
     box.appendChild(el("p", "mtag", "Bâtis ton empire dans l’ombre de la ville."));
-    var nav = el("nav", "mnav"); nav.setAttribute("aria-label", "Menu principal"); box.appendChild(nav);
+    var main = el("div", "mmain"), nav = el("nav", "mnav"); nav.setAttribute("aria-label", "Menu principal"); main.appendChild(nav); box.appendChild(main);   /* Partie 17 : le top 10 se place à côté (ordinateur) ou sous les boutons (téléphone) */
     function btn(id, label, sub, cls) { var b = el("button", "mbtn " + (cls || ""), "<span>" + label + "</span>" + (sub ? "<small>" + sub + "</small>" : "")); b.id = id; nav.appendChild(b); return b; }
-    btn("mPlay", "JOUER", "", "primary"); btn("mStory", "HISTOIRE", "", "story"); btn("mNew", "NOUVELLE PARTIE", "", "sec"); btn("mProfile", "PROFIL"); if (BL.lb && BL.lb.configured() && BL.lbUI) btn("mBoard", "CLASSEMENT"); btn("mSettings", "PARAMÈTRES"); btn("mQuit", "QUITTER");
+    btn("mPlay", "JOUER", "", "primary"); btn("mStory", "HISTOIRE", "", "story"); btn("mNew", "NOUVELLE PARTIE", "", "sec"); btn("mProfile", "PROFIL"); btn("mSettings", "PARAMÈTRES"); btn("mQuit", "QUITTER");
     var sn = el("button", "msoon", '<span class="sn-b">Bientôt</span><span class="sn-t"><b>Une nouvelle ville arrive</b><small>Nouvelles activités, nouveaux quartiers, personnages iconiques</small></span>'); sn.id = "mSoon"; sn.type = "button"; sn.setAttribute("aria-haspopup", "dialog"); box.appendChild(sn);
     box.appendChild(el("div", "mfoot", '<span id="mHello" class="mhello"></span><span>v' + VERSION + "</span>")); box.appendChild(el("div", "mcredit", "Créé par Samy Snéoual"));
-    $("menuCrest").innerHTML = BL.art.crest();
+    $("menuCrest").innerHTML = BL.art.crest(); if (BL.lbHome) BL.lbHome.mount(main, nav);
     $("mSoon").onclick = function () { BL.audio.sfx("open"); openSheet("soon"); };
-    $("mPlay").onclick = play; $("mStory").onclick = function () { play(); setTimeout(function () { if (BL.sagaUI) BL.sagaUI.open(); }, 600); }; $("mNew").onclick = function () { h.newGame(); }; $("mProfile").onclick = function () { openSheet("profile"); }; if ($("mBoard")) $("mBoard").onclick = function () { BL.audio.sfx("open"); openSheet("board"); }; $("mSettings").onclick = function () { openSheet("settings"); }; $("mQuit").onclick = function () { openSheet("quit"); };
+    $("mPlay").onclick = play; $("mStory").onclick = function () { play(); setTimeout(function () { if (BL.sagaUI) BL.sagaUI.open(); }, 600); }; $("mNew").onclick = function () { h.newGame(); }; $("mProfile").onclick = function () { openSheet("profile"); }; $("mSettings").onclick = function () { openSheet("settings"); }; $("mQuit").onclick = function () { openSheet("quit"); };
   }
   function refresh() {
     var has = h.hasSave(), s = h.state(), L = E.level(s), nm = h.settings().name;
@@ -36,10 +36,10 @@
   }
   function show() {
     var m = $("menu"); refresh(); m.hidden = false; m.classList.remove("out"); m.classList.remove("in"); void m.offsetWidth; m.classList.add("in"); $("app").inert = true; document.body.classList.add("inmenu");
-    bg(true); BL.audio.play("menu"); setTimeout(function () { var p = $("mPlay"); if (p && $("sheet").hidden) p.focus({ preventScroll: true }); }, 60);
+    bg(true); BL.audio.play("menu"); if (BL.lbHome) BL.lbHome.show(); setTimeout(function () { var p = $("mPlay"); if (p && $("sheet").hidden) p.focus({ preventScroll: true }); }, 60);
   }
   function hide() {
-    var m = $("menu"); m.classList.add("out"); $("app").inert = false; document.body.classList.remove("inmenu");
+    var m = $("menu"); m.classList.add("out"); $("app").inert = false; if (BL.lbHome) BL.lbHome.hide(); document.body.classList.remove("inmenu");
     setTimeout(function () { if (m.classList.contains("out")) { m.hidden = true; bg(false); } }, 520);
   }
   function play() { BL.audio.unlock(); BL.audio.sfx("open"); h.play(); hide(); BL.audio.play("game"); setTimeout(function () { BL.radioUI && BL.radioUI.showNP(); }, 900); }
@@ -107,7 +107,7 @@
     body.appendChild(el("p", "mp", "Un jeu dans un navigateur ne peut pas fermer l’onglet de force. Pour quitter, ferme simplement l’onglet : ta progression est enregistrée automatiquement toutes les 10 secondes et à la fermeture."));
     var inf = el("div", "pf-grid", card("Sauvegarde", '<span id="qSave">…</span>', "") + card("Version", "v" + VERSION, "sauvegarde v" + BL.save.VERSION)); body.appendChild(inf);
     var row = el("div", "mrow"), sv = el("button", "btn"), cl = el("button", "btn ghost"); sv.textContent = "Sauvegarder maintenant"; cl.textContent = "Retour au menu";
-    body.appendChild(el("p", "mcred2", "<b>BLACKLINE</b> · Créé par Samy Snéoual<br><small>Un jeu 100 % local : aucun compte, aucun serveur.</small><br><a class=\"mabout\" href=\"about.html\" target=\"_blank\" rel=\"noopener\">Crédits et licences</a>"));
+    body.appendChild(el("p", "mcred2", "<b>BLACKLINE</b> · Créé par Samy Snéoual<br><small>Un jeu local : aucun compte obligatoire. Seul le classement (facultatif) contacte un serveur.</small><br><a class=\"mabout\" href=\"about.html\" target=\"_blank\" rel=\"noopener\">Crédits et licences</a>"));
     sv.onclick = function () { h.save(); $("qSave").textContent = $("saveinfo").textContent; }; cl.onclick = closeSheet; row.appendChild(cl); row.appendChild(sv); body.appendChild(row); $("qSave").textContent = $("saveinfo").textContent;
   }
 
@@ -115,5 +115,5 @@
     h = handlers; E = BL.economy; T = BL.territory; D = BL.data; M = BL.mapData; build();
     document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("sheet").hidden && $("modal").hidden && sheetKind !== "setup") closeSheet(); });
   }
-  BL.menu = { init: init, show: show, hide: hide, visible: visible, openSheet: openSheet, closeSheet: closeSheet, VERSION: VERSION, _debug: function () { return { vis: !!(BL.menuBg && BL.menuBg.isOn()), hasBg: !!BL.menuBg, level: BL.menuBg && BL.menuBg.level() }; } };
+  BL.menu = { settings: function () { return h ? h.settings() : {}; }, init: init, show: show, hide: hide, visible: visible, openSheet: openSheet, closeSheet: closeSheet, VERSION: VERSION, _debug: function () { return { vis: !!(BL.menuBg && BL.menuBg.isOn()), hasBg: !!BL.menuBg, level: BL.menuBg && BL.menuBg.level() }; } };
 })(window);

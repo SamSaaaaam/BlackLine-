@@ -251,6 +251,30 @@ grant execute on function public.lb_register(text), public.lb_set_name(text), pu
   public.lb_board(text), public.lb_report(uuid), public.lb_delete_me() to authenticated;
 revoke all on function public.lb_fold(text, boolean), public.lb_norm(text), public.lb_name_error(text), public.lb_week() from public, anon, authenticated;
 
+-- 6) -- Partie 17 : lecture PUBLIQUE du top 10 pour l'écran d'accueil (sans compte, sans session anonyme).
+-- Renvoie seulement rang, pseudo, score et niveau : jamais l'identifiant public (pub) ni l'identifiant interne (id).
+-- Mêmes filtres que lb_board : pseudos masqués exclus ; 'week' = gain depuis lundi (heure de Paris), scores nuls exclus.
+create or replace function public.lb_board_public(p_scope text)
+returns table (rank bigint, name text, score double precision, level int)
+language plpgsql stable security definer set search_path = public as $$
+#variable_conflict use_column
+declare wk date := public.lb_week();
+begin
+  if p_scope is null or p_scope not in ('all', 'week') then raise exception 'bad_value'; end if;
+  return query
+  with s as (
+    select p.name, p.level,
+           case when p_scope = 'week' then (case when p.week_key = wk then greatest(0, p.total - p.week_base) else 0 end) else p.total end as sc
+    from public.lb_players p where not p.hidden
+  ), r as (
+    select s.*, (rank() over (order by s.sc desc))::bigint as rk from s where p_scope = 'all' or s.sc > 0
+  )
+  select r.rk, r.name, r.sc, r.level from r where r.rk <= 10 order by r.rk, r.name limit 10;
+end $$;
+revoke all on function public.lb_board_public(text) from public;
+grant execute on function public.lb_board_public(text) to anon, authenticated;
+notify pgrst, 'reload schema';
+
 -- =====================================================================
 -- MODÉRATION À LA MAIN (SQL Editor) — exemples :
 --   Masquer un pseudo :        update public.lb_players set hidden = true  where name = 'LePseudo';

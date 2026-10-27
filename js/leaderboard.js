@@ -1,4 +1,5 @@
-/* Classement en ligne (facultatif) : client réseau. UNIQUE endroit du jeu qui parle à Internet, et seulement si le joueur a activé le classement.
+/* Classement en ligne (facultatif) : client réseau. UNIQUE endroit du jeu qui parle à Internet : envoi du score seulement si le joueur a activé le classement ;
+   lecture publique du top 10 à l'affichage du menu (Partie 17, coupable dans Paramètres › Classement en ligne).
    fetch direct vers l'API Supabase (aucune bibliothèque externe). Session anonyme gardée à part (jamais dans la sauvegarde ni dans l'export). */
 (function (root) {
   var BL = root.BL = root.BL || {}, K = "blackline.lb.session.v1", TIMEOUT = 8000, EVERY = 300000;
@@ -19,9 +20,10 @@
   function getS() { return loadS() || mem; }
   function putS(o) { mem = o; saveS(o); }
   function http(path, opt) {
-    var c = cfg(), ctl = typeof AbortController !== "undefined" ? new AbortController() : null, to = setTimeout(function () { if (ctl) ctl.abort(); }, TIMEOUT), h = { apikey: c.key, "Content-Type": "application/json" };
+    var c = cfg(), ctl = typeof AbortController !== "undefined" ? new AbortController() : null, to = setTimeout(function () { if (ctl) ctl.abort(); }, TIMEOUT), get = opt.method === "GET", h = get ? { apikey: c.key } : { apikey: c.key, "Content-Type": "application/json" };
     if (opt.token) h.Authorization = "Bearer " + opt.token;   /* sans session : seulement la clé publique dans « apikey » */
-    return root.fetch(c.url + path, { method: "POST", headers: h, body: JSON.stringify(opt.body || {}), signal: ctl ? ctl.signal : undefined, credentials: "omit", cache: "no-store", referrerPolicy: "no-referrer" }).then(function (r) {
+    var init = { method: get ? "GET" : "POST", headers: h, signal: ctl ? ctl.signal : undefined, credentials: "omit", cache: "no-store", referrerPolicy: "no-referrer" }; if (!get) init.body = JSON.stringify(opt.body || {});
+    return root.fetch(c.url + path, init).then(function (r) {
       clearTimeout(to); return r.text().then(function (t) { var d = null; try { d = t ? JSON.parse(t) : null; } catch (e) {} return { ok: r.ok, status: r.status, data: d }; });
     }, function () { clearTimeout(to); var e = new Error("net"); e.code = "net"; throw e; });
   }
@@ -64,9 +66,24 @@
   function deleteMe() {
     return track(rpc("lb_delete_me", {}).then(function () { putS(null); mem = null; setOpt(false); st.lost = false; st.myPub = ""; setSetting("lbon", false); setSetting("lbname", ""); return true; }));
   }
+  /* Partie 17 · A : lecture PUBLIQUE du top 10 pour l'écran d'accueil. Aucun compte, aucune session anonyme créée, aucune donnée du joueur envoyée :
+     une requête GET avec la seule clé publique (en-tête « apikey »). Résultat gardé en mémoire 60 s par onglet ; toute panne renvoie { ok:false } sans erreur. */
+  var pub = { week: null, all: null }, pubBusy = {}, PUB_TTL = 60000;
+  function publicBoard(scope) {
+    var sc = scope === "week" ? "week" : "all", c = pub[sc], now = Date.now();
+    if (!configured()) return Promise.resolve({ ok: false, rows: [], off: true });
+    if (c && now - c.at >= 0 && now - c.at < PUB_TTL) return Promise.resolve({ ok: c.ok, rows: c.rows, cached: true });
+    if (pubBusy[sc]) return pubBusy[sc];
+    return (pubBusy[sc] = http("/rest/v1/rpc/lb_board_public?p_scope=" + sc, { method: "GET" }).then(function (r) {
+      var ok = !!(r.ok && Array.isArray(r.data)), rows = ok ? r.data.slice(0, 10).map(cleanPublic).filter(function (x) { return x.rank >= 1; }) : [];
+      pub[sc] = { at: Date.now(), ok: ok, rows: rows }; pubBusy[sc] = null; return { ok: ok, rows: rows };
+    }, function () { pub[sc] = { at: Date.now(), ok: false, rows: [] }; pubBusy[sc] = null; return { ok: false, rows: [] }; }));
+  }
+  /* ligne publique : jamais d'identifiant, pseudo nettoyé (même règle que le pseudo local), nombres bornés */
+  function cleanPublic(r) { var x = core().cleanRow(r); return { rank: x.rank, name: x.name, score: x.score, level: x.level }; }
   /* envoi régulier : seulement si activé, onglet visible, et pas pendant un délai d'attente après une panne */
   function tick() { if (!enabled() || (root.document && root.document.hidden)) return; if (Date.now() - st.lastSubmit >= EVERY) submit(false); }
   function init() { if (timer || !configured()) return; timer = setInterval(tick, 60000); }
-  BL.lb = { configured: configured, enabled: enabled, register: register, rename: rename, submit: submit, board: board, report: report, deleteMe: deleteMe, tick: tick, init: init, hasName: function () { return !!settings().lbname; }, state: function () { return { busy: st.busy, err: st.err, lost: st.lost || (configured() && settings().lbon === true && !optedIn()), lastOk: st.lastOk, fails: st.fails }; }, MSG: { net: "Classement indisponible pour le moment. Le jeu continue normalement.", server: "Le serveur du classement ne répond pas comme prévu. Réessaie plus tard.", auth: "Connexion au classement impossible pour le moment.", anon_off: "Le classement n’est pas encore prêt côté serveur (connexions anonymes désactivées).", no_player: "Ton profil de classement est introuvable. Choisis ton pseudo à nouveau.", rate_limited: "Doucement : réessaie dans une minute.", rename_rate: "Tu as déjà changé de pseudo il y a moins de 24 h.", implausible: "Ce score n’a pas été accepté (trop gros pour le temps écoulé).", bad_value: "Valeur refusée par le serveur." } };
+  BL.lb = { configured: configured, enabled: enabled, publicBoard: publicBoard, _resetPublic: function () { pub = { week: null, all: null }; pubBusy = {}; }, register: register, rename: rename, submit: submit, board: board, report: report, deleteMe: deleteMe, tick: tick, init: init, hasName: function () { return !!settings().lbname; }, state: function () { return { busy: st.busy, err: st.err, lost: st.lost || (configured() && settings().lbon === true && !optedIn()), lastOk: st.lastOk, fails: st.fails }; }, MSG: { net: "Classement indisponible pour le moment. Le jeu continue normalement.", server: "Le serveur du classement ne répond pas comme prévu. Réessaie plus tard.", auth: "Connexion au classement impossible pour le moment.", anon_off: "Le classement n’est pas encore prêt côté serveur (connexions anonymes désactivées).", no_player: "Ton profil de classement est introuvable. Choisis ton pseudo à nouveau.", rate_limited: "Doucement : réessaie dans une minute.", rename_rate: "Tu as déjà changé de pseudo il y a moins de 24 h.", implausible: "Ce score n’a pas été accepté (trop gros pour le temps écoulé).", bad_value: "Valeur refusée par le serveur." } };
   if (typeof module !== "undefined" && module.exports) module.exports = BL.lb;
 })(typeof globalThis !== "undefined" ? globalThis : this);

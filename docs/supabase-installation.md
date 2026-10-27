@@ -59,8 +59,17 @@ Si quelque chose ne marche pas, ouvre la console du navigateur (touche F12, ongl
 |---|---|
 | « Le classement n'est pas encore prêt côté serveur » | Connexions anonymes non activées (étape 2) |
 | « Classement indisponible » | Projet en pause, mauvaise adresse, ou pas de connexion Internet |
+| Accueil : « Classement indisponible pour l’instant » | `docs/supabase-maj-accueil.sql` pas encore lancé, ou serveur injoignable |
 | « Connexion au classement impossible » | Mauvaise clé publique (étape 4) |
 | « Le serveur du classement ne répond pas comme prévu » | Le SQL n'a pas été exécuté en entier (étape 3) |
+
+## Partie 17 : classement sur l'écran d'accueil (mise à jour)
+Le menu principal affiche maintenant le top 10, **sans compte et sans bouton**. Il lit la nouvelle fonction `lb_board_public` (lecture seule : rang, pseudo, score, niveau ; jamais d'identifiant).
+- **Tu as déjà installé le classement avant** : lance une seule fois `docs/supabase-maj-accueil.sql` dans **SQL Editor** (colle, puis « Run »). Rien d'autre à faire.
+- **Nouvelle installation** : `docs/supabase.sql` contient déjà cette fonction.
+- Vérification : `select * from public.lb_board_public('all');` doit renvoyer au plus 10 lignes.
+- Tant que la fonction n'existe pas sur le serveur, le menu affiche simplement « Classement indisponible pour l'instant » : le jeu n'est pas bloqué.
+- Changement de règle réseau : ouvrir le menu contacte le serveur du classement (une requête de lecture, au plus une par minute et par période). Le serveur voit l'adresse IP du joueur ; aucune donnée de partie n'est envoyée. Le joueur peut couper cet affichage dans **Paramètres › Classement en ligne › Afficher le classement sur l'accueil** : plus aucun appel n'est fait à l'ouverture du menu.
 
 ## Modération
 Dans **SQL Editor**, exemples :

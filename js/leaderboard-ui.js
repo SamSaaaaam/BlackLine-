@@ -10,7 +10,8 @@
   function errText(e) { var c = e && e.code || "net"; if (/^name_/.test(c)) { var k = c.slice(5); return k === "taken" ? BL.lbCore.nameMessage("taken") : BL.lbCore.nameMessage(k); } if (c === "rename_rate") return BL.lbCore.nameMessage("rate"); return L().MSG[c] || L().MSG.server; }
   function curMode() { var s = sett(); if (!cfgOn()) return "off"; if (s.lbon === true) return L().state().lost ? "lost" : "on"; return s.lbname ? "paused" : "intro"; }
 
-  var PRIV = '<p><b>Ce qui est envoyé</b> (seulement si tu actives le classement) : ton pseudo, ton total d’argent gagné, ton niveau d’empire, la version du jeu et la date de l’envoi. Un identifiant technique anonyme est créé pour te reconnaître ; il ne contient ni nom, ni e-mail.</p>'
+  var PRIV = '<p><b>Écran d’accueil</b> : pour afficher le top 10 sur le menu principal, le jeu contacte le serveur du classement à l’ouverture du menu (au plus une fois par minute), même sans compte. Rien de ta partie n’est envoyé, mais ce serveur voit ton adresse IP, comme tout site visité. Pour l’éviter : Paramètres › Classement en ligne › « Afficher le classement sur l’accueil ».</p>'
+    + '<p><b>Ce qui est envoyé</b> (seulement si tu actives le classement) : ton pseudo, ton total d’argent gagné, ton niveau d’empire, la version du jeu et la date de l’envoi. Un identifiant technique anonyme est créé pour te reconnaître ; il ne contient ni nom, ni e-mail.</p>'
     + '<p><b>Ce qui n’est jamais envoyé</b> : ton nom réel, ton e-mail, ton adresse, ton âge, ta position, ton appareil, le contenu de ta partie.</p>'
     + '<p><b>Qui voit quoi</b> : tous les joueurs voient ton pseudo, ton score et ton niveau dans le classement. Rien d’autre.</p>'
     + '<p><b>Combien de temps</b> : tant que tu restes dans le classement. Le bouton « Se retirer et effacer mes données » supprime ton profil, tes signalements et l’identifiant anonyme du serveur.</p>'
