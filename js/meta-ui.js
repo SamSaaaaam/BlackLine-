@@ -36,13 +36,22 @@
     if (x.runs.length) { o += '<section class="mt-card"><h3>Parties précédentes</h3><ul class="mt-runs">'; x.runs.forEach(function (r) { var c = BL.data.meta.clans[r.clan]; o += "<li>Niveau " + r.lvl + " · " + (c ? esc(c.name) : "sans clan") + (r.hard ? " · difficile" : "") + " · " + Math.round(r.t / 3600) + " h de jeu</li>"; }); o += "</ul></section>"; }
     return o;
   }
+  /* Partie 19 · E : série, titres, récap de la semaine */
+  function dfsHtml(s) {
+    if (!BL.dfs) return ""; var F = BL.dfs, d = F.state(s), cur = F.current(s, Date.now()), rc = d.rc, o = '<section class="mt-card mt-streak"><h3>Série <small>jours consécutifs avec au moins un défi réclamé</small></h3>';
+    o += '<p class="mt-st"><b>' + cur + "</b> jour" + (cur > 1 ? "s" : "") + " · record " + d.best + " · un jour manqué pardonné par semaine</p>";
+    var ti = F.titles(s); o += '<div class="mt-ti" aria-label="Titres obtenus">' + (ti.length ? ti.map(function (t) { return '<span class="mt-badge" title="' + esc(t.text) + '">' + esc(t.name) + "</span>"; }).join("") : '<span class="muted">Aucun titre pour l’instant : relève un défi trois jours de suite.</span>') + "</div>";
+    o += '<details class="mt-tl"><summary>Tous les titres</summary><ul>' + F.TITLES.map(function (t) { return "<li" + (d.ti.indexOf(t.id) >= 0 ? ' class="done"' : "") + "><b>" + esc(t.name) + "</b> · " + esc(t.text) + "</li>"; }).join("") + "</ul></details></section>";
+    if (rc) { var rk = BL.lbUI && BL.lbUI.myRank ? BL.lbUI.myRank("week") : null; o += '<section class="mt-card mt-recap"><h3>Récap de la semaine <small>du ' + esc(rc.key.split("-").reverse().join("/")) + '</small></h3><ul class="mt-rc"><li><b>' + rc.n + "</b> défi" + (rc.n > 1 ? "s" : "") + " réclamé" + (rc.n > 1 ? "s" : "") + "</li><li><b>" + esc(u.money(rc.gain)) + "</b> gagnés</li><li>Série : <b>" + rc.st + "</b> jour" + (rc.st > 1 ? "s" : "") + "</li>" + (rk ? "<li>Classement de la semaine : <b>" + rk + "<sup>e</sup></b></li>" : "") + "</ul></section>"; F.seen(s); }
+    return o;
+  }
   function chalHtml(s) {
-    var M = BL.meta, x = M.state(s), o = '<p class="sg-lead">Les défis sont générés sur ton appareil à partir de la date : tous les joueurs ont les mêmes défis le même jour, sans serveur ni compte. Récompense : des lingots (cosmétiques seulement).</p>';
+    var M = BL.meta, x = M.state(s), o = dfsHtml(s) + '<p class="sg-lead">Les défis sont générés sur ton appareil à partir de la date : tous les joueurs ont les mêmes défis le même jour, sans serveur ni compte. Seuls des défis réalisables à ton stade sont tirés. Récompense : des lingots (cosmétiques seulement).</p>';
     [["dc", "Défis du jour", x.dc], ["wc", "Défis de la semaine", x.wc]].forEach(function (g) {
       if (!g[2]) return; o += '<section class="mt-card"><h3>' + g[1] + ' <small>' + esc(g[2].key) + '</small></h3><ul class="mt-list">';
       g[2].list.forEach(function (c, i) {
-        var p = M.progress(s, g[0], i), T = BL.data.meta.templates[c.t], label = T.text.replace("{n}", c.t === "earn" ? u.money(p.tg) : p.tg), why = M.whyClaim(s, g[0], i);
-        o += '<li><div class="mt-ch"><b>' + esc(T.name) + "</b><span>" + esc(label) + '</span><div class="mt-bar" role="img" aria-label="' + Math.round(p.p * 100) + ' pour cent"><i style="transform:scaleX(' + p.p.toFixed(3) + ')"></i></div><small>' + (c.t === "earn" ? u.money(p.cur) + " / " + u.money(p.tg) : Math.floor(p.cur) + " / " + p.tg) + "</small></div>" + (p.claimed ? '<span class="rv-ok">Réclamé ✓</span>' : '<button type="button" class="btn ghost" data-act="claim" data-k="' + g[0] + '" data-i="' + i + '"' + (why ? " disabled" : "") + ">+" + p.reward + " lingot" + (p.reward > 1 ? "s" : "") + "</button>") + (why && p.done && !p.claimed ? '<small class="sg-why">' + esc(why) + "</small>" : "") + "</li>";
+        var p = M.progress(s, g[0], i), T = BL.data.meta.templates[c.t], label = T.text.replace("{n}", c.t === "earn" || c.t === "income" ? u.money(p.tg) : p.tg), why = M.whyClaim(s, g[0], i);
+        o += '<li><div class="mt-ch"><b>' + esc(T.name) + "</b><span>" + esc(label) + '</span><div class="mt-bar" role="img" aria-label="' + Math.round(p.p * 100) + ' pour cent"><i style="transform:scaleX(' + p.p.toFixed(3) + ')"></i></div><small>' + (c.t === "earn" || c.t === "income" ? u.money(p.cur) + " / " + u.money(p.tg) : c.t === "cool" ? (p.done ? "atteint" : "chaleur " + Math.round(p.cur) + " → " + p.tg) : Math.floor(p.cur) + " / " + p.tg) + "</small></div>" + (p.claimed ? '<span class="rv-ok">Réclamé ✓</span>' : '<button type="button" class="btn ghost" data-act="claim" data-k="' + g[0] + '" data-i="' + i + '"' + (why ? " disabled" : "") + ">+" + p.reward + " lingot" + (p.reward > 1 ? "s" : "") + "</button>") + (why && p.done && !p.claimed ? '<small class="sg-why">' + esc(why) + "</small>" : "") + "</li>";
       });
       o += "</ul></section>";
     });
@@ -55,7 +64,7 @@
     A.forEach(function (a) { var d = !!s.ach[a.id]; o += '<li class="' + (d ? "done" : "") + '"><b>' + (d ? "✓ " : "") + esc(a.name) + "</b><span>" + esc(a.desc) + "</span></li>"; }); return o + "</ul></section>";
   }
   function paint(force) {
-    if (!open || !S) return; var s = S, g = st.tab + "|" + st.clan + st.hard + st.confirm + st.flash + "|" + JSON.stringify([s.meta, s.ach]) + "|" + Math.floor(s.money / 1e4) + "|" + Math.floor(s.total / 1e5);
+    if (!open || !S) return; var s = S, g = st.tab + "|" + st.clan + st.hard + st.confirm + st.flash + "|" + JSON.stringify([s.meta, s.ach, s.dfs]) + "|" + Math.floor(s.money / 1e4) + "|" + Math.floor(s.total / 1e5);
     if (!force && g === bsig) return; bsig = g; var sc = el.body.scrollTop;
     Array.prototype.forEach.call(el.tabs.children, function (b) { var on = b.dataset.tab === st.tab; b.classList.toggle("on", on); b.setAttribute("aria-selected", on ? "true" : "false"); });
     el.body.innerHTML = (st.flash ? '<p class="sg-flash" role="status">' + esc(st.flash) + "</p>" : "") + (st.tab === "pres" ? presHtml(s) : st.tab === "chal" ? chalHtml(s) : succHtml(s)); el.body.scrollTop = force ? 0 : sc;

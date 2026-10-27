@@ -17,7 +17,15 @@
       ops: { name: "Opérations", text: "Terminer {n} opération(s) de l'Arsenal", steps: [1, 2, 3] },
       def: { name: "Défense", text: "Repousser {n} attaque(s) de rivaux", steps: [1, 2, 3] },
       casino: { name: "Casino", text: "Jouer {n} partie(s) au casino", steps: [3, 6, 10] },
-      build: { name: "Expansion", text: "Acheter {n} niveaux d'activités", steps: [5, 10, 20] }
+      build: { name: "Expansion", text: "Acheter {n} niveaux d'activités", steps: [5, 10, 20] },
+      /* Partie 19 · E : 7 modèles de plus (3 paliers chacun). Chacun n'est tiré que s'il est réalisable à ce stade de la partie (voir meta.js, eligible). */
+      heist: { name: "Grand braquage", text: "Terminer {n} braquage(s)", steps: [1, 1, 2] },
+      visit: { name: "Tournée", text: "Visiter {n} quartier(s) différents (fiche ouverte)", steps: [1, 2, 3] },
+      cool: { name: "Profil bas", text: "Faire descendre la chaleur à {n} ou moins", steps: [40, 25, 10], latch: true },
+      crew: { name: "Recrutement", text: "Recruter ou former {n} fois un équipier", steps: [1, 2, 3] },
+      works: { name: "Chantiers", text: "Terminer {n} chantier(s)", steps: [2, 4, 8] },
+      mini: { name: "Savoir-faire", text: "Jouer {n} mini-jeu(x)", steps: [1, 2, 3] },
+      income: { name: "Rendement", text: "Atteindre {n}/s de revenus nets", steps: [1.1, 1.2, 1.35], latch: true }
     },
     achievements: [
       { id: "m1", name: "Premier chapitre", desc: "Terminer le chapitre 1 de l’histoire", cond: { t: "chap", n: 1 } },

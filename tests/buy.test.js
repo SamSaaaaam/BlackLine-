@@ -53,5 +53,5 @@ check(W.full(s) && Y.options(s).every(o => o.kind === "upg"), "file pleine : le 
 ["1", "10", "25", "max"].forEach(v => check(S.sanitizeSettings({ buyqty: v }).buyqty === v, "buyqty " + v + " conservé"));
 check(S.sanitizeSettings({ buyqty: 10 }).buyqty === "10", "buyqty numérique 10 → \"10\"");
 [undefined, null, "100", "MAX", {}, [], "__proto__", -1].forEach(v => check(S.sanitizeSettings({ buyqty: v }).buyqty === "1", "buyqty hostile " + JSON.stringify(v) + " → 1"));
-check(S.VERSION === 14, "version de sauvegarde inchangée par le réglage");
+check(S.sanitizeSettings({ buyqty: "max" }).buyqty === "max" && S.VERSION === 15, "le réglage ne crée pas de nouvelle version (v15 vient des défis)");
 done("buy");

@@ -46,29 +46,56 @@
   function hash(str) { var h = 2166136261; for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
   function rng(seed) { var a = seed >>> 0; return function () { a = (a + 0x6d2b79f5) | 0; var x = Math.imul(a ^ (a >>> 15), 1 | a); x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x; return ((x ^ (x >>> 14)) >>> 0) / 4294967296; }; }
   /* Liste de modèles du jour : ne dépend QUE de la clé de date (identique pour tous). */
-  function pickList(kind, key) {
-    var ids = Object.keys(D().templates), r = rng(hash("blackline:" + kind + ":" + key)), arr = ids.slice();
+  /* Partie 19 · E : seuls les modèles réalisables à ce stade sont tirés (s fourni) ; jamais deux fois le même modèle dans un tirage */
+  function eligible(s, t, n) {
+    if (!s) return true; var T = D().templates[t]; if (!T) return false;
+    try {
+      if (t === "ops") return !!(BL.crew && BL.crew.owned(s).length && BL.equip && BL.equip.opsList().some(function (o) { return BL.equip.opUnlock(s, o).ok; }));
+      if (t === "def") return !!(BL.territory && BL.territory.count(s) >= 1);
+      if (t === "casino") return !!(BL.casino && BL.casino.available(s));
+      if (t === "heist") return !!(BL.heist && (s.heist && s.heist.run || E().level(s) >= BL.data.heist.params.lvl && BL.heist.avail(s).length >= 2));
+      if (t === "cool") return !!(BL.heat && s.heat && s.heat.v > T.steps[n]);
+      if (t === "crew") return !!(BL.crew && BL.data.crew.members.some(function (m) { var stt = BL.crew.state(s, m); return stt === "available" || (BL.crew.has(s, m.id) && BL.crew.lvl(s, m.id) < BL.data.crew.params.maxLevel); }));
+      if (t === "works") return !!(BL.works && E().actUnlocked(s, BL.data.activities[0]));
+      return true;
+    } catch (e) { return false; }
+  }
+  function pickList(kind, key, s) {
+    var ids = Object.keys(D().templates), r = rng(hash("blackline:" + kind + ":" + key)), arr = ids.slice(), out = [], want = kind === "dc" ? P().dailyCount : P().weeklyCount;
     for (var i = arr.length - 1; i > 0; i--) { var j = Math.floor(r() * (i + 1)), t = arr[i]; arr[i] = arr[j]; arr[j] = t; }
-    return arr.slice(0, kind === "dc" ? P().dailyCount : P().weeklyCount).map(function (id) { return { t: id, n: Math.floor(r() * 3) }; });
+    arr.forEach(function (id) { var n = Math.floor(r() * 3); if (out.length < want && eligible(s, id, n)) out.push({ t: id, n: n }); });
+    return out;
   }
   function metric(s, t) {
+    if (t === "heist") return s.heist && s.heist.done ? Object.keys(s.heist.done).reduce(function (a, k) { return a + (+s.heist.done[k] || 0); }, 0) : 0;
+    if (t === "visit") return s.dfs ? s.dfs.vis || 0 : 0; if (t === "works") return s.works ? s.works.n || 0 : 0; if (t === "mini") return s.mini ? s.mini.n || 0 : 0;
+    if (t === "crew") { var lv = 0; if (s.crew && s.crew.m) Object.keys(s.crew.m).forEach(function (k) { lv += +s.crew.m[k].lv || 0; }); return lv; }
+    if (t === "cool") return s.heat ? s.heat.v : 0; if (t === "income") return E().incomeBase(s);
     if (t === "earn") return s.total; if (t === "ops") return s.eq ? s.eq.done : 0; if (t === "def") return s.terr ? s.terr.won : 0; if (t === "casino") return s.casino ? s.casino.played : 0;
     var c = 0; for (var k in (s.owned || {})) c += s.owned[k] || 0; return c;
   }
-  function target(s, kind, x) { var st = D().templates[x.t].steps[x.n], mul = kind === "wc" ? P().weeklyMul : 1; if (x.t === "earn") return Math.ceil(st * mul * 60 * Math.max(50, E().incomeBase(s))); return Math.ceil(st * (kind === "wc" ? Math.ceil(mul / 2) : 1)); }
-  function gen(s, kind, key) { var list = pickList(kind, key).map(function (x) { return { t: x.t, n: x.n, tg: 0, b: 0, cl: false }; }); list.forEach(function (x) { x.b = metric(s, x.t); x.tg = target(s, kind, x); }); m(s)[kind] = { key: key, list: list }; }
+  function target(s, kind, x) { var st = D().templates[x.t].steps[x.n], mul = kind === "wc" ? P().weeklyMul : 1;
+    if (x.t === "cool") return st; if (x.t === "income") return Math.ceil(Math.max(1, E().incomeBase(s)) * (kind === "wc" ? 1 + (st - 1) * 3 : st));
+    if (x.t === "earn") return Math.ceil(st * mul * 60 * Math.max(50, E().incomeBase(s))); return Math.ceil(st * (kind === "wc" ? Math.ceil(mul / 2) : 1)); }
+  function gen(s, kind, key) { var list = pickList(kind, key, s).map(function (x) { return { t: x.t, n: x.n, tg: 0, b: 0, cl: false, hit: false }; }); list.forEach(function (x) { x.b = metric(s, x.t); x.tg = target(s, kind, x); }); m(s)[kind] = { key: key, list: list }; }
   function ensure(s, now) {
     var d = now instanceof Date ? now : new Date(now === undefined || now === null ? Date.now() : now), x = m(s), ch = false; if (isNaN(d.getTime())) return false;
     if (!x.dc || x.dc.key !== dayKey(d)) { gen(s, "dc", dayKey(d)); ch = true; } if (!x.wc || x.wc.key !== weekKey(d)) { gen(s, "wc", weekKey(d)); ch = true; } return ch;
   }
   function progress(s, kind, i) {
-    var ch = m(s)[kind], x = ch && ch.list[i]; if (!x) return null; var cur = Math.max(0, metric(s, x.t) - x.b), tg = x.tg; return { cur: cur, tg: tg, p: Math.min(1, cur / tg), done: cur + 1e-9 >= tg, claimed: !!x.cl, t: x.t, reward: kind === "wc" ? P().weeklyGold : P().dailyGold };
+    var ch = m(s)[kind], x = ch && ch.list[i]; if (!x) return null; var cur = Math.max(0, metric(s, x.t) - x.b), tg = x.tg;
+    if (x.t === "cool") { var hv = metric(s, "cool"); cur = x.hit ? tg : hv <= tg ? tg : 0; return { cur: x.hit || hv <= tg ? tg : Math.round(hv), tg: tg, p: x.hit || hv <= tg ? 1 : Math.max(0, Math.min(0.99, tg / Math.max(1, hv))), done: !!x.hit || hv <= tg, claimed: !!x.cl, t: x.t, reward: kind === "wc" ? P().weeklyGold : P().dailyGold, latch: true }; }
+    if (x.t === "income") { var iv = metric(s, "income"); cur = x.hit ? tg : iv; }
+    return { cur: cur, tg: tg, p: Math.min(1, cur / tg), done: cur + 1e-9 >= tg, claimed: !!x.cl, t: x.t, reward: kind === "wc" ? P().weeklyGold : P().dailyGold };
   }
   function whyClaim(s, kind, i) { var p = progress(s, kind, i); if (!p) return "Défi inconnu."; if (p.claimed) return "Déjà réclamé."; if (!p.done) return "Pas encore terminé."; if (!BL.gold || BL.gold.space(s) < p.reward) return "Coffre plein : agrandis-le pour recevoir les lingots."; return ""; }
-  function claim(s, kind, i) { if (whyClaim(s, kind, i)) return null; var p = progress(s, kind, i); s.gold += p.reward; if (s.goldLife) s.goldLife.bought = s.goldLife.bought || 0; m(s)[kind].list[i].cl = true; m(s).cl = Math.min(1e6, m(s).cl + 1); return { gold: p.reward }; }
+  function claim(s, kind, i, now) { if (whyClaim(s, kind, i)) return null; var p = progress(s, kind, i); s.gold += p.reward; if (s.goldLife) s.goldLife.bought = s.goldLife.bought || 0; m(s)[kind].list[i].cl = true; m(s).cl = Math.min(1e6, m(s).cl + 1);
+    var ti = BL.dfs ? BL.dfs.onClaim(s, now === undefined ? Date.now() : now, kind === "wc") : []; return { gold: p.reward, titles: ti, streak: BL.dfs ? BL.dfs.state(s).st : 0 }; }   /* Partie 19 · E : série et titres (aucun lingot en plus) */
+  /* défis « à atteindre » (chaleur, revenu) : restent acquis une fois le seuil touché, même si la valeur bouge ensuite */
+  function latch(s) { ["dc", "wc"].forEach(function (k) { var ch = m(s)[k]; if (ch) ch.list.forEach(function (x, i) { if (x.cl || x.hit || !D().templates[x.t] || !D().templates[x.t].latch) return; var v = metric(s, x.t); if (x.t === "cool" ? v <= x.tg : v + 1e-9 >= x.tg) x.hit = true; }); }); }
   /* ---- Collections ---- */
   function scan(s) {
-    var c = m(s).coll, add = function (a, v) { if (v && a.indexOf(v) < 0) a.push(v); };
+    latch(s); var c = m(s).coll, add = function (a, v) { if (v && a.indexOf(v) < 0) a.push(v); };
     if (s.eq && s.eq.inv) s.eq.inv.forEach(function (x) { add(c.items, x.id); }); if (s.heat && s.heat.sz) s.heat.sz.forEach(function (x) { add(c.items, x.id); });
     if (BL.territory) BL.data.territory.districts.forEach(function (d) { if (BL.territory.lv(s, d.id) >= 1) add(c.dist, d.id); });
     if (BL.crew) BL.crew.owned(s).forEach(function (x) { add(c.crew, x.id); });
@@ -87,7 +114,7 @@
     }
     ["dc", "wc"].forEach(function (k) {
       var c = q[k]; if (!isObj(c) || typeof c.key !== "string" || !/^\d{4}-(\d{2}-\d{2}|W\d{2})$/.test(c.key) || !Array.isArray(c.list)) return; var list = [];
-      c.list.slice(0, k === "dc" ? P().dailyCount : P().weeklyCount).forEach(function (e) { if (isObj(e) && D().templates[e.t] && !list.some(function (z) { return z.t === e.t; })) list.push({ t: e.t, n: Math.floor(num(e.n, 0, 2, 0)), tg: num(e.tg, 1, 1e300, 1), b: num(e.b, 0, 1e300, 0), cl: e.cl === true }); });
+      c.list.slice(0, k === "dc" ? P().dailyCount : P().weeklyCount).forEach(function (e) { if (isObj(e) && D().templates[e.t] && !list.some(function (z) { return z.t === e.t; })) list.push({ t: e.t, n: Math.floor(num(e.n, 0, 2, 0)), tg: num(e.tg, 1, 1e300, 1), b: num(e.b, 0, 1e300, 0), cl: e.cl === true, hit: e.hit === true }); });
       if (list.length) x[k] = { key: c.key, list: list };
     });
   }
@@ -96,5 +123,5 @@
     else if (c.t === "bond") cur = BL.crew ? BL.crew.owned(s).filter(function (x) { var r = BL.crew.rec(s, x.id); return r && r.bond; }).length : 0; else if (c.t === "pres") cur = m(s).pr; else if (c.t === "chal") cur = m(s).cl; else if (c.t === "hard") cur = m(s).hard ? E().level(s) : 0; else return null;
     return cur;
   }
-  BL.meta = { initState: initState, state: m, clan: clan, fx: fx, incMul: incMul, heatMul: heatMul, rivalMul: rivalMul, costMul: costMul, prestigeInc: prestigeInc, why: why, prestige: prestige, setHard: setHard, dayKey: dayKey, weekKey: weekKey, pickList: pickList, ensure: ensure, progress: progress, whyClaim: whyClaim, claim: claim, scan: scan, collections: collections, sanitize: sanitize, achProgress: achProgress, gen: gen, metric: metric };
+  BL.meta = { eligible: eligible, latch: latch, initState: initState, state: m, clan: clan, fx: fx, incMul: incMul, heatMul: heatMul, rivalMul: rivalMul, costMul: costMul, prestigeInc: prestigeInc, why: why, prestige: prestige, setHard: setHard, dayKey: dayKey, weekKey: weekKey, pickList: pickList, ensure: ensure, progress: progress, whyClaim: whyClaim, claim: claim, scan: scan, collections: collections, sanitize: sanitize, achProgress: achProgress, gen: gen, metric: metric };
 })(typeof globalThis !== "undefined" ? globalThis : this);

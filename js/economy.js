@@ -22,7 +22,8 @@
     if (BL.war) BL.war.initState(s);
     if (BL.meta) BL.meta.initState(s);
     if (BL.works) BL.works.initState(s);   /* Partie 17 · D : chantiers */
-    if (BL.minigames) BL.minigames.initState(s);   /* Partie 17 · E : mini-jeux */
+    if (BL.minigames) BL.minigames.initState(s);
+    if (BL.dfs) BL.dfs.initState(s);   /* Partie 19 · E : série de défis */   /* Partie 17 · E : mini-jeux */
     return s;
   }
   function count(o) { var n = 0; for (var k in o) n += typeof o[k] === "number" ? o[k] : (o[k] ? 1 : 0); return n; }

@@ -37,7 +37,7 @@
   }
   function select(hitObj, focus) {
     if (hitObj && hitObj.type === "hq" && BL.roomUI && BL.roomUI.enter) { ui.sel = null; panelSig = ""; dirty = true; renderPanel(); BL.roomUI.enter(); return; }          /* le QG : on entre dedans */
-    ui.sel = hitObj; panelSig = ""; dirty = true;
+    ui.sel = hitObj; panelSig = ""; dirty = true; if (hitObj && hitObj.type === "district" && BL.dfs && S) BL.dfs.visit(S, hitObj.id, Date.now());   /* Partie 19 · E : visite */
     if (hitObj && (focus || vw <= 900)) { var f = R.focusOf(hitObj), small = vw <= 900, zz = focus ? Math.max(cam.z, small ? 0.7 : 0.85) : cam.z; if (f) centerOn(f.x, f.y - 20 + (small ? vh * 0.2 / zz : 0), zz); }       /* sur mobile, le panneau occupe le bas : la cible remonte */
     Object.keys(P.chips || {}).forEach(function (k) { P.chips[k].classList.toggle("on", !!hitObj && ((hitObj.type === "hq" && k === "hq") || (hitObj.type === "lot" && k === hitObj.act))); });
     renderPanel();

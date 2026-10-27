@@ -1841,3 +1841,10 @@ body.nomotion .wart *,body.lowfx .wart *,body.nomotion .winaug,body.nomotion .wi
 
 /* Partie 19 · D : chiffres tabulaires partout (les montants ne « dansent » plus en changeant) */
 body{font-variant-numeric:tabular-nums}
+
+/* ===== Partie 19 · E : série, titres, récap ===== */
+.mt-st{margin:4px 0 8px;font-size:14px}.mt-st b{font:800 22px var(--font-display);color:var(--gold)}
+.mt-ti,.pf-titles{display:flex;flex-wrap:wrap;gap:6px}.pf-titles{margin-bottom:8px;grid-column:1/-1}
+.mt-badge{display:inline-block;padding:3px 10px;border-radius:999px;border:1px solid var(--gold-d);background:rgba(200,164,94,.12);color:var(--gold);font:700 12px var(--font-display);letter-spacing:.04em}
+.mt-tl{margin-top:8px;font-size:13px}.mt-tl summary{cursor:pointer;min-height:40px;display:flex;align-items:center}.mt-tl ul{margin:4px 0 0;padding-left:18px;display:grid;gap:3px}.mt-tl li.done{color:var(--up)}
+.mt-rc{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:4px;font-size:14px}.mt-rc b{color:var(--gold)}

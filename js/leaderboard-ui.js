@@ -93,5 +93,5 @@
   function mount(c) { if (!c) return; var vb = $("v_board"); if (vb) vb.innerHTML = ""; host = c; mode = ""; confirmDel = false; renaming = false; build(); paintAll(); if (mode === "on") { lastLoad = 0; load(true); } }
   function unmount() { if (host) host.innerHTML = ""; host = null; mode = ""; confirmDel = false; }
   function init(h, util) { u = util || BL.ui; }
-  BL.lbUI = { init: init, mount: mount, unmount: unmount, update: update, render: function () { paintAll(); }, _state: function () { return { mode: mode, cat: cat, rows: rows ? rows.length : -1, loading: loading }; } };
+  BL.lbUI = { myRank: function (c) { if (!rows || cat !== (c === "week" ? "week" : "all")) return null; var me = rows.filter(function (r) { return r.me; })[0]; return me ? me.rank : null; }, init: init, mount: mount, unmount: unmount, update: update, render: function () { paintAll(); }, _state: function () { return { mode: mode, cat: cat, rows: rows ? rows.length : -1, loading: loading }; } };
 })(typeof globalThis !== "undefined" ? globalThis : this);

@@ -52,13 +52,13 @@ check(W.foreman(s, "backroom", 0, 1) === null && W.foremanWait(s) > 0, "délai d
 W.advance(s, W.P.foreman.cd); r = W.foreman(s, "backroom", 0, 0); check(Math.abs(r.pct - 0.05) < 1e-9, "contremaître raté : −5 % (jamais 0, jamais de pénalité)");
 check(W.foremanPct(99) === 0.2 && W.foremanPct(-3) === 0.05 && W.foremanPct(NaN) === 0.05, "score hostile borné");
 /* ===== sauvegarde v14 ===== */
-check(S.VERSION === 14, "sauvegarde v14");
+check(S.VERSION >= 14, "sauvegarde v14 ou plus récente");
 s = fresh(); E.setOwned(s, "backroom", 30); E.setOwned(s, "freight", 10); s.total = E.levelAt(W.P.workers[2]); W.order(s, "backroom", 0); W.order(s, "freight", 0); W.advance(s, 3); W.bribe(s, "backroom", 0);
 let env = JSON.parse(JSON.stringify({ v: 14, savedAt: 1000, state: s })), back = S.sanitize(S.migrate(env), 2000);
 check(JSON.stringify(back.works) === JSON.stringify(s.works), "aller-retour : chantiers identiques");
 /* ancienne sauvegarde v13 : aucun chantier, rien d'autre ne change */
 const v13 = { v: 13, savedAt: 1000, state: { money: 500, total: 5000, bl: { backroom: [12, 3] }, owned: { backroom: 12 } } }; const mg = S.migrate(JSON.parse(JSON.stringify(v13)));
-check(mg.v === 14, "migration 13 → 14"); back = S.sanitize(mg, 2000); check(back.works && Array.isArray(back.works.q) && back.works.q.length === 0 && back.works.clk === 0, "v13 : aucun chantier");
+check(mg.v === S.VERSION, "migration 13 → " + S.VERSION); back = S.sanitize(mg, 2000); check(back.works && Array.isArray(back.works.q) && back.works.q.length === 0 && back.works.clk === 0, "v13 : aucun chantier");
 check(E.bLevel(back, "backroom", 0) === 12 && E.bLevel(back, "backroom", 1) === 3 && back.money === 500, "v13 : niveaux et argent conservés");
 const imp = S.importText(JSON.stringify(v13), 5000); check(imp.ok && imp.state.works.q.length === 0, "import d'une sauvegarde v13");
 /* valeurs hostiles */

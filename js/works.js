@@ -24,7 +24,7 @@
   function num(v, d, max) { return typeof v === "number" && isFinite(v) && v >= 0 ? Math.min(v, max === undefined ? 1e300 : max) : d; }
   function act(id) { return E().find(D().activities, id); }
   function st(s) { if (!s.works || typeof s.works !== "object") s.works = { q: [], clk: 0, fcd: 0 }; return s.works; }
-  function initState(s) { s.works = { q: [], clk: 0, fcd: 0 }; }
+  function initState(s) { s.works = { q: [], clk: 0, fcd: 0, n: 0 }; }   /* n : chantiers terminés (défi « Chantiers », Partie 19) */
   function durAt(L) {
     var A = P.anchors; L = Math.max(1, L);
     if (L <= A[0][0]) return A[0][1];
@@ -91,7 +91,7 @@
     while (guard++ < 200) {
       var nx = null, ne = null; active(s).forEach(function (e) { var t = e.at + e.dur; if (nx === null || t < nx) { nx = t; ne = e; } });
       if (nx === null || nx > target + EPS) break;
-      W.clk = Math.max(W.clk, nx); W.q.splice(W.q.indexOf(ne), 1); if (apply(s, ne)) done.push({ id: ne.id, i: ne.i, to: ne.to, at: nx }); fill(s, W.clk);
+      W.clk = Math.max(W.clk, nx); W.q.splice(W.q.indexOf(ne), 1); if (apply(s, ne)) { W.n = Math.min(1e9, (W.n || 0) + 1); done.push({ id: ne.id, i: ne.i, to: ne.to, at: nx }); } fill(s, W.clk);
     }
     W.clk = Math.max(W.clk, target); return done;
   }
@@ -120,7 +120,7 @@
   /* ---- sauvegarde : nettoyage strict à la lecture (après la reconstruction des niveaux) ---- */
   function sanitize(r, s) {
     initState(s); var w = r && r.works; if (!w || typeof w !== "object" || Array.isArray(w)) return;
-    var W = s.works; W.clk = num(w.clk, 0, 1e11); W.fcd = Math.min(num(w.fcd, 0, 1e11), W.clk + P.foreman.cd);
+    var W = s.works; W.clk = num(w.clk, 0, 1e11); W.n = Math.floor(num(w.n, 0, 1e9)); W.fcd = Math.min(num(w.fcd, 0, 1e11), W.clk + P.foreman.cd);
     if (!Array.isArray(w.q)) return; var seen = {}, out = [];
     w.q.slice(0, 32).forEach(function (x) {
       if (!x || typeof x !== "object" || Array.isArray(x)) return; var a = typeof x.id === "string" ? act(x.id) : null; if (!a) return;

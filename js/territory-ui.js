@@ -43,7 +43,7 @@
     });
     box.appendChild(svg); ui.map = svg;
   }
-  function choose(id) { ui.sel = id; if (window.matchMedia && matchMedia("(max-width:900px)").matches && $("dpanel") && $("dpanel").scrollIntoView && !$("v_terr").hidden) setTimeout(function () { $("dpanel").scrollIntoView({ block: "nearest", behavior: "smooth" }); }, 30); for (var k in ui.svg) ui.svg[k].g.classList.toggle("sel", k === id); ui.sig = null; if (ui.s) panel(ui.s); }
+  function choose(id) { if (BL.dfs && BL.main && BL.main.state && id) BL.dfs.visit(BL.main.state(), id, Date.now());   /* Partie 19 · E : visite (défi « Tournée ») */ ui.sel = id; if (window.matchMedia && matchMedia("(max-width:900px)").matches && $("dpanel") && $("dpanel").scrollIntoView && !$("v_terr").hidden) setTimeout(function () { $("dpanel").scrollIntoView({ block: "nearest", behavior: "smooth" }); }, 30); for (var k in ui.svg) ui.svg[k].g.classList.toggle("sel", k === id); ui.sig = null; if (ui.s) panel(ui.s); }
   function ring(id) {
     var o = ui.svg[id], r = S("circle", { cx: o.c[0], cy: o.c[1], r: 10, "class": "cap-ring" }, ui.map);
     o.g.classList.add("flash"); setTimeout(function () { if (r.parentNode) r.parentNode.removeChild(r); o.g.classList.remove("flash"); }, 1300);
