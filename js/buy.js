@@ -24,7 +24,7 @@
       var nb = e.nextBuilding(s, a); if (nb && nb.ok && !(w && w.busyLot(s, a.id, nb.idx))) { var g2 = e.bldIncome(s, a, nb.idx, 1); if (g2 > EPS) out.push({ kind: "bld", id: a.id, i: nb.idx, name: a.name, cost: nb.cost, gain: g2, n: 1 }); }
     });
     var base = e.incomeBase(s);
-    D().upgrades.forEach(function (u) { if (s.upg[u.id] || !e.unlocked(s, u)) return; s.upg[u.id] = true; var g = e.incomeBase(s) - base; delete s.upg[u.id]; if (g > EPS) out.push({ kind: "upg", id: u.id, name: u.name, cost: u.cost, gain: g, n: 1 }); });
+    D().upgrades.forEach(function (u) { if (s.upg[u.id] || !e.unlocked(s, u)) return; var had = Object.prototype.hasOwnProperty.call(s.upg, u.id), prev = s.upg[u.id]; s.upg[u.id] = true; var g = e.incomeBase(s) - base; if (had) s.upg[u.id] = prev; else delete s.upg[u.id];   /* essai sans trace */ if (g > EPS) out.push({ kind: "upg", id: u.id, name: u.name, cost: u.cost, gain: g, n: 1 }); });
     out.forEach(function (o) { o.ratio = o.cost / o.gain; }); return out;
   }
   /* meilleur achat abordable maintenant ; sinon { none:true, eta } (secondes avant le prochain achat possible) */

@@ -359,6 +359,7 @@
   emp.onclick = function () { BL.menu.openSheet("profile"); }; emp.onkeydown = function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); BL.menu.openSheet("profile"); } };
   BL.explainUI.init({ state: function () { return state; }, money: U.money });
   if (BL.worksUI) { BL.worksUI.init(U.handlers, U); BL.worksUI.update(state); }   /* Partie 17 · D */
+  if (BL.todoUI) { BL.todoUI.init(); BL.todoUI.update(state); }   /* Partie 19 · C */
   BL.results.init({ state: function () { return state; }, go: U.go, money: U.money, save: function () { doSave(false); } });
   BL.bus.on("ops", function () { BL.equipUI.render(); U.invalidate(); });
   BL.bus.on("hurt", function () { BL.equipUI.render(); });
@@ -419,7 +420,7 @@
     finishOps();
     BL.watch.scan(state).forEach(function (d) { BL.bus.emit(d, state); });
     if (BL.saga && !(BL.notify.current && BL.notify.current())) { var pc_ = BL.saga.pending(state); if (pc_ && !sagaDue) { sagaDue = Date.now() + 2500; pc_ = null; } else if (pc_ && Date.now() < sagaDue) pc_ = null; else if (!pc_) sagaDue = 0;   /* l'annonce d'un chapitre attend qu'aucune autre bannière (promotion, alerte) ne soit à l'écran */ if (pc_) { BL.saga.markSeen(state, pc_.id); BL.notify.push({ type: "saga", key: "saga-" + pc_.id, title: "Histoire : " + pc_.title, text: "Un nouveau chapitre de ta trame est ouvert.", target: { saga: 1 }, mark: null }); } }
-    if (!BL.press.active() && (t - uiAt >= 200 || gap > 5 || (U.dirty && U.dirty()))) { uiAt = t; [function () { U.update(state); }, function () { if (BL.worksUI) BL.worksUI.update(state); }, function () { BL.results.tick(state); }, function () { BL.audio.setIntensity(E.level(state) / B.maxEmpireLevel); }, function () { BL.assistantUI.tick(state); }].forEach(function (f) { try { f(); } catch (e) { if (!uiFail) { uiFail = 1; try { console.error("[BLACKLINE] erreur d'interface (le jeu continue) :", e); } catch (x) {} } } }); }   /* C11 : l'économie avance toutes les 100 ms, mais l'interface ne se redessine que 5 fois par seconde */
+    if (!BL.press.active() && (t - uiAt >= 200 || gap > 5 || (U.dirty && U.dirty()))) { uiAt = t; [function () { U.update(state); }, function () { if (BL.worksUI) BL.worksUI.update(state); }, function () { if (BL.todoUI) BL.todoUI.update(state); }, function () { BL.results.tick(state); }, function () { BL.audio.setIntensity(E.level(state) / B.maxEmpireLevel); }, function () { BL.assistantUI.tick(state); }].forEach(function (f) { try { f(); } catch (e) { if (!uiFail) { uiFail = 1; try { console.error("[BLACKLINE] erreur d'interface (le jeu continue) :", e); } catch (x) {} } } }); }   /* C11 : l'économie avance toutes les 100 ms, mais l'interface ne se redessine que 5 fois par seconde */
   }
   /* Opération terminée : résolue ici, une seule fois, et sauvegardée tout de suite (un rechargement ne la rejoue pas). */
   function finishOps() {

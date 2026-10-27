@@ -42,7 +42,7 @@
     </header>
     <div class="goalbar" id="goalbar" role="status" aria-live="polite">
       <div class="gi" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg></div>
-      <div class="gt"><span class="gl">Objectif actuel</span><b id="nxName"></b><span class="gs" id="nxSub"></span></div>
+      <div class="gt"><span class="gl">Objectif actuel</span><b id="nxName"></b><span class="gs" id="nxSub"></span><button type="button" class="gtodo" id="gTodo" hidden></button></div>
       <div class="gm"><span class="meter wide"><i id="nxBar"></i></span></div>
       <button class="btn" id="nxBtn" hidden>Réclamer</button>
     </div>
@@ -56,8 +56,8 @@
         <button class="btn" id="offlineClose">Reprendre la partie</button>
       </div>
       <section id="v_dash" class="view">
+        <section class="card todo" id="todoDash" aria-labelledby="todoH"><h2 id="todoH">À faire maintenant</h2><ol id="todoNow" class="tdn"></ol></section>
         <div class="stats kpi4" id="stats"></div>
-        <div class="card todo" id="todoDash"><h2>Que faire maintenant ?</h2><div id="todoList" class="todolist"></div></div>
         <div class="card"><h2>Événement en cours</h2><div id="event"></div></div>
         <details class="card more" id="d_inc" open><summary>Revenus de la session</summary>
           <div class="dbody"><div id="chart"></div><div class="muted" id="chartNote"></div></div></details>
@@ -195,6 +195,7 @@
 <script src="js/minigames.js"></script>
 <script src="js/buy.js"></script>
 <script src="js/nav.js"></script>
+<script src="js/todo.js"></script>
 <script src="js/save.js"></script>
 <script src="js/art.js"></script>
 <script src="js/build-art.js"></script>
@@ -248,6 +249,7 @@
 <script src="js/map-ui.js"></script>
 <script src="js/works-ui.js"></script>
 <script src="js/minigames-ui.js"></script>
+<script src="js/todo-ui.js"></script>
 <script src="js/system-ui.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/ambience.js"></script>

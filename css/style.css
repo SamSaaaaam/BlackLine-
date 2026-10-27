@@ -1828,3 +1828,13 @@ body.nomotion .wart *,body.lowfx .wart *,body.nomotion .winaug,body.nomotion .wi
 .nbadge{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;margin-left:6px;border-radius:10px;background:var(--gold);color:#14110a;font:700 12px var(--font-display);font-style:normal;font-variant-numeric:tabular-nums;line-height:1;flex:none}
 .ngbtn .nbadge{position:absolute;top:8px;right:10px;margin:0}
 .sntab:focus-visible,.ngbtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* ===== Partie 19 · C : À faire maintenant ===== */
+.tdn{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:8px}
+.tdn-i{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:8px 10px;border:1px solid var(--line);border-left:3px solid var(--line);border-radius:10px;background:rgba(255,255,255,.02)}
+.tdn-i.u3{border-left-color:var(--down)}.tdn-i.u2{border-left-color:var(--gold)}.tdn-i.u1{border-left-color:#6f9a78}
+.tdn-t{font-size:14px;min-width:0;overflow-wrap:anywhere}.tdn-i .btn{flex:none;min-height:44px}
+.tdn-e{display:grid;gap:2px;padding:8px 2px}.tdn-e b{font-size:14px}.tdn-e small{font-size:13px;color:var(--mut)}
+.gtodo{display:block;max-width:100%;margin-top:2px;padding:2px 0;border:0;background:none;color:var(--gold);font:600 13px var(--font-display);text-align:left;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:24px}
+.gtodo:hover{text-decoration:underline}.gtodo:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.gt{min-width:0}

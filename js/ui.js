@@ -414,7 +414,7 @@
     ui.todoSig = null; if (ui.s) renderTodo(ui.s, true);
   }
   function renderTodo(s, force) {
-    if (!BL.advice) return; var list = BL.advice.top(s, 3), can = list.filter(function (x) { return x.can; }).length, hosts = [$("todoList"), $("todoMapList")];
+    if (!BL.advice) return; var list = BL.advice.top(s, 3), can = list.filter(function (x) { return x.can; }).length, hosts = [$("todoList"), $("todoMapList")].filter(Boolean);   /* Partie 19 · C : le Tableau de bord utilise « À faire maintenant » (todo-ui.js) */
     var sg = list.map(function (x) { return x.id + (x.can ? "+" : "-") + (x.cost !== undefined ? Math.round(Math.log(1 + x.cost)) : "") + (x.eta ? Math.round(x.eta / 15) : ""); }).join("|");
     set($("todoN"), can ? String(can) : ""); $("todoBtn").classList.toggle("has", can > 0);
     if (!force && ui.todoSig === sg) return; ui.todoSig = sg;
