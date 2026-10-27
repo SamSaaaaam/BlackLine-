@@ -22,7 +22,7 @@ const T = require("./_browser");
       const k = await p.evaluate(() => BL.todo.next(BL.main.state(), Date.now()).findIndex(x => x.id === "attack"));
       if (k >= 0) { await p.click(`#todoNow button[data-k="${k}"]`); await p.waitForTimeout(250); T.check(await p.evaluate(() => !document.getElementById("v_terr").hidden), w + " px : attaque → Territoires"); } else T.check(true, w + " px : (attaque masquée par 3 actions plus prioritaires)");
       /* état vide */
-      await p.evaluate(() => { const s = BL.main.state(); s.money = 0; s.pending = null; s.terr.conflict = null; s.heat.v = 0; BL.data.missions.forEach(m => s.claimed[m.id] = true); BL.works.order(Object.assign(s, { money: 1e9 }), "backroom", 0, 1); s.money = 0; BL.ui.go("dash"); });
+      await p.evaluate(() => { const s = BL.main.state(); s.money = 0; s.pending = null; s.terr.conflict = null; s.heat.v = 0; BL.data.missions.forEach(m => s.claimed[m.id] = true); ["dc", "wc"].forEach(k => { const ch = s.meta && s.meta[k]; if (ch && Array.isArray(ch.list)) ch.list.forEach(x => { x.cl = true; }); });   /* défis déjà réclamés (chaleur à 0 accomplit le défi « Profil bas » depuis le bloc E) */ BL.works.order(Object.assign(s, { money: 1e9 }), "backroom", 0, 1); s.money = 0; BL.ui.go("dash"); });
       await p.waitForTimeout(500); const e = await p.$eval("#todoNow", x => x.textContent);
       T.check(/Rien d’urgent\. Profite de la ville\./.test(e) && /Prochain événement/.test(e), w + " px : état vide soigné (" + e.slice(0, 70) + ")");
       T.check(await T.noHScroll(p), w + " px : aucun défilement horizontal");
