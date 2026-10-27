@@ -11,7 +11,10 @@
     freight: { wall: "#46586c", roof: "#566a80", acc: "#f1c24b", sign: "GARAGE", w: 7, d: 4.6, h: 2.9, tall: 0 },
     fence: { wall: "#44605c", roof: "#52726d", acc: "#6fb3c2", sign: "BROCANTE", w: 6.4, d: 4.4, h: 3.1, tall: 0 },
     estate: { wall: "#38455e", roof: "#4a5c80", acc: "#9ab4dd", sign: "ESTATE", w: 4.4, d: 3.6, h: 5.6, tall: 1 },
-    holding: { wall: "#26505a", roof: "#34707c", acc: "#e3c680", sign: "HOLDING", w: 4.4, d: 3.6, h: 6.6, tall: 1 }
+    holding: { wall: "#26505a", roof: "#34707c", acc: "#e3c680", sign: "HOLDING", w: 4.4, d: 3.6, h: 6.6, tall: 1 },
+    maritime: { wall: "#2d4a58", roof: "#3a6274", acc: "#5fb0c8", sign: "FRET", w: 7.2, d: 4.6, h: 3.0, tall: 0 },
+    shell: { wall: "#4a4f3e", roof: "#5e6650", acc: "#b9c7a0", sign: "BANQUE", w: 4.6, d: 3.8, h: 6.0, tall: 1 },
+    guard: { wall: "#3a404c", roof: "#4b5262", acc: "#a4adbd", sign: "SENTINELLE", w: 6.0, d: 4.4, h: 3.8, tall: 0 }
   };
   var TIER_NAMES = ["Délabré", "Modeste", "Soigné", "Élégant", "Prestigieux", "Légendaire", "Impérial", "Somptueux", "Monumental", "Éternel", "Sacré", "Souverain", "Céleste", "Divin", "Absolu"];
   function rgb(h) { var n = parseInt(h.slice(1), 16); return [n >> 16, n >> 8 & 255, n & 255]; }

@@ -43,6 +43,35 @@
         '<rect y="78" width="240" height="42" fill="#0f2a33"/><path d="M0 84Q20 80 40 84T80 84T120 84T160 84T200 84T240 84" stroke="#2b5b66" stroke-width="1.2" fill="none"/><path d="M0 96Q20 92 40 96T80 96T120 96T160 96T200 96T240 96" stroke="#1f4650" stroke-width="1.2" fill="none"/><path d="M0 108Q20 104 40 108T80 108T120 108T160 108T200 108T240 108" stroke="#173a43" stroke-width="1.2" fill="none"/>' +
         '<path d="M120 80Q150 60 200 66Q226 70 238 80Z" fill="#17241f"/><g><path d="M160 66L190 66L196 60H154Z" fill="' + G + '"/><rect x="156" y="52" width="36" height="8" fill="#e8e2d2"/><path d="M154 52L174 40L194 52Z" fill="#cfc8b5"/><g fill="#9aa1a9"><rect x="159" y="60" width="4" height="6"/><rect x="168" y="60" width="4" height="6"/><rect x="177" y="60" width="4" height="6"/><rect x="186" y="60" width="4" height="6"/></g></g>' +
         '<path d="M214 70c0-14 2-22 6-28" stroke="#3a2f22" stroke-width="2.4" fill="none"/><path d="M220 42c-10-6-18-2-22 4 8-2 14-1 22-4zM220 42c8-8 18-6 22 0-8-2-14 0-22 0zM220 42c-3-9-10-12-17-10 7 2 12 6 17 10z" fill="#1f4a36"/>';
+    },
+    /* Partie 19 · F : trois scènes de plus, même nuit, même trait */
+    maritime: function () {
+      var c = "", i, cols = ["#7a3b34", "#35506b", "#6b5a2f", "#3d5a4a", "#5a3d6b", "#2f5f6f"];
+      for (i = 0; i < 9; i++) c += '<rect x="' + (128 + (i % 3) * 30) + '" y="' + (62 - Math.floor(i / 3) * 12) + '" width="28" height="11" fill="' + cols[(i * 5) % 6] + '"/><path d="M' + (131 + (i % 3) * 30) + " " + (64 - Math.floor(i / 3) * 12) + "v7M" + (137 + (i % 3) * 30) + " " + (64 - Math.floor(i / 3) * 12) + 'v7" stroke="#0b0d11" stroke-width="1" opacity=".5"/>';
+      return '<rect width="240" height="120" fill="' + NI + '"/>' + stars(24, 33) + '<circle cx="40" cy="26" r="10" fill="#efe6c8" opacity=".9"/><circle cx="40" cy="26" r="22" fill="url(#gGlow)"/>' +
+        '<rect y="76" width="240" height="44" fill="#0f2a33"/><path d="M0 86Q20 82 40 86T80 86T120 86T160 86T200 86T240 86" stroke="#2b5b66" stroke-width="1.2" fill="none"/><path d="M0 100Q20 96 40 100T80 100T120 100T160 100T200 100T240 100" stroke="#1f4650" stroke-width="1.2" fill="none"/>' +
+        '<path d="M118 76H232L222 92H124Z" fill="#1a2027"/><rect x="118" y="73" width="114" height="4" fill="#2a3540"/>' + c +
+        '<path d="M34 76V18M34 18H108M34 26L60 18M100 18V44" stroke="#c8a45e" stroke-width="3" fill="none"/><path d="M28 76H40" stroke="#c8a45e" stroke-width="4"/><rect x="92" y="44" width="16" height="6" fill="#5fb0c8"/><path d="M100 18V10" stroke="#8a93a2" stroke-width="2"/><circle cx="100" cy="9" r="2.2" fill="#ff4d4d"/>' +
+        '<path d="M0 76H118" stroke="#2a3540" stroke-width="4"/><g fill="#0a0b0e" opacity=".85"><circle cx="70" cy="62" r="5"/><path d="M63 76c0-9 3-13 7-13s7 4 7 13z"/></g>';
+    },
+    shell: function () {
+      return '<rect width="240" height="120" fill="url(#gDusk)"/>' + stars(12, 41) +
+        '<path d="M0 100V64H22V50H44V72H60V100Z" fill="#0f1218"/><path d="M180 100V56H204V44H226V68H240V100Z" fill="#0f1218"/>' +
+        '<rect x="66" y="38" width="108" height="62" fill="#3b3f33"/><path d="M60 38L120 12L180 38Z" fill="#4a4f3e"/><path d="M74 36L120 16L166 36Z" fill="#2c3026"/><circle cx="120" cy="28" r="5" fill="' + G + '"/>' +
+        '<rect x="62" y="38" width="116" height="5" fill="#b9c7a0"/>' +
+        [78, 98, 136, 156].map(function (x) { return '<rect x="' + x + '" y="44" width="7" height="48" fill="#d9dccb"/><rect x="' + (x - 2) + '" y="44" width="11" height="3" fill="#eef0e2"/>'; }).join("") +
+        '<rect x="112" y="62" width="16" height="30" fill="#14161a"/><rect x="114" y="64" width="12" height="28" fill="#f1d98f" opacity=".75"/><rect x="88" y="54" width="6" height="12" fill="#f1d98f" opacity=".8"/><rect x="146" y="54" width="6" height="12" fill="#f1d98f" opacity=".6"/>' +
+        '<rect x="60" y="92" width="120" height="4" fill="#d9dccb"/><rect x="56" y="96" width="128" height="4" fill="#c4c8b4"/><rect y="100" width="240" height="20" fill="#0b0d11"/>' +
+        '<g fill="#0a0b0e" opacity=".9"><circle cx="196" cy="84" r="5"/><path d="M188 100c0-10 3-14 8-14s8 4 8 14z"/></g><rect x="200" y="88" width="10" height="7" fill="#3a2f22"/>';
+    },
+    guard: function () {
+      return '<rect width="240" height="120" fill="' + NI + '"/>' + stars(26, 57) +
+        '<path d="M0 100V70H30V58H52V80H70V100Z" fill="#0f1218"/>' +
+        '<rect x="80" y="48" width="96" height="52" fill="#2f343d"/><rect x="80" y="48" width="96" height="5" fill="#a4adbd"/>' + [90, 112, 134, 156].map(function (x) { return '<rect x="' + x + '" y="60" width="12" height="9" fill="#f1d98f" opacity=".7"/>'; }).join("") +
+        '<rect x="118" y="78" width="20" height="22" fill="#14161a"/><path d="M124 86l4 3 6-6" stroke="#a4adbd" stroke-width="2" fill="none"/>' +
+        '<rect x="190" y="30" width="16" height="70" fill="#3a404c"/><rect x="184" y="20" width="28" height="14" fill="#262a31"/><rect x="186" y="23" width="24" height="7" fill="#ffe9a0" opacity=".85"/><path d="M198 26L240 0V52Z" fill="url(#gBeam)" opacity=".7"/>' +
+        '<path d="M0 100H240" stroke="#2a2f38" stroke-width="2"/>' + [0, 14, 28, 42, 56, 70].map(function (x) { return '<path d="M' + x + ' 100V84" stroke="#4a505a" stroke-width="2"/>'; }).join("") + '<path d="M0 86H74" stroke="#4a505a" stroke-width="1.5"/>' +
+        '<rect y="100" width="240" height="20" fill="#0b0d11"/><g fill="#0a0b0e" opacity=".9"><circle cx="100" cy="86" r="5"/><path d="M92 100c0-10 3-14 8-14s8 4 8 14z"/><circle cx="156" cy="86" r="5"/><path d="M148 100c0-10 3-14 8-14s8 4 8 14z"/></g>';
     }
   };
   function act(id) {

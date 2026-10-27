@@ -23,12 +23,12 @@
   function react(b, ok) { if (ok === false) return; b.classList.remove("ok"); void b.offsetWidth; b.classList.add("ok"); }
 
   function buildMap() {
-    var box = $("map"), svg = S("svg", { viewBox: "0 0 800 520", role: "group", "aria-label": "Carte de " + TD.city, "class": "tmap" });
+    var box = $("map"), svg = S("svg", { viewBox: "0 0 800 640", role: "group", "aria-label": "Carte de " + TD.city, "class": "tmap" });
     var defs = S("defs", {}, svg), pat = S("pattern", { id: "tgrid", width: 40, height: 40, patternUnits: "userSpaceOnUse" }, defs);
     S("path", { d: "M40 0H0V40", fill: "none", stroke: "rgba(255,255,255,.035)", "stroke-width": 1 }, pat);
-    S("rect", { width: 800, height: 520, "class": "t-bg" }, svg); S("rect", { width: 800, height: 520, fill: "url(#tgrid)" }, svg);
-    S("polygon", { points: "480,468 790,452 800,520 470,520", "class": "t-water" }, svg);
-    S("text", { x: 640, y: 500, "class": "t-sea", "text-anchor": "middle" }, svg).textContent = "Baie de " + TD.city;
+    S("rect", { width: 800, height: 640, "class": "t-bg" }, svg); S("rect", { width: 800, height: 640, fill: "url(#tgrid)" }, svg);
+    S("polygon", { points: "755,455 800,450 800,640 300,640 300,605 540,595 625,600 705,560", "class": "t-water" }, svg);   /* Partie 19 · F : la baie borde la rive sud */
+    S("text", { x: 600, y: 626, "class": "t-sea", "text-anchor": "middle" }, svg).textContent = "Baie de " + TD.city;
     TD.districts.forEach(function (d) {
       var g = S("g", { "class": "dist st-locked", tabindex: 0, role: "button", "data-id": d.id }, svg), c = centroid(d.poly), pips = [], i;
       S("title", {}, g).textContent = d.name;

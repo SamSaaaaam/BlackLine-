@@ -5,11 +5,11 @@
    un emblème (badge) flotte au-dessus. Logique pure, sans DOM (sauf BL.venues.svg qui fabrique du texte SVG). */
 (function (root) {
   var BL = root.BL = root.BL || {}, cache = {}, scache = {};
-  var ACC = { racket: "#d9534f", lab: "#7bd36d", contraband: "#d9a441", chop: "#e0803a", betting: "#c05cd0", restaurant: "#f0c070", laundry: "#6fb3d9", club: "#ff4f9a", transport: "#8fb0c9", watch: "#9aa6b8", bunker: "#8a9a82", casino: "#ffd35a" };
-  var NAMES = { racket: "Racket", lab: "Laboratoire", contraband: "Entrepôt", chop: "Atelier", betting: "Paris", restaurant: "Restaurant", laundry: "Blanchisserie", club: "Boîte de nuit", transport: "Transport", watch: "Poste de guet", bunker: "Bunker", casino: "Casino" };
-  var BADGE = { racket: "shieldS", lab: "flask", contraband: "crate", chop: "gear", betting: "die", restaurant: "cloche", laundry: "drum", club: "disco", transport: "truck", watch: "eye", bunker: "shield", casino: "chip" };
-  var ACTBADGE = { backroom: "spade", freight: "truck", fence: "gem", estate: "house", holding: "bank" };
-  var ACTACC = { backroom: "#ff6f9c", freight: "#8fb0c9", fence: "#c8a45e", estate: "#9ab4dd", holding: "#e3c680" };
+  var ACC = { racket: "#d9534f", lab: "#7bd36d", contraband: "#d9a441", chop: "#e0803a", betting: "#c05cd0", restaurant: "#f0c070", laundry: "#6fb3d9", club: "#ff4f9a", transport: "#8fb0c9", watch: "#9aa6b8", bunker: "#8a9a82", casino: "#ffd35a", forgery: "#d8c08a", pier: "#5fb0c8", exchange: "#7fd0a0", hotel: "#e0805a", garrison: "#a4adbd" };
+  var NAMES = { racket: "Racket", lab: "Laboratoire", contraband: "Entrepôt", chop: "Atelier", betting: "Paris", restaurant: "Restaurant", laundry: "Blanchisserie", club: "Boîte de nuit", transport: "Transport", watch: "Poste de guet", bunker: "Bunker", casino: "Casino", forgery: "Faux papiers", pier: "Ponton", exchange: "Bureau de change", hotel: "Hôtel", garrison: "Caserne" };
+  var BADGE = { racket: "shieldS", lab: "flask", contraband: "crate", chop: "gear", betting: "die", restaurant: "cloche", laundry: "drum", club: "disco", transport: "truck", watch: "eye", bunker: "shield", casino: "chip", forgery: "doc", pier: "anchor", exchange: "coin", hotel: "key", garrison: "helmet" };
+  var ACTBADGE = { backroom: "spade", freight: "truck", fence: "gem", estate: "house", holding: "bank", maritime: "anchor", shell: "columns", guard: "shield" };
+  var ACTACC = { backroom: "#ff6f9c", freight: "#8fb0c9", fence: "#c8a45e", estate: "#9ab4dd", holding: "#e3c680", maritime: "#5fb0c8", shell: "#b9c7a0", guard: "#a4adbd" };
   var IMPORTANT = { casino: 1, club: 1, laundry: 1, bunker: 0 };
 
   /* ---- fabriques de formes (repère de la face : u vers la droite, v vers le haut) ---- */
@@ -48,6 +48,12 @@
     shieldS: [P([[12, 22.5], [21, 19.5], [21, 11.5], [12, 1.5], [3, 11.5], [3, 19.5]], "A"), T("$", 12, 7.6, 13, "D")],
     gem: [P([[6, 19.5], [18, 19.5], [22.5, 13.2], [12, 2], [1.5, 13.2]], "A"), L(1.5, 13.2, 22.5, 13.2, "D", 1), L(6, 19.5, 9.4, 13.2, "D", 1), L(18, 19.5, 14.6, 13.2, "D", 1), L(9.4, 13.2, 12, 2, "D", 1), L(14.6, 13.2, 12, 2, "D", 1)],
     house: [P([[1.5, 12.2], [12, 22], [22.5, 12.2]], "A"), R(4.6, 2.5, 14.8, 10, "A"), R(10.4, 2.5, 3.2, 6.4, "D"), R(6.2, 7, 2.6, 2.6, "D"), R(15.2, 7, 2.6, 2.6, "D")],
+    anchor: [C(12, 19.4, 2.6, "A"), C(12, 19.4, 1.1, "D"), R(11, 4, 2, 13.4, "A"), R(6.5, 14.2, 11, 2, "A"), P(arc(12, 9, 8.6, Math.PI * 1.05, Math.PI * 1.95, 10).concat(arc(12, 9, 6.4, Math.PI * 1.95, Math.PI * 1.05, 10)), "A"), P([[2.2, 7.2], [3.4, 11.4], [5.8, 8.6]], "A"), P([[21.8, 7.2], [20.6, 11.4], [18.2, 8.6]], "A")],
+    columns: [P([[1.5, 16.5], [12, 22.5], [22.5, 16.5]], "A"), R(2.5, 2, 19, 2.4, "A"), R(4.6, 5, 3, 10, "A"), R(10.5, 5, 3, 10, "A"), R(16.4, 5, 3, 10, "A"), R(2.5, 15, 19, 1.6, "A"), C(12, 18.2, 1.3, "D")],
+    doc: [R(4, 1.5, 14, 19, "A"), P([[18, 20.5], [21, 17.5], [18, 17.5]], "A"), R(7, 15, 8, 1.4, "D"), R(7, 12, 8, 1.4, "D"), R(7, 9, 6, 1.4, "D"), C(15.5, 5.5, 3.2, "D"), C(15.5, 5.5, 2, "A")],
+    coin: [C(12, 12, 10.5, "A"), C(12, 12, 8, "D"), T("$", 12, 6.8, 12, "A")],
+    key: [C(7, 15, 5.6, "A"), C(7, 15, 2.4, "D"), R(11, 13.8, 11.5, 2.6, "A"), R(17, 9.5, 2.4, 4.4, "A"), R(20.2, 10.5, 2.3, 3.4, "A")],
+    helmet: [P(arc(12, 8, 9.5, 0, Math.PI, 14), "A"), R(1, 6.5, 22, 2.6, "A"), R(10.8, 9, 2.4, 8.4, "D"), C(12, 13.2, 2, "D")],
     bank: [P([[1.5, 15.5], [12, 22.2], [22.5, 15.5]], "A"), R(3, 3, 18, 2.6, "A"), R(4.4, 6, 2.6, 8.4, "A"), R(9, 6, 2.6, 8.4, "A"), R(13.4, 6, 2.6, 8.4, "A"), R(17.4, 6, 2.6, 8.4, "A"), R(1.5, 14.4, 21, 1.4, "A")]
   };
 
@@ -171,6 +177,47 @@
     FR(18, 26, 100, 58, 0, [R(8, 8, 18, 3, "#10130f"), R(32, 8, 18, 3, "#10130f")]),
     B(18, 90, 14, 6, 0, 5, "#b9a278", "#cdb78a"), B(32, 90, 14, 6, 0, 5, "#a8916a", "#bda57c"), B(46, 90, 14, 6, 0, 5, "#b9a278", "#cdb78a"), B(104, 90, 14, 6, 0, 5, "#b9a278", "#cdb78a"),
     B(110, 40, 2, 2, 22, 22, "#9aa3b2", "#aab3c2", 1), GL(110, 40, 46, 24, "#ff4d4d", 0.2)
+  ] };
+
+  /* ---- Partie 19 · F : cinq lieux de plus, même grammaire ---- */
+  BLD.forgery = { h: 48, ops: [
+    B(20, 22, 92, 54, 0, 30, "#4a4238", "#3a332b"), G(20, 22, 92, 54, 30, 12, "#4a4238", "#2e2822"),
+    FL(20, 22, 54, 0, wins(8, 12, 4, 1, 18, 0, 11, 11, "#ffe2a0", 0.75).concat([R(76, 0, 14, 22, "#1c1814"), R(78, 0, 10, 20, "#d8c08a", 0.35), R(0, 27, 92, 3, "#d8c08a", "p")])),
+    FR(20, 22, 92, 54, 0, [R(6, 10, 30, 14, "#1c1814"), R(8, 12, 26, 10, "#efe6d0", 0.85), L(10, 15, 30, 15, "#4a4238", 1), L(10, 18, 24, 18, "#4a4238", 1), C(30, 19, 2.4, "#b3473f")]),
+    B(92, 30, 10, 10, 30, 16, "#3a332b", "#4a4238", 1), GL(102, 34, 52, 26, "#d8c08a", 0.18),
+    B(24, 82, 30, 12, 0, 8, "#6b5a40", "#8a7552"), TP(24, 82, 8, [R(3, 2, 10, 8, "#efe6d0"), R(16, 3, 10, 6, "#efe6d0", 0.85), C(20, 6, 1.6, "#b3473f")]),
+    GL(60, 50, 26, 46, "#ffe2a0", 0.22), M(70, 96, "#14171c")
+  ] };
+  BLD.pier = { h: 42, ops: [
+    B(-4, 60, 144, 46, -2, 1, "#123a46", "#1a4d5c", 1),
+    B(8, 18, 72, 44, 0, 24, "#2d4a58", "#22394a"), FL(8, 18, 44, 0, [R(8, 0, 22, 18, "#0e1a20"), R(36, 6, 10, 8, "#9fd4de", 0.6), R(52, 6, 10, 8, "#9fd4de", 0.5), R(0, 21, 72, 3, "#5fb0c8", "p")]),
+    B(84, 20, 46, 8, 0, 3, "#6b5a40", "#8a7552"), B(84, 34, 46, 8, 0, 3, "#6b5a40", "#8a7552"), B(84, 48, 46, 8, 0, 3, "#6b5a40", "#8a7552"),
+    B(30, 66, 62, 18, 0, 8, "#2f3640", "#465060"), B(40, 70, 26, 10, 8, 10, "#e8e2d2", "#f6f1e4", 1), B(70, 70, 10, 10, 8, 4, "#5fb0c8", "#7fc8de", 1),
+    B(96, 66, 20, 18, 0, 10, "#7a3b34", "#8c4a40"), B(96, 66, 20, 18, 10, 10, "#35506b", "#476a8c", 1),
+    B(124, 22, 3, 3, 3, 22, "#8a93a2", "#9aa3b2", 1), GL(125, 23, 28, 30, "#ff4d4d", 0.22), GL(60, 40, 30, 40, "#5fb0c8", 0.18), M(20, 92, "#14171c")
+  ] };
+  BLD.exchange = { h: 46, ops: [
+    B(22, 20, 92, 58, 0, 32, "#e3e6dc", "#c9cdc0"),
+    FL(22, 20, 58, 0, [R(6, 6, 34, 18, "#16301f"), R(8, 8, 30, 14, "#7fd0a0", 0.75), T("€ $ £", 23, 11.5, 8, "#0d1a12"), R(48, 0, 16, 24, "#1b2a22"), R(50, 0, 12, 22, "#7fd0a0", 0.35), R(70, 6, 16, 18, "#16301f"), R(72, 8, 12, 14, "#ffd35a", 0.7), R(0, 29, 92, 3, "#7fd0a0", "p")]),
+    FR(22, 20, 92, 58, 0, wins(6, 10, 3, 1, 18, 0, 10, 12, "#bfe0ff", 0.55)),
+    B(40, 78, 46, 10, 22, 3, "#2f6a48", "#3f8a5c", 1), B(98, 82, 10, 8, 0, 14, "#3a3f48", "#4a505a"), FL(98, 82, 8, 0, [R(2, 6, 6, 5, "#7fd0a0", "p")]),
+    GL(56, 50, 28, 40, "#7fd0a0", 0.2), M(60, 98, "#14171c"), M(74, 100, "#3a6a9a")
+  ] };
+  BLD.hotel = { h: 70, ops: [
+    B(26, 18, 74, 60, 0, 56, "#5a3a34", "#3e2824"), B(30, 22, 66, 52, 56, 6, "#4a302a", "#2e1e1a", 1),
+    FL(26, 18, 60, 0, wins(8, 18, 4, 3, 16, 12, 9, 8, "#ffcf8a", 0.8).concat([R(26, 0, 22, 14, "#1a100e"), R(28, 0, 18, 12, "#e0805a", 0.4), R(4, 50, 66, 4, "#e0805a", "p")])),
+    FR(26, 18, 74, 60, 0, wins(6, 18, 3, 3, 16, 12, 9, 8, "#ffcf8a", 0.6)),
+    B(46, 78, 34, 12, 14, 3, "#8b2f3a", "#a83a46", 1), B(47, 86, 2.5, 2.5, 0, 14, "#d8c27a", "#e8d68a", 1), B(76.5, 86, 2.5, 2.5, 0, 14, "#d8c27a", "#e8d68a", 1),
+    B(98, 40, 6, 26, 30, 22, "#2a2026", "#3a2e34", 1), FL(98, 40, 26, 30, [R(1, 2, 4, 18, "#e0805a", "p")]),
+    GL(62, 60, 50, 50, "#ffcf8a", 0.2), GL(100, 52, 42, 30, "#e0805a", 0.26), M(64, 98, "#efe6d0")
+  ] };
+  BLD.garrison = { h: 46, ops: [
+    B(14, 24, 84, 52, 0, 26, "#3a404c", "#2c313b"), B(14, 24, 84, 4, 26, 4, "#a4adbd", "#b8c0ce", 1),
+    FL(14, 24, 52, 0, wins(8, 10, 5, 1, 15, 0, 9, 9, "#ffe08a", 0.6).concat([R(36, 0, 16, 18, "#14161a"), R(0, 22, 84, 2, "#a4adbd", "p")])),
+    FR(14, 24, 84, 52, 0, wins(6, 10, 3, 1, 16, 0, 9, 9, "#ffe08a", 0.45)),
+    B(104, 30, 16, 16, 0, 36, "#4a505b", "#5a626e"), B(100, 26, 24, 24, 36, 10, "#2f343c", "#3f4650", 1), FL(100, 26, 24, 36, [R(3, 3, 18, 5, "#ffe9a0", "p")]),
+    B(6, 86, 124, 2, 0, 9, "#4a505a", "#5a606a", 1), B(54, 80, 22, 10, 0, 7, "#2a2e36", "#3a3f48"), FL(54, 80, 10, 0, [R(3, 3, 16, 2, "#a4adbd"), C(4, 0.4, 1.6, "#05060a"), C(18, 0.4, 1.6, "#05060a")]),
+    GL(112, 38, 50, 50, "#fff2c0", 0.22), M(36, 96, "#2f343c"), M(90, 96, "#2f343c")
   ] };
 
   /* ---- QG : 4 styles (C6). Mêmes opérations que les lieux, sur l'emprise du QG (136 × 100). Purement cosmétique. ---- */

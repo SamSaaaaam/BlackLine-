@@ -22,7 +22,11 @@
       { id: "freight", cat: "Logistique", name: "Convoyage de nuit", desc: "Des camions qui roulent quand la ville dort.", icon: "truck", baseCost: 500, baseIncome: 2, growth: 1.15, maxLevel: 100, upkeep: 0.12, unlock: { id: "backroom", lvl: 3 } },
       { id: "fence", cat: "Trafic et recel", name: "Réseau de recel", desc: "Tout se revend, tant qu’on ne pose pas de questions.", icon: "box", baseCost: 40000, baseIncome: 50, growth: 1.15, maxLevel: 100, upkeep: 0.14, unlock: { id: "freight", lvl: 5 } },
       { id: "estate", cat: "Façades", name: "Immobilier de façade", desc: "Des murs propres pour des comptes qui le sont moins.", icon: "empire", baseCost: 3000000, baseIncome: 900, growth: 1.16, maxLevel: 100, upkeep: 0.15, unlock: { id: "fence", lvl: 5 } },
-      { id: "holding", cat: "Finance", name: "Holding offshore", desc: "Une adresse en bord de mer, un nom sur une boîte aux lettres.", icon: "money", baseCost: 150000000, baseIncome: 12000, growth: 1.17, maxLevel: 100, upkeep: 0.15, unlock: { id: "estate", lvl: 5 } }
+      { id: "holding", cat: "Finance", name: "Holding offshore", desc: "Une adresse en bord de mer, un nom sur une boîte aux lettres.", icon: "money", baseCost: 150000000, baseIncome: 12000, growth: 1.17, maxLevel: 100, upkeep: 0.15, unlock: { id: "estate", lvl: 5 } },
+      /* Partie 19 · F : trois activités de fin de partie (noms fictifs). unlock.emp = niveau d’empire requis en plus : elles s’ouvrent après le niveau 50, là où le contenu existant s’arrête, et ne changent donc aucun palier existant (mesures : CHANGELOG). */
+      { id: "maritime", cat: "Trafic maritime", name: "Fret des Brumes", desc: "Des cargos qui accostent la nuit, des manifestes qui ne disent pas tout.", icon: "anchor", baseCost: 4e10, baseIncome: 90000, growth: 1.18, maxLevel: 100, upkeep: 0.16, unlock: { id: "holding", lvl: 20, emp: 51 } },
+      { id: "shell", cat: "Finance de façade", name: "Banque Aubépine", desc: "Une petite banque privée aux guichets calmes et aux virements très rapides.", icon: "columns", baseCost: 2.4e12, baseIncome: 400000, growth: 1.19, maxLevel: 100, upkeep: 0.16, unlock: { id: "maritime", lvl: 10, emp: 56 } },
+      { id: "guard", cat: "Sécurité privée", name: "Vigilance Sentinelle", desc: "Des agents en uniforme gris qui protègent surtout tes intérêts.", icon: "shieldc", baseCost: 1.6e14, baseIncome: 3e6, growth: 1.2, maxLevel: 100, upkeep: 0.17, unlock: { id: "shell", lvl: 10, emp: 62 } }
     ],
     /* fx : inc {activité: facteur} · incAll facteur · upkeep facteur · cost facteur · rep +n · infl +n */
     upgrades: [
@@ -45,7 +49,13 @@
       { id: "u_towers", name: "Tours de bureaux", cost: 12800000, req: { estate: 12 }, fx: { inc: { estate: 2 } } },
       { id: "u_shell", name: "Sociétés écrans", cost: 18000000, req: { holding: 3 }, fx: { inc: { holding: 2 } } },
       { id: "u_mayor", name: "Cabinet du maire", cost: 80000000, req: { holding: 5 }, fx: { rep: 15, infl: 40 } },
-      { id: "u_haven", name: "Paradis fiscal", cost: 200000000, req: { holding: 12 }, fx: { inc: { holding: 2 } } }
+      { id: "u_haven", name: "Paradis fiscal", cost: 200000000, req: { holding: 12 }, fx: { inc: { holding: 2 } } },
+      { id: "u_cranes", name: "Grues de nuit", cost: 1.2e11, req: { maritime: 3 }, fx: { inc: { maritime: 2 } } },
+      { id: "u_pilots", name: "Pilotes du port", cost: 2.4e12, req: { maritime: 12 }, fx: { inc: { maritime: 2 } } },
+      { id: "u_vaults", name: "Coffres numérotés", cost: 6e12, req: { shell: 3 }, fx: { inc: { shell: 2 } } },
+      { id: "u_wires", name: "Virements en cascade", cost: 1.2e14, req: { shell: 12 }, fx: { inc: { shell: 2 }, upkeep: 0.9 } },
+      { id: "u_patrols", name: "Rondes de nuit", cost: 3.2e14, req: { guard: 3 }, fx: { inc: { guard: 2 } } },
+      { id: "u_contracts", name: "Contrats municipaux", cost: 6.4e15, req: { guard: 12 }, fx: { inc: { guard: 2 }, infl: 30 } }
     ],
     /* reward.money = montant fixe (jamais indexé sur les revenus courants, pour éviter les boucles d'enrichissement) ; rep et infl = bonus permanents. */
     missions: [
@@ -65,7 +75,10 @@
       { id: "m14", tier: "long", name: "Un million par seconde", cond: { t: "income", n: 1000000 }, reward: { money: 100000000, infl: 10 } },
       { id: "m15", tier: "short", name: "Première conquête", cond: { t: "terr", n: 1 }, reward: { money: 2500, infl: 2 } },
       { id: "m16", tier: "mid", name: "Quatre quartiers", cond: { t: "terr", n: 4 }, reward: { money: 1500000, infl: 5 } },
-      { id: "m17", tier: "long", name: "La ville est à toi", cond: { t: "terr", n: 8 }, reward: { money: 100000000, rep: 10, infl: 10 } }
+      { id: "m17", tier: "long", name: "La ville est à toi", cond: { t: "terr", n: 8 }, reward: { money: 100000000, rep: 10, infl: 10 } },
+      { id: "m18", tier: "long", name: "Cap sur le large", cond: { t: "owned", id: "maritime", n: 1 }, reward: { money: 1000000000, infl: 10 } },
+      { id: "m19", tier: "long", name: "Un guichet à soi", cond: { t: "owned", id: "shell", n: 1 }, reward: { money: 15000000000, rep: 10 } },
+      { id: "m20", tier: "long", name: "Uniformes gris", cond: { t: "owned", id: "guard", n: 1 }, reward: { money: 600000000000, infl: 15 } }
     ],
     /* chaque succès débloqué apporte +1 réputation */
     achievements: [
@@ -76,16 +89,19 @@
       { id: "a5", name: "Pied dans la porte", desc: "Atteindre le niveau d’empire 10", cond: { t: "level", n: 10 } },
       { id: "a6", name: "Bien connu des services", desc: "Atteindre 50 de réputation", cond: { t: "rep", n: 50 } },
       { id: "a7", name: "Palier maximal", desc: "Monter une salle de jeux au niveau 25", cond: { t: "owned", id: "backroom", n: 25 } },
-      { id: "a8", name: "Empire diversifié", desc: "Posséder les cinq activités", cond: { t: "all", n: 1 } },
+      { id: "a8", name: "Empire diversifié", desc: "Posséder les cinq premières activités", cond: { t: "all", n: 1, of: 5 } },
       { id: "a9", name: "Sphère d’influence", desc: "Atteindre 50 d’influence", cond: { t: "infl", n: 50 } },
       { id: "a10", name: "Tête de pont", desc: "Contrôler un premier quartier", cond: { t: "terr", n: 1 } },
       { id: "a11", name: "Maître du port", desc: "Porter le Port au contrôle 3", cond: { t: "dlv", id: "port", n: 3 } },
-      { id: "a12", name: "Ville conquise", desc: "Contrôler les 8 quartiers", cond: { t: "terr", n: 8 } },
+      { id: "a12", name: "Ville conquise", desc: "Contrôler 8 quartiers", cond: { t: "terr", n: 8 } },
       { id: "a13", name: "Rempart", desc: "Repousser 3 attaques rivales", cond: { t: "won", n: 3 } },
       { id: "a21", name: "Bâtiment légendaire", desc: "Monter une salle de jeux au niveau 50", cond: { t: "owned", id: "backroom", n: 50 } },
       { id: "a22", name: "Légende de l’ombre", desc: "Atteindre le niveau d’empire 50", cond: { t: "level", n: 50 } },
       { id: "a23", name: "Au sommet", desc: "Monter une salle de jeux au niveau 100", cond: { t: "owned", id: "backroom", n: 100 } },
-      { id: "a24", name: "Immortel de l’ombre", desc: "Atteindre le niveau d’empire 100", cond: { t: "level", n: 100 } }
+      { id: "a24", name: "Immortel de l’ombre", desc: "Atteindre le niveau d’empire 100", cond: { t: "level", n: 100 } },
+      { id: "a25", name: "Empire complet", desc: "Posséder les huit activités", cond: { t: "all", n: 1 } },
+      { id: "a26", name: "Port-Mirage entière", desc: "Contrôler les 11 quartiers", cond: { t: "terr", n: 11 } },
+      { id: "a27", name: "Armateur", desc: "Monter le Fret des Brumes au niveau 25", cond: { t: "owned", id: "maritime", n: 25 } }
     ],
     events: [
       { id: "tip", title: "Un informateur propose un tuyau", text: "Il promet un gros coup contre une avance.", choices: [
@@ -149,16 +165,16 @@
         req: { lvl: 3 }, neighbors: ["business", "market", "port", "industrial", "oldtown"], bonus: [{ type: "income", per: 0.02 }], imps: ["Comptoirs partenaires", "Veilleurs de rue"],
         poly: [[335, 195], [465, 195], [500, 290], [400, 340], [300, 290]] },
       { id: "industrial", name: "Quartier industriel", short: "Industriel", desc: "Entrepôts, ateliers et ouvriers qui ne posent pas de questions.", cost: 60000, rivalry: 2, strategic: 2, holder: "corbeaux",
-        req: { lvl: 5, adj: true }, neighbors: ["port", "center", "oldtown"], bonus: [{ type: "upkeep", per: 0.05 }], imps: ["Entrepôts partagés", "Équipes de nuit"],
+        req: { lvl: 5, adj: true }, neighbors: ["port", "center", "oldtown", "franche"], bonus: [{ type: "upkeep", per: 0.05 }], imps: ["Entrepôts partagés", "Équipes de nuit"],
         poly: [[300, 290], [400, 340], [440, 395], [520, 462], [280, 472], [185, 390]] },
       { id: "market", name: "Quartier commerçant", short: "Commerçant", desc: "Vitrines, marchés et caisses où l’argent circule vite.", cost: 250000, rivalry: 2, strategic: 2, holder: "lames",
         req: { lvl: 6, adj: true }, neighbors: ["residential", "business", "center", "port"], bonus: [{ type: "cost", per: 0.02 }], imps: ["Syndicat des commerçants", "Vigiles de boutique"],
         poly: [[600, 190], [770, 230], [745, 340], [560, 330], [500, 290], [465, 195], [520, 130]] },
       { id: "oldtown", name: "Vieille ville", short: "Vieille ville", desc: "Ruelles étroites, mémoire longue et silences utiles.", cost: 800000, rivalry: 3, strategic: 3, holder: "valcourt",
-        req: { lvl: 7, adj: true }, neighbors: ["prestige", "business", "center", "industrial"], bonus: [{ type: "rep", per: 3 }], imps: ["Café des anciens", "Passages secrets"],
+        req: { lvl: 7, adj: true }, neighbors: ["prestige", "business", "center", "industrial", "faubourg"], bonus: [{ type: "rep", per: 3 }], imps: ["Café des anciens", "Passages secrets"],
         poly: [[40, 250], [215, 260], [300, 150], [335, 195], [300, 290], [185, 390], [280, 472], [45, 465]] },
       { id: "port", name: "Port", short: "Port", desc: "Quais, grues et cargaisons que personne n’ouvre.", cost: 2500000, rivalry: 3, strategic: 4, holder: "corbeaux",
-        req: { lvl: 8, adj: true, owned: { freight: 10 } }, neighbors: ["market", "center", "industrial"], bonus: [{ type: "act", per: 0.06, targets: ["freight", "fence"] }], imps: ["Quai privé", "Douaniers complices"],
+        req: { lvl: 8, adj: true, owned: { freight: 10 } }, neighbors: ["market", "center", "industrial", "marina"], bonus: [{ type: "act", per: 0.06, targets: ["freight", "fence"] }], imps: ["Quai privé", "Douaniers complices"],
         poly: [[500, 290], [560, 330], [745, 340], [755, 455], [520, 462], [440, 395], [400, 340]] },
       { id: "residential", name: "Zone résidentielle", short: "Résidentiel", desc: "Pavillons calmes, voisins fidèles et volets fermés.", cost: 10000000, rivalry: 2, strategic: 1, holder: "meridian",
         req: { lvl: 10, adj: true, infl: 30 }, neighbors: ["business", "market"], bonus: [{ type: "infl", per: 4 }], imps: ["Comités de voisins", "Gardiens d’immeubles"],
@@ -168,7 +184,17 @@
         poly: [[270, 40], [530, 45], [520, 130], [465, 195], [335, 195], [300, 150]] },
       { id: "prestige", name: "Quartier prestigieux", short: "Prestige", desc: "Villas sur les hauteurs, galas et amitiés très utiles.", cost: 800000000, rivalry: 5, strategic: 5, holder: "valcourt",
         req: { lvl: 25, adj: true, infl: 120, owned: { estate: 10 } }, neighbors: ["business", "oldtown"], bonus: [{ type: "income", per: 0.04 }, { type: "rep", per: 4 }], imps: ["Cercle privé", "Service d’ordre"],
-        poly: [[40, 50], [270, 40], [300, 150], [215, 260], [40, 250]] }
+        poly: [[40, 50], [270, 40], [300, 150], [215, 260], [40, 250]] },
+      /* Partie 19 · F : la rive sud, au-delà du quartier général (city : colonnes de la ville, rangées 15 à 17). Fin de partie : chaque quartier demande une des nouvelles activités. */
+      { id: "marina", name: "Marina des Brumes", short: "Marina", desc: "Pontons privés, yachts éteints et capitainerie qui ferme les yeux.", cost: 4e10, rivalry: 4, strategic: 4, holder: "corbeaux",
+        req: { lvl: 52, adj: true, infl: 140, owned: { maritime: 5 } }, neighbors: ["port", "franche"], bonus: [{ type: "act", per: 0.06, targets: ["maritime", "freight"] }], imps: ["Capitainerie amie", "Vedettes de nuit"],
+        city: { c0: 8, c1: 11 }, poly: [[520, 462], [755, 455], [705, 560], [625, 600], [540, 595]] },
+      { id: "franche", name: "Zone franche des Saules", short: "Zone franche", desc: "Entrepôts sous douane, sociétés sans bureaux et guichets toujours ouverts.", cost: 2e12, rivalry: 4, strategic: 4, holder: "meridian",
+        req: { lvl: 58, adj: true, infl: 180, owned: { shell: 5 } }, neighbors: ["industrial", "marina", "faubourg"], bonus: [{ type: "act", per: 0.06, targets: ["shell", "holding"] }, { type: "upkeep", per: 0.02 }], imps: ["Transitaires dociles", "Barrières automatiques"],
+        city: { c0: 4, c1: 7 }, poly: [[280, 472], [520, 462], [540, 595], [300, 605]] },
+      { id: "faubourg", name: "Faubourg des Lanternes", short: "Faubourg", desc: "Lanternes rouges, cours intérieures et vieilles dettes qu’on n’oublie pas.", cost: 1.5e14, rivalry: 5, strategic: 5, holder: "valcourt",
+        req: { lvl: 64, adj: true, infl: 230, owned: { guard: 5 } }, neighbors: ["oldtown", "franche"], bonus: [{ type: "act", per: 0.06, targets: ["guard", "estate"] }, { type: "rep", per: 4 }], imps: ["Conseil des lanternes", "Milice de quartier"],
+        city: { c0: 0, c1: 3 }, poly: [[45, 465], [280, 472], [300, 605], [45, 615]] }
     ]
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

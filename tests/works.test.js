@@ -4,10 +4,15 @@ const { BL, clock } = load(), E = BL.economy, W = BL.works, S = BL.save, D = BL.
 function fresh(money) { const s = E.newState(0); s.money = money || 1e12; s.total = 0; return s; }
 function chain(s) { ["backroom", "freight", "fence", "estate"].forEach(id => { if (E.best(s, id) < 5) E.setOwned(s, id, 5); }); return s; }
 /* durées */
-D.activities.forEach(a => { check(W.duration(a.id, 0, 1) >= 2 && W.duration(a.id, 0, 1) <= 10, a.id + " : premier achat 2 à 10 s (" + W.duration(a.id, 0, 1) + " s)");
+D.activities.filter(a => !(a.unlock && a.unlock.emp)).forEach(a => { check(W.duration(a.id, 0, 1) >= 2 && W.duration(a.id, 0, 1) <= 10, a.id + " : premier achat 2 à 10 s (" + W.duration(a.id, 0, 1) + " s)");
   check(W.duration(a.id, 0, 10) <= 180, a.id + " : niveau 10 ≤ 3 min"); check(W.duration(a.id, 0, 30) >= 60 && W.duration(a.id, 0, 30) <= 3600, a.id + " : niveau 30 en minutes");
   check(W.duration(a.id, 0, 60) >= 600 && W.duration(a.id, 0, 60) <= 6 * 3600, a.id + " : niveau 60 entre 10 min et quelques heures"); check(W.duration(a.id, 0, 100) >= 3 * 3600 && W.duration(a.id, 0, 100) <= 86400, a.id + " : fin de partie plusieurs heures, ≤ 24 h");
   let mono = true; for (let L = 2; L <= 100; L++) if (W.duration(a.id, 0, L) < W.duration(a.id, 0, L - 1)) mono = false; check(mono, a.id + " : durée croissante"); });
+/* Partie 19 · F : activités de fin de partie (débloquées après le niveau d'empire 50) : chantiers longs dès le niveau 1, toujours ≤ 24 h, croissants, plus lents que l'activité précédente */
+const late = D.activities.filter(a => a.unlock && a.unlock.emp); check(late.length === 3, "3 activités de fin de partie (" + late.map(a => a.id).join(", ") + ")");
+late.forEach(a => { const d1 = W.duration(a.id, 0, 1); check(d1 >= 600 && d1 <= 3 * 3600, a.id + " : premier chantier entre 10 min et 3 h (" + Math.round(d1 / 60) + " min)");
+  check(W.duration(a.id, 0, 100) === 86400, a.id + " : plafond 24 h respecté au niveau 100"); let mono = true; for (let L = 2; L <= 100; L++) if (W.duration(a.id, 0, L) < W.duration(a.id, 0, L - 1)) mono = false; check(mono, a.id + " : durée croissante");
+  const prev = E.find(D.activities, a.unlock.id); check(W.duration(a.id, 0, 10) > W.duration(prev.id, 0, 10), a.id + " : plus lent que " + prev.id + " au niveau 10"); });
 check(W.duration("holding", 0, 50) > W.duration("backroom", 0, 50), "activités avancées plus lentes");
 /* commande, file, ouvriers */
 let s = fresh(); const m0 = s.money, c = E.cost(D.activities[0], 0, s, 0), e = W.order(s, "backroom", 0);

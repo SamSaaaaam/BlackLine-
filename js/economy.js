@@ -60,7 +60,10 @@
     return a.baseCost * Math.pow(a.growth, Math.min(n, f)) * Math.pow(g2, Math.max(0, Math.min(n, f2) - f)) * Math.pow(g3, Math.max(0, n - f2));
   }
   function cost(a, n, s, i) { return Math.ceil(baseCostAt(a, n) * (s ? costMult(s) : 1) * (BLD_LC[i || 0] || 1) - EPS); }
-  function actUnlocked(s, a) { return !a.unlock || (s.owned[a.unlock.id] || 0) >= a.unlock.lvl; }
+  function actUnlocked(s, a) { return !a.unlock || ((s.owned[a.unlock.id] || 0) >= a.unlock.lvl && (!a.unlock.emp || level(s) >= a.unlock.emp)); }
+  /* Partie 19 · F : condition de déblocage en clair (activité précédente, et niveau d'empire pour les activités de fin de partie) et avancement 0..1 */
+  function unlockText(s, a) { if (!a.unlock) return ""; var t = "Requiert le meilleur bâtiment de " + find(D().activities, a.unlock.id).name + " au niveau " + a.unlock.lvl; return a.unlock.emp ? t + " et le niveau d’empire " + a.unlock.emp : t; }
+  function unlockProgress(s, a) { if (!a.unlock) return 1; var p = Math.min(1, (s.owned[a.unlock.id] || 0) / a.unlock.lvl); return a.unlock.emp ? Math.min(p, Math.min(1, level(s) / a.unlock.emp)) : p; }
   function isMax(s, a) { var L = levels(s, a.id); return L.length > 0 && L.every(function (n) { return n >= a.maxLevel; }); }
 
   /* Bâtiments : chaque bâtiment a SON niveau (s.bl[activité] = [niveau du bâtiment 1, du 2, …], 4 au plus).
@@ -144,7 +147,7 @@
     else if (c.t === "total") cur = s.total; else if (c.t === "upgrades") cur = count(s.upg); else if (c.t === "rep") cur = reputation(s); else if (c.t === "infl") cur = influence(s);
     else if (c.t === "terr") cur = tr() ? tr().count(s) : 0; else if (c.t === "dlv") cur = tr() ? tr().lv(s, c.id) : 0; else if (c.t === "won") cur = s.terr ? s.terr.won : 0;
     else if (c.t === "crew") cur = cw() ? cw().owned(s).length : 0; else if (c.t === "clv") cur = cw() ? cw().maxLevel(s) : 0; else if (c.t === "star") { cur = cw() ? cw().stars(s, c.n) : 0; tg = 1; } else if (c.t === "ally") cur = s.dip ? s.dip.formed : 0;
-    else if (c.t === "all") { D().activities.forEach(function (a) { if ((s.owned[a.id] || 0) >= c.n) cur++; }); tg = D().activities.length; }
+    else if (c.t === "all") { var al = D().activities.slice(0, c.of || D().activities.length); al.forEach(function (a) { if ((s.owned[a.id] || 0) >= c.n) cur++; }); tg = al.length; }   /* of : seulement les N premières activités (a8 garde « les cinq premières » depuis la Partie 19 · F) */
     else if (BL.meta) { var mv = BL.meta.achProgress(s, c); if (mv !== null && mv !== undefined) cur = mv; }   /* Partie 13 : histoire, boss, liens, prestige, défis, mode difficile */
     return { cur: cur, tg: tg, p: tg > 0 ? Math.min(1, cur / tg) : 1, done: cur + EPS >= tg };
   }
@@ -274,7 +277,7 @@
   function addLog(s, msg) { s.log.unshift(msg); if (s.log.length > 20) s.log.length = 20; }
 
   BL.economy = { BLD_EXP: BLD_EXP, BLD_ENTRY: BLD_ENTRY, BLD_NEED: BLD_NEED, BLD_W: BLD_W, BLD_LC: BLD_LC, buildings: buildings, levels: levels, bLevel: bLevel, best: best, setLevels: setLevels, setOwned: setOwned, legacyLevels: legacyLevels, bldIncome: bldIncome, gainOf: gainOf, netGainOf: netGainOf, nextBuilding: nextBuilding, buyBuilding: buyBuilding, newState: newState, find: find, count: count, level: level, levelAt: levelAt, reputation: reputation, influence: influence, repMult: repMult, levelMult: levelMult, lossCut: lossCut,
-    designTier: designTier, nextDesign: nextDesign, DESIGN_LEVELS: DESIGN_LEVELS, DESIGN_NAMES: DESIGN_NAMES, upgMult: upgMult, upkeepMult: upkeepMult, costMult: costMult, msMult: msMult, nextMs: nextMs, cost: cost, baseCostAt: baseCostAt, actUnlocked: actUnlocked, isMax: isMax,
+    designTier: designTier, nextDesign: nextDesign, DESIGN_LEVELS: DESIGN_LEVELS, DESIGN_NAMES: DESIGN_NAMES, upgMult: upgMult, upkeepMult: upkeepMult, costMult: costMult, msMult: msMult, nextMs: nextMs, cost: cost, baseCostAt: baseCostAt, actUnlocked: actUnlocked, unlockText: unlockText, unlockProgress: unlockProgress, isMax: isMax,
     actIncome: actIncome, upkeepOf: upkeepOf, grossBase: grossBase, upkeepTotal: upkeepTotal, boostMult: boostMult, incomeBase: incomeBase, income: income, breakdown: breakdown,
     tick: tick, buyActivity: buyActivity, unlocked: unlocked, buyUpgrade: buyUpgrade, progress: progress, claim: claim, checkAch: checkAch, nextStep: nextStep,
     spend: spend, fText: fText, need: need, parts: parts, hint: hint, offline: offline, offlineNotes: offlineNotes, schedule: schedule, updateEvents: updateEvents, resolve: resolve, addLog: addLog };

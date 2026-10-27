@@ -4,6 +4,135 @@
 > Il commence donc à la Partie 17. Si tu as un `CHANGELOG.md` plus ancien sur ton ordinateur, colle cette section en tête du tien.
 > Les tests cités ci-dessous ont été **réécrits** dans `tests/` (l'ancien `tests/simulate.js` et l'ancien `tests/pages-ready.test.js` n'étaient pas disponibles).
 
+## Partie 19 — achat rapide, navigation, « À faire maintenant », nombres lisibles, défis, fin de partie
+
+Sauvegarde : **v14 → v15** (bloc E, défis et série). Migration 14 → 15 : rien n'est supprimé ; les nouveaux champs (`dfs`, compteur `works.n`) prennent leur valeur par défaut.
+Les blocs A à D ne changent pas la sauvegarde, sauf un réglage (`settings.buyqty`, « 1 » par défaut, valeur hostile → « 1 »). Le bloc F ajoute des identifiants (activités, quartiers, types de bâtiments) : absents d'une ancienne sauvegarde, ils prennent leur valeur par défaut ; inconnus, ils sont ignorés.
+Économie : `AUDIT=1 node tests/simulate.js` (sortie complète : `docs/ECONOMIE_PARTIE19.md`). Les blocs A à E ne la changent pas : sortie identique à `docs/ECONOMIE_PARTIE17.md` avant le bloc F (vérifié par `diff`).
+`CLAUDE.md` n'existe pas dans le dépôt (ni avant, ni après) : les règles suivies sont celles de ta demande.
+
+### 0. Vérification de la Partie 17 avec une vraie sauvegarde v13
+
+- Une vraie sauvegarde v13 a été produite en jouant le commit 841878f dans Chromium (`tests/_seed.js`) : 5 activités, 3 équipiers, Centre-ville contrôlé.
+- `tests/seed-migration.test.js` : migration v13 → actuelle sans perte (niveaux, argent, équipe, quartiers, missions, lingots, QG), chantiers et mini-jeux vides, aller-retour identique, valeurs hostiles injectées dans la vraie sauvegarde.
+- `tests/p17-check-browser.test.js` : menu (JOUER visible à 320 × 568, colonne sans barre de défilement visible), classement d'accueil, fiche personnage, chantier, les 5 mini-jeux joués au clavier, mouvements réduits.
+- Seul défaut trouvé : les tests navigateur réécrivaient les captures validées de `shots/`. Elles ne sont écrites dans `shots/` qu'avec `SHOTS=1` (sinon dossier temporaire).
+
+### A. Achat rapide (×1 / ×10 / ×25 / Max)
+
+- `js/buy.js` (nouveau) et `js/works.js` (`canOrder`) : le prix affiché est la **somme exacte** des niveaux achetés, la durée des travaux la somme des chantiers niveau par niveau ; au-delà de 24 h de travaux la quantité est réduite ; « Max » = le plus de niveaux payables, jusqu'au niveau 100.
+- Barre au-dessus des activités : ×1 / ×10 / ×25 / Max (groupe radio au clavier) et le **meilleur achat maintenant** (coût / gain le plus bas parmi ce qui est payable ; sinon « Rien d'abordable — prochain achat dans N min »). Boutons : « Améliorer ×k · $X », « +$Y/s » ou « Il te manque $Z ». Même sélecteur dans le panneau de la carte.
+- Correction au passage : l'animation `.pulse` laissait un débordement horizontal permanent (agrandissement conservé en fin d'animation).
+- Tests : `tests/buy.test.js` (29), `tests/buy-browser.test.js` (39).
+
+### B. Navigation en 4 groupes
+
+- `js/nav.js` : **Empire** (Tableau de bord, Empire, Améliorations, Objectifs), **Terrain** (Carte, Opérations, Territoires), **Équipe** (Équipiers, Arsenal), **Plus** (QG, Boutique, Box, Radio, Histoire, Classement, Glossaire). Mêmes vues qu'avant, mêmes identifiants.
+- Pastilles chiffrées sur les groupes (récompense à réclamer, ouvrier libre, opération prête, quartier attaqué ou à prendre, recrue possible, chapitre prêt, coffre plein).
+- Tests : `tests/nav.test.js` (6), `tests/nav-browser.test.js` (75 : chaque vue atteinte en 2 clics au plus sur ordinateur, 3 sur téléphone).
+
+### C. « À faire maintenant »
+
+- `js/todo.js` + `js/todo-ui.js` : 3 actions au plus, textes de 60 caractères au plus, chacune mène à sa vue ; carte en haut du Tableau de bord et rappel dans l'objectif du haut. Ordre : récompense → ouvrier libre → achat → opération / braquage → défi presque fini → attaque → chaleur ≥ 60 → événement. État vide : « Rien d'urgent. Profite de la ville. »
+- Lecture seule : vérifié sur 500 états que `todo.next` ne modifie jamais la partie.
+- Tests : `tests/todo.test.js` (10), `tests/todo-browser.test.js` (36).
+
+### D. Nombres lisibles
+
+- `js/fmt.js` : un seul formateur, 3 chiffres significatifs (4 en mode « détaillé »), suffixes K, M, Md, Bn, Bd, Tn, Td, signe « − », « — » pour une valeur impossible. Les affichages faits à la main (QG, salle, infobulles, journal, explications, mini-jeux) passent par lui. Chiffres à chasse fixe. Entrée de glossaire « suffixes ».
+- Test : `tests/fmt.test.js` (47, dont la recherche des formatages faits à la main restants).
+
+### E. Défis enrichis, série, titres (sauvegarde v15)
+
+- 7 nouveaux modèles de défis (braquage, visites de quartiers, chaleur basse, équipe, chantiers, mini-jeux, revenus) ; un défi impossible pour la partie en cours n'est jamais tiré.
+- Série de jours (un jour de pardon par semaine, heure de Paris), 8 titres (Régulier, Assidu, Inébranlable, Pilier de la ville, Chasseur de défis, Collectionneur, Semaine parfaite, Arpenteur), récapitulatif du lundi. Récompenses en lingots **inchangées** (aucun nouveau gain de lingots ; jamais d'accélération achetée).
+- Tests : `tests/challenges.test.js` (44, fuseau Europe/Paris, horloge reculée, valeurs hostiles), `tests/challenges-browser.test.js` (27).
+
+### F. Fin de partie : 3 activités, 5 bâtiments de quartier, la rive sud (3 quartiers)
+
+Tout est fictif (aucun lieu, entreprise ou marque réels).
+
+**Activités (5 → 8)**, chacune avec ses 2 améliorations, une illustration de carte, un dessin sur la carte de la ville (15 paliers de design), un emblème, une mission et une entrée de glossaire :
+
+| Activité | Débloquée par | Prix de base | Revenu de base | Croissance | Entretien | Améliorations | Chaleur |
+|---|---|---|---|---|---|---|---|
+| Fret des Brumes (trafic maritime) | Holding niv. 20 **et** empire niv. 51 | 40 Md | 90 K/s | 1,18 | 16 % | Grues de nuit, Pilotes du port | +0,25 |
+| Banque Aubépine (finance de façade) | Fret niv. 10 **et** empire niv. 56 | 2,4 Bn | 400 K/s | 1,19 | 16 % | Coffres numérotés, Virements en cascade | −0,20 |
+| Vigilance Sentinelle (sécurité privée) | Banque niv. 10 **et** empire niv. 62 | 160 Bn | 3 M/s | 1,20 | 17 % | Rondes de nuit, Contrats municipaux | −0,15 |
+
+- Nouvelle condition `unlock.emp` (niveau d'empire), affichée en clair partout (carte d'activité, panneau de la carte, objectif du haut, bilan).
+- Chantiers : plus lents (×3,2 / ×3,5 / ×3,8) **et** démarrant comme un bâtiment déjà avancé (niveau + 32 / 38 / 44) ; toujours 24 h au plus par chantier.
+- Missions m18 à m20 (montants fixes), succès a25 « Empire complet » (8 activités), a26 « Port-Mirage entière » (11 quartiers), a27 « Armateur ». Le succès a8 garde son sens : « les cinq premières activités ».
+
+**Bâtiments de quartier (12 → 17)**, dessinés sur la carte et dans les fiches (même description pour les deux) : Atelier de faux papiers (Illégal), Ponton de contrebande (Illégal), Bureau de change (Légal), Hôtel de passage (Légal, efface de la chaleur), Caserne de vigiles (Défense, +25 % de défense). Les anciens quartiers gardent leurs affinités.
+
+**Quartiers (8 → 11), la rive sud** : Marina des Brumes (voisine du Port ; Les Corbeaux ; niveau 52, influence 140, Fret niv. 5), Zone franche des Saules (voisine de l'Industriel ; Consortium Meridian ; niveau 58, influence 180, Banque niv. 5), Faubourg des Lanternes (voisin de la Vieille ville ; Maison Valcourt ; niveau 64, influence 230, Vigilance niv. 5). Chacun : bonus, 2 améliorations, défense, rival, boss de guerre (Ilse Marrow, Monsieur Quade, Mère Lanterne), architecture et ambiance sonore de son voisin.
+
+- Carte de la ville : 13 → 18 rangées (QG agrandi au sud pour les terrains des nouvelles activités, puis la rive sud). Le nombre de colonnes ne change pas : le numéro de cellule `r × 12 + c` sauvegardé par les démolitions reste valable. **Les terrains des 5 premières activités et les emplacements des 8 anciens quartiers sont sur les mêmes cellules qu'avant** (vérifié par test).
+- Carte Territoires : 800 × 520 → 800 × 640, la baie borde la rive sud.
+- Les factions ne comptent un quartier de la rive sud qu'une fois son niveau d'empire atteint : sur une partie en cours, puissance des factions et fronts des rivaux sont inchangés.
+- Revenus extrêmes : partie « anciennes activités au niveau 100, nouvelles 60 / 45 / 30, 11 quartiers au contrôle 5 » = 9,5 × 10¹⁰ $/s, sous le plafond de plausibilité du classement (2 × 10¹¹ $/s, aussi dans le SQL). Seul le cas théorique « tout au niveau 100 » le dépasse (1,3 × 10¹² $/s) ; il demanderait des sommes de l'ordre de 10²⁰ $.
+
+**Économie : mesures avant / après** (`AUDIT=1 node tests/simulate.js`, joueur simulé « chantiers, sans aide » ; avant = commit 7e6e78d, après = ce commit).
+
+- 24 premières heures : **sortie identique** ligne pour ligne (progression, hors-ligne, profil réaliste, paliers, chantiers des 5 premières activités, mini-jeux). Les nouvelles activités ne s'ouvrent qu'après le niveau 50.
+- Réglage cherché par mesures successives : une première version (ouverture au niveau 10 de la Holding, sans niveau d'empire) faisait passer le revenu à 24 h de 128 M/s à 575 M/s et le niveau 55 à 24 h ; une version trop chère n'était jamais achetée par le joueur simulé en 200 h (contenu mort). Version retenue :
+
+| Temps de jeu actif | Avant : niveau · revenu · total | Après : niveau · revenu · total | Après : Fret / Banque / Vigilance |
+|---|---|---|---|
+| 24 h | 50 · 128,15 M/s · 5,99 T | 50 · 128,15 M/s · 5,99 T | 0 / 0 / 0 |
+| 36 h | 52 · 166,46 M/s · 12,23 T | 52 · 166,46 M/s · 12,23 T | 0 / 0 / 0 |
+| 48 h | 55 · 211,59 M/s · 19,98 T | 55 · 211,59 M/s · 19,98 T | 0 / 0 / 0 |
+| 72 h | 60 · 262,74 M/s · 40,09 T | 60 · 260,60 M/s · 40,06 T | 2 / 0 / 0 |
+| 120 h | 66 · 332,01 M/s · 92,08 T | 66 · 336,16 M/s · 91,97 T | 5 / 0 / 0 |
+| 168 h | 70 · 382,71 M/s · 154,82 T | 70 · 426,03 M/s · 157,84 T | 14 / 4 / 0 |
+| 200 h | 72 · 444,74 M/s · 203,17 T | 72 · 521,11 M/s · 212,80 T | 19 / 9 / 0 |
+
+| Palier existant | Avant | Après |
+|---|---|---|
+| backroom 10 / 25, freight 10 / 25, fence 10 / 25, estate 10, holding 10 | 8 min / 1 h 02, 24 min / 1 h 44, 1 h 08 / 12 h 29, 1 h 55, 3 h 11 | identiques |
+| niveau d'empire 50 / 51 / 52 / 53 | 3 h 50 / 32 h 20 / 34 h 50 / 37 h 50 | identiques |
+| niveau d'empire 55 / 58 / 60 | 44 h 40 / 56 h 40 / 67 h 00 | identiques |
+| niveau d'empire 65 | 102 h 40 | 103 h 00 (+20 min) |
+| niveau d'empire 70 | 160 h 40 | 159 h 30 (**−1 h 10, −0,7 %**) |
+
+Honnêtement : aucun palier existant n'est atteint plus tôt jusqu'au niveau 65 ; le niveau 70 l'est de 1 h 10 sur 160 h (mesures prises toutes les 10 min). Au-delà de 200 h, les nouvelles activités continuent d'ajouter du revenu (c'est leur rôle) : les niveaux 75 à 100 viendront plus tôt qu'avant.
+
+**Temps cumulés des nouvelles activités** (bâtiment principal, un ouvrier dessus en continu) :
+
+| Activité | Aides | niv. 5 | 10 | 25 | 50 | 100 |
+|---|---|---|---|---|---|---|
+| Fret des Brumes | sans mini-jeu | 4 h 15 | 10 h 52 | 52 h 41 | 266 h 31 | 1391 h 24 |
+| Fret des Brumes | Contremaître + pots-de-vin | 1 h 23 | 3 h 25 | 14 h 26 | 52 h 49 | 178 h 58 |
+| Banque Aubépine | sans mini-jeu | 7 h 49 | 18 h 56 | 87 h 07 | 390 h 52 | 1578 h 21 |
+| Banque Aubépine | Contremaître + pots-de-vin | 2 h 21 | 5 h 28 | 21 h 06 | 67 h 33 | 197 h 01 |
+| Vigilance Sentinelle | sans mini-jeu | 12 h 55 | 31 h 12 | 133 h 34 | 553 h 57 | 1753 h 57 |
+| Vigilance Sentinelle | Contremaître + pots-de-vin | 3 h 31 | 8 h 03 | 28 h 27 | 83 h 06 | 213 h 11 |
+
+Durée d'un chantier (bâtiment principal) : Fret 42 min au niveau 1, 1 h 32 au niveau 10, 5 h 47 au niveau 30, 24 h dès le niveau ≈ 75 ; Banque 1 h 20 → 24 h ; Vigilance 2 h 14 → 24 h (tableau complet : `docs/ECONOMIE_PARTIE19.md`).
+
+**Rendu de la carte** (Chromium sans carte graphique, même sauvegarde de fin de partie, 3 passages de 3 s, durée des rappels `requestAnimationFrame` dessin compris) :
+
+| Largeur | Avant (immobile · en déplacement) | Après |
+|---|---|---|
+| 1366 px | 4,54 ms (p95 12,1) · 3,20 ms (p95 8,3) | 5,12 ms (p95 12,8) · 3,39 ms (p95 8,8) |
+| 390 px | 3,03 ms (p95 7,5) · 1,89 ms (p95 4,7) | 3,36 ms (p95 7,9) · 2,09 ms (p95 5,2) |
+
++6 à +13 % par image (3 quartiers et 12 terrains de plus, carte 40 % plus haute). Le protocole de la Partie 16 n'est pas dans le dépôt : celui-ci est décrit dans `tests/endgame-browser.test.js`, qui le mesure à chaque passage (seuil : 60 ms par image).
+
+Tests :
+- `tests/endgame.test.js` (89) : données complètes, déblocage (rien avant le niveau d'empire requis, achat et chantier refusés), achats, améliorations, succès ; vraie sauvegarde v13 → nouveaux identifiants à leur valeur par défaut, factions inchangées ; sauvegarde hostile (activité, quartier, type de bâtiment, amélioration, succès, démolition et chantier inconnus ou hors bornes) nettoyée puis aller-retour identique ; conquête des 3 quartiers (négocier, imposer réussi et raté, investir, construire les nouveaux types, défense, 11 quartiers, boss) ; plafond du classement ; carte (anciennes positions inchangées, numéros de cellule, nouveaux terrains, démolition sur la rive sud, routes).
+- `tests/endgame-browser.test.js` (54) : 1366 / 390 / 320 px, cartes d'activités (verrouillée au niveau 50 avec la condition écrite, ouvertes en fin de partie), Territoires (11 quartiers, panneau de la Marina), panneau du Ponton sur la carte, menu Bâtiments (5 lieux + 3 activités), aucun défilement horizontal, texte ≥ 12 px, aucune erreur, aucune requête extérieure, coût de rendu.
+- `tests/works.test.js` : les contrôles « premier chantier 2 à 10 s » ne visent plus que les 5 premières activités ; les 3 nouvelles ont leurs propres contrôles (premier chantier entre 10 min et 3 h, plafond 24 h, plus lentes que la précédente).
+
+### Captures (`SHOTS=1`, dans `shots/`)
+
+`p19-achat-rapide-*`, `p19-navigation-*`, `p19-a-faire-*`, `p19-defis-*`, `p19-nouvelle-activite-*`, `p19-nouveau-quartier-*`, `p19-nouveau-batiment-*`, chacune à 1366, 390 et 320 px.
+
+### Non vérifié
+
+Vrai serveur Supabase, vrai téléphone, Firefox, Safari ; rendu visuel jugé seulement sur captures ; sons non écoutés (ambiance des quartiers du sud empruntée à leurs voisins) ; le joueur simulé ne prend pas de quartiers ni ne lance d'opérations (ses durées sont relatives, pas absolues).
+
 ## Partie 17 — classement d'accueil, gains hors-ligne, illustrations, chantiers, mini-jeux
 
 Sauvegarde : **v13 → v14** (bloc D, chantiers ; bloc E, mini-jeux). Migration 13 → 14 : rien n'est supprimé, les deux nouveaux champs sont vides par défaut.

@@ -12,7 +12,8 @@
   var P = {
     /* niveau visé → secondes (salle de jeux, bâtiment principal) ; interpolation logarithmique entre deux points */
     anchors: [[1, 2], [2, 3], [3, 4], [5, 6], [10, 40], [15, 75], [20, 150], [25, 300], [30, 600], [40, 1500], [50, 3000], [60, 6000], [70, 9000], [80, 14400], [90, 21600], [100, 28800]],
-    scale: { backroom: 1, freight: 1.3, fence: 1.7, estate: 2.2, holding: 2.8 },   /* les activités avancées sont plus lentes */
+    scale: { backroom: 1, freight: 1.3, fence: 1.7, estate: 2.2, holding: 2.8, maritime: 3.2, shell: 3.5, guard: 3.8 },   /* les activités avancées sont plus lentes */
+    offset: { maritime: 32, shell: 38, guard: 44 },   /* Partie 19 · F : les activités de fin de partie démarrent comme un bâtiment déjà avancé (niveau + décalage) : elles se disputent le temps des ouvriers au lieu d'accélérer la fin de partie */
     annex: 0.75,              /* bâtiments 2 à 4 (moins chers, moins rentables) : un peu plus rapides */
     maxDur: 86400,            /* plafond absolu : 24 h par chantier */
     workers: [1, 3, 8],       /* niveau d'empire requis pour le 1er, 2e et 3e ouvrier (≈ 15 min et ≈ 1 h de jeu actif) */
@@ -33,7 +34,7 @@
   }
   /* durée du chantier qui amène le bâtiment i de l'activité au niveau `to` (nouveau bâtiment : to = 1, durée du palier qui le débloque) */
   function duration(id, i, to) {
-    var a = act(id); if (!a) return 0; var ref = to; if (to === 1 && i > 0) ref = E().BLD_NEED[i] || 1;
+    var a = act(id); if (!a) return 0; var ref = to; if (to === 1 && i > 0) ref = E().BLD_NEED[i] || 1; ref += P.offset[id] || 0;
     return Math.round(Math.min(P.maxDur, Math.max(1, durAt(ref) * (P.scale[id] || 1) * (i > 0 ? P.annex : 1))));
   }
   function workers(s) { var L = E().level(s), n = 0; P.workers.forEach(function (lv) { if (L >= lv) n++; }); return Math.max(1, n); }

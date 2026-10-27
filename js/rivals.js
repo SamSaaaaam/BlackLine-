@@ -38,7 +38,7 @@
     var best = null;
     TD().districts.forEach(function (d) {
       if (T().lv(s, d.id) < 1) return;
-      var touch = d.neighbors.some(function (n) { var x = T().dist(n); return x && x.holder === fid && T().lv(s, n) === 0; });
+      var touch = d.neighbors.some(function (n) { var x = T().dist(n); return x && x.holder === fid && T().lv(s, n) === 0 && (!T().inPlay || T().inPlay(s, x)); });
       if (!touch) return;
       /* agressive / opportuniste : le quartier le moins bien défendu ; diplomate : le plus stratégique (ordre stable) */
       if (!best) { best = d; return; }

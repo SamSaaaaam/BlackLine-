@@ -10,10 +10,10 @@
   function T(fn, ms) { var id = setTimeout(function () { var i = timers.indexOf(id); if (i >= 0) timers.splice(i, 1); fn(); }, ms); timers.push(id); return id; }
   function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
   /* Paramètres du fond selon la scène : pure, testable sans audio. night et rain valent de 0 à 1. */
-  var PLACES = { port: 1, industrial: 1, center: 1, business: 1, market: 1, oldtown: 1, residential: 1, prestige: 1, hq: 1 };
+  var PLACES = { port: 1, industrial: 1, center: 1, business: 1, market: 1, oldtown: 1, residential: 1, prestige: 1, hq: 1, marina: 1, franche: 1, faubourg: 1 };
   /* Partie 13 · C8 : la chaleur (0 à 100) rend la ville plus tendue : sirènes plus fréquentes, fond plus sourd, bourdonnement grave. Sans argument : comme avant. */
   function paramsBase(night, rain, dayBusy, place, heat) {
-    var hh = clamp((+heat || 0) / 100, 0, 1); night = clamp(+night || 0, 0, 1); rain = clamp(+rain || 0, 0, 1); var day = 1 - night, pl = PLACES[place] ? place : "";
+    var hh = clamp((+heat || 0) / 100, 0, 1); night = clamp(+night || 0, 0, 1); rain = clamp(+rain || 0, 0, 1); var day = 1 - night, pl = PLACES[place] ? ({ marina: "port", franche: "industrial", faubourg: "oldtown" }[place] || place) : "";   /* Partie 19 · F : les quartiers du sud sonnent comme leurs voisins */
     var busy = pl === "center" || pl === "market" || pl === "business" ? 1.5 : pl === "residential" || pl === "port" ? 0.7 : 1;
     var port = pl === "port", ind = pl === "industrial", club = night > 0.5 && rain < 0.7 && (pl === "center" || pl === "market" || pl === "oldtown" || pl === "prestige" || pl === "");
     return { rumble: Math.min(0.5, (0.34 + 0.1 * day) * (ind ? 1.12 : pl === "residential" ? 0.8 : 1)), bustle: Math.min(0.3, (0.05 + 0.1 * day * (dayBusy === undefined ? 1 : dayBusy)) * (1 - 0.5 * rain) * busy), wind: 0.03 + 0.07 * night + (port ? 0.02 : 0), rain: 0.22 * rain,

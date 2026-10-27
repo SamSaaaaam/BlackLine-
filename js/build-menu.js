@@ -2,7 +2,7 @@
    Aucune règle ici : tout passe par BL.dbuild (quartiers) et les gestionnaires du jeu (QG, décors). Un seul menu, un seul mode placement. */
 (function (root) {
   var BL = root.BL = root.BL || {}, doc = root.document, h, u, S = null, E, DB, T;
-  var CATS = ["Illégal", "Légal", "Défense", "Spécial"], QG = { "Illégal": ["backroom", "freight", "fence"], "Légal": ["estate", "holding"] };
+  var CATS = ["Illégal", "Légal", "Défense", "Spécial"], QG = { "Illégal": ["backroom", "freight", "fence", "maritime"], "Légal": ["estate", "holding", "shell"], "Défense": ["guard"] };
   var X = { open: false, mode: "bat", tab: "Illégal", ctx: null, place: null, sig: "", busy: false, lastBtn: null }, el = {};
   function $(id) { return doc.getElementById(id); }
   function mk(tag, cls, html) { var e = doc.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }

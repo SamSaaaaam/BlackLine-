@@ -99,7 +99,7 @@ if (AUDIT && base.BL.works) {
   console.log("\nÉcart entre deux commandes : temps pendant lequel le joueur ne peut rien construire de nouveau (faute d'argent, d'ouvrier ou de place dans la file). « File pleine » : 3 ouvriers occupés et 5 chantiers en attente ; les travaux avancent, mais rien de neuf à commander.\n\n| Palier (bâtiment principal) | " + res.map(r => r.name).join(" | ") + " |\n|---|" + res.map(() => "---|").join(""));
   ["backroom@5", "backroom@10", "backroom@25", "freight@10", "freight@25", "fence@10", "fence@25", "estate@10", "holding@10", "backroom@50"].forEach(k => console.log("| " + k.replace("@", " niveau ") + " | " + res.map(r => hm(r.first[k])).join(" | ") + " |"));
   goals.push(["chantiers : jamais plus de 10 min sans pouvoir commander un bâtiment pendant les 4 premières heures (sans aide) : " + hm(res[1].gapMax), res[1].gapMax <= 600]);
-  goals.push(["chantiers : premier achat ≤ 10 s, niveau 10 ≤ 3 min, plafond 24 h", W.duration("backroom", 0, 1) <= 10 && acts.every(id => W.duration(id, 0, 1) >= 2 && W.duration(id, 0, 1) <= 10 && W.duration(id, 0, 10) <= 180 && W.duration(id, 0, 100) <= 86400)]);
+  goals.push(["chantiers : premier achat ≤ 10 s, niveau 10 ≤ 3 min, plafond 24 h (activités de début et milieu de partie ; celles de fin de partie : tests/works.test.js)", W.duration("backroom", 0, 1) <= 10 && acts.filter(id => !(BL.economy.find(BL.data.activities, id).unlock || {}).emp).every(id => W.duration(id, 0, 1) >= 2 && W.duration(id, 0, 1) <= 10 && W.duration(id, 0, 10) <= 180 && W.duration(id, 0, 100) <= 86400)]);
 }
 /* ===== Partie 17 · E : mini-jeux, gains maximaux (bornes calculées depuis les réglages) ===== */
 if (AUDIT && base.BL.minigames) {
@@ -111,6 +111,22 @@ if (AUDIT && base.BL.minigames) {
   const tot = rows.reduce((a, r) => a + r[1], 0); console.log("| **Total si tout est joué parfaitement** | **+" + (tot * 100).toFixed(1).replace(".", ",") + " %** |");
   console.log("\nNon monétaires : indic (pression d'un rival −5 à −20, chaleur −0 à −3), inspecteur (loyauté +2 à +10, plafonnée à 100), comptabilité « traces » (chaleur −2 à −10). Contremaître : voir le tableau des chantiers (−5 à −20 % du temps restant, une fois toutes les " + Math.round(W.P.foreman.cd / 60) + " min). Aucun lingot n'est jamais gagné ni dépensé.");
   goals.push(["mini-jeux : gain monétaire maximal ≤ 10 % du revenu actif : +" + (tot * 100).toFixed(1).replace(".", ",") + " %", tot <= 0.10]);
+}
+/* ===== Partie 19 · F : fin de partie (au-delà de 24 h), joueur « chantiers, sans aide » ===== */
+if (AUDIT && !process.env.NO_ENDGAME) {
+  const EH = +(process.env.END_H || 72), env = load(), B3 = env.BL, E3 = B3.economy, s3 = E3.newState(0), bot = makeBot(B3, s3, {}), lvAt = {}, actAt = {}, marks = [24, 36, 48, 72, 120, 168, 200].filter(h => h <= EH).map(h => h * 3600), at = [];
+  const LV = [50, 51, 52, 53, 55, 58, 60, 65, 70], acts = B3.data.activities.map(a => a.id);
+  while (s3.t < EH * 3600 - 1e-6) {
+    const nx = Math.min(EH * 3600, s3.t + 600); bot.run(nx - s3.t);
+    LV.forEach(L => { if (E3.level(s3) >= L && lvAt[L] === undefined) lvAt[L] = s3.t; }); acts.forEach(id => { if (E3.best(s3, id) > 0 && actAt[id] === undefined) actAt[id] = s3.t; });
+    if (marks.length && s3.t >= marks[0] - 1e-6) { marks.shift(); at.push({ t: s3.t, lvl: E3.level(s3), inc: E3.income(s3), total: s3.total, best: acts.map(id => E3.best(s3, id)).join("/") }); }
+  }
+  console.log("\n# Fin de partie (Partie 19 · F) : " + EH + " h de jeu actif, joueur « chantiers, sans aide »\n\nActivités : " + acts.length + " · quartiers : " + B3.data.territory.districts.length + ". Mesures prises toutes les 10 min de jeu (précision des temps : 10 min).\n");
+  console.log("| Temps | Niveau d'empire | Revenu net | Total gagné | Meilleurs bâtiments (" + acts.join("/") + ") |\n|---|---|---|---|---|");
+  at.forEach(x => console.log("| " + hm(x.t) + " | " + x.lvl + " | " + fmt(x.inc) + "/s | " + fmt(x.total) + " | " + x.best + " |"));
+  console.log("\n| Palier | Atteint à |\n|---|---|"); LV.forEach(L => console.log("| niveau d'empire " + L + " | " + hm(lvAt[L]) + " |")); acts.forEach(id => console.log("| première ouverture : " + id + " | " + hm(actAt[id]) + " |"));
+  const late = acts.filter(id => { const a = E3.find(B3.data.activities, id); return a.unlock && a.unlock.emp; });
+  goals.push(["fin de partie : aucune activité de fin de partie avant le niveau d'empire requis (" + late.map(id => id + " " + hm(actAt[id])).join(", ") + " ; niveau 51 : " + hm(lvAt[51]) + ")", late.every(id => actAt[id] === undefined || (lvAt[51] !== undefined && actAt[id] >= lvAt[51]))]);
 }
 if (process.env.JSON_OUT) require("fs").writeFileSync(process.env.JSON_OUT, JSON.stringify({ firstAt: base.bot.stats.firstAt, snaps: Object.fromEntries(Object.entries(base.snaps).map(([k, v]) => [k, { inc: v.inc, lvl: v.lvl, total: v.total }])), stats: base.bot.stats }));
 if (AUDIT) { console.log("\n## Objectifs\n"); goals.forEach(g => console.log("- " + (g[1] ? "✔" : "✘") + " " + g[0])); console.log("\n(" + ((Date.now() - t0) / 1000).toFixed(1) + " s de calcul)"); }

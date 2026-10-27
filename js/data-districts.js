@@ -20,6 +20,12 @@
       { id: "transport", cat: "Légal", name: "Compagnie de transport", desc: "Des camions déclarés, des livraisons déclarées.", costSec: 450, inc: 0.020, heat: -0.05, req: 1 },
       { id: "watch", cat: "Défense", name: "Poste de guet", desc: "Des yeux sur chaque rue : la défense du quartier augmente.", costSec: 350, inc: 0, heat: -0.05, def: 0.15, req: 1 },
       { id: "bunker", cat: "Défense", name: "Bunker de quartier", desc: "Béton, grilles et réserves : le quartier tient bien plus longtemps.", costSec: 900, inc: 0, heat: 0, def: 0.35, req: 3 },
+      /* Partie 19 · F : cinq types de plus (mêmes règles de coût, revenu plafonné par incCap) */
+      { id: "forgery", cat: "Illégal", name: "Atelier de faux papiers", desc: "Tampons, encres et signatures : des identités sur mesure.", costSec: 650, inc: 0.040, heat: 0.40, req: 2 },
+      { id: "pier", cat: "Illégal", name: "Ponton de contrebande", desc: "Un quai discret où les bateaux accostent sans feux.", costSec: 800, inc: 0.045, heat: 0.45, req: 2 },
+      { id: "exchange", cat: "Légal", name: "Bureau de change", desc: "Des devises, des reçus en règle et des montants arrondis.", costSec: 500, inc: 0.020, heat: -0.10, req: 1 },
+      { id: "hotel", cat: "Légal", name: "Hôtel de passage", desc: "Des chambres payées d’avance et un registre qui oublie vite.", costSec: 600, inc: 0.020, heat: -0.20, req: 2 },
+      { id: "garrison", cat: "Défense", name: "Caserne de vigiles", desc: "Des vigiles en relève permanente : le quartier tient mieux.", costSec: 700, inc: 0, heat: -0.10, def: 0.25, req: 2 },
       { id: "casino", cat: "Spécial", name: "Casino", desc: "Un vrai casino : tables, machines et roulette. Tu peux y jouer avec l’argent du jeu.", costSec: 2000, inc: 0.060, heat: 0.10, req: 3, special: true }
     ],
     /* chaque quartier avantage certains bâtiments (revenu ×1,5) et a sa propre architecture (silhouette dessinée dans map-render) */
@@ -31,7 +37,10 @@
       port: { slots: 3, name: "Docks et conteneurs", aff: ["contraband", "transport", "chop"] },
       residential: { slots: 3, name: "Pavillons", aff: ["restaurant", "laundry", "watch"] },
       business: { slots: 4, name: "Tours vitrées", aff: ["casino", "club", "laundry"] },
-      prestige: { slots: 4, name: "Manoirs et colonnades", aff: ["casino", "lab", "club"] }
+      prestige: { slots: 4, name: "Manoirs et colonnades", aff: ["casino", "lab", "club"] },
+      marina: { slots: 3, name: "Pontons et capitainerie", aff: ["pier", "contraband", "hotel"] },
+      franche: { slots: 4, name: "Entrepôts sous douane", aff: ["exchange", "forgery", "transport"] },
+      faubourg: { slots: 4, name: "Lanternes et cours", aff: ["hotel", "betting", "garrison"] }
     }
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

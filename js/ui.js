@@ -10,7 +10,7 @@
     empire: "M4 21V8l8-5 8 5v13M9 21v-6h6v6M9 11h.01M15 11h.01", map: "M12 21s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11zM12 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4z",
     team: "M16 20v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V20M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM21 20v-1.5a4 4 0 0 0-3-3.9M16 4.2a3.5 3.5 0 0 1 0 6.6",
     stats: "M4 20V10M10 20V4M16 20v-8M22 20H2", book: "M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 21V5M9 7h6M9 11h6", menu: "M4 6h16M4 12h16M4 18h16", trophy: "M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3",
-    lock: "M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4", city: "M3 21V10l5-3v14M8 21V5l7-2v18M15 21v-9l6-2v11M3 21h18", check: "M5 12l5 5 9-10", vault: "M3 5h18v14H3zM3 9h18M9 14h6M12 12v4M7 19v2M17 19v2", bag: "M5 8h14l-1 12H6zM9 8a3 3 0 0 1 6 0", story: "M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5zM4 21.5V4.5M8 6h8M8 10h8M8 14h5", box: "M12 3l8 4.5v9L12 21l-8-4.5v-9zM4 7.5l8 4.5 8-4.5M12 12v9", trophy: "M8 4h8v6a4 4 0 0 1-8 0zM8 6H4v2a4 4 0 0 0 4 3M16 6h4v2a4 4 0 0 1-4 3M12 14v4M8 20h8", radio: "M3 9h18v11H3zM7 9l10-5M7 14h6M7 17h6M17 15a1.6 1.6 0 1 0 .01 0" };
+    lock: "M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4", city: "M3 21V10l5-3v14M8 21V5l7-2v18M15 21v-9l6-2v11M3 21h18", check: "M5 12l5 5 9-10", vault: "M3 5h18v14H3zM3 9h18M9 14h6M12 12v4M7 19v2M17 19v2", anchor: "M12 5a2 2 0 1 0 0-.01M12 7v14M8 11h8M4 14a8 8 0 0 0 16 0M4 14l-1.5 2M20 14l1.5 2", columns: "M3 9l9-5 9 5zM5 9v9M10 9v9M14 9v9M19 9v9M3 18h18M3 21h18", shieldc: "M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4", bag: "M5 8h14l-1 12H6zM9 8a3 3 0 0 1 6 0", story: "M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5zM4 21.5V4.5M8 6h8M8 10h8M8 14h5", box: "M12 3l8 4.5v9L12 21l-8-4.5v-9zM4 7.5l8 4.5 8-4.5M12 12v9", trophy: "M8 4h8v6a4 4 0 0 1-8 0zM8 6H4v2a4 4 0 0 0 4 3M16 6h4v2a4 4 0 0 1-4 3M12 14v4M8 20h8", radio: "M3 9h18v11H3zM7 9l10-5M7 14h6M7 17h6M17 15a1.6 1.6 0 1 0 .01 0" };
   /* 4 familles de sections : Ville, Empire, Boutique et QG, Infos. [id, icône, intitulé, phrase d'explication] */
   var NAV = [["map", "city", "Carte", "Ta ville : clique un bâtiment pour l’améliorer, ou un quartier pour le prendre."], ["terr", "map", "Territoires", "Prends des quartiers aux factions rivales et défends-les."],
     ["empire", "empire", "Activités", "Tes activités et leurs bâtiments : améliore-les pour gagner plus d’argent."], ["team", "team", "Équipe", "Recrute des équipiers : ceux qui sont actifs te donnent des bonus."], ["upg", "up", "Bonus permanents", "Achats uniques en $ qui améliorent durablement tes revenus ou tes coûts."], ["arsenal", "arsenal", "Arsenal", "Équipe ton équipe : armes, protections, accessoires et véhicules, à acheter, comparer ou réparer."], ["ops", "ops", "Opérations", "Braquages, convois rivaux et raids de quartier : ton équipe gagne de l’argent et du butin rare."], ["goals", "trophy", "Journal", "Ce qui demande ta décision, ce qui est en cours, et tes objectifs avec leurs récompenses."],
@@ -245,7 +245,7 @@
     if (ui.goalKind === "claim" && kind !== "claim" && ui.goalKind !== undefined) { gb.classList.remove("win"); void gb.offsetWidth; gb.classList.add("win"); }   /* objectif réclamé : courte animation de réussite */
     if (kind === "claim" && ui.goalKind !== undefined && ui.goalKind !== "claim" && BL.notify) BL.notify.push({ type: "claim", key: "claim", title: "Objectif atteint", text: (ns && ns.label ? ns.label + " : " : "") + "réclame ta récompense.", target: { view: "goals" }, mark: { type: "hq" } });
     ui.goalKind = kind;
-    gb.title = lock ? "Prochain déblocage : " + lock.name + " (" + actName(lock.unlock.id) + " niveau " + lock.unlock.lvl + ")" : "Toutes les activités sont débloquées";
+    gb.title = lock ? "Prochain déblocage : " + lock.name + " (" + actName(lock.unlock.id) + " niveau " + lock.unlock.lvl + (lock.unlock.emp ? ", empire niveau " + lock.unlock.emp : "") + ")" : "Toutes les activités sont débloquées";
   }
   /* Niveau d'empire gagné : si un nouveau statut est atteint en même temps, seule la promotion est annoncée. */
   function levelUp(L) {
@@ -291,7 +291,7 @@
           set(R.b.firstChild, wkS(s, a.id, i) || (nb && nb.ok ? "Construire · " + money(nb.cost) : "Niv. " + (nb ? nb.need : "—") + " requis")); set(R.b.lastChild, nb && nb.ok && !wkS(s, a.id, i) ? (s.money + 1e-9 < nb.cost ? "Il te manque " + money(nb.cost - s.money) : "+" + money(E.bldIncome(s, a, i, 1)) + "/s") : ""); R.b.disabled = !(nb && nb.ok) || s.money + 1e-9 < nb.cost || wkB(s, a.id, i); R.r.classList.remove("best"); }
         R.r.classList.toggle("wbusy", !!wkS(s, a.id, i)); R.b.classList.toggle("can", !R.b.disabled);
       });
-      if (!ok) { set(u.et, "Requiert le meilleur bâtiment de " + actName(a.unlock.id) + " au niveau " + a.unlock.lvl); BL.bar(u.eb, Math.min(100, (s.owned[a.unlock.id] || 0) / a.unlock.lvl * 100)); }
+      if (!ok) { set(u.et, E.unlockText(s, a)); BL.bar(u.eb, E.unlockProgress(s, a) * 100); }
       else if (nx) { set(u.et, "Prochain palier : niveau " + nx.lvl + " (revenus ×" + num(nx.mult) + ")"); BL.bar(u.eb, Math.min(100, n / nx.lvl * 100)); }
       else { set(u.et, "Tous les paliers sont atteints"); BL.bar(u.eb, 100); }
       if (BL.buildArt) { var dt0 = E.designTier(n0), dn = E.nextDesign(n0), dtn = dn ? E.designTier(dn) : -1, dsg = dt0 + "/" + dtn + "/" + (dn || 0); if (u.dsg.dataset.sg !== dsg) { u.dsg.dataset.sg = dsg; u.dsg.innerHTML = '<figure class="dsg-c">' + BL.buildArt.svg(a.id, dt0) + "<figcaption>Design actuel<b>" + E.DESIGN_NAMES[dt0] + "</b></figcaption></figure>" + (dn ? '<figure class="dsg-n">' + BL.buildArt.svg(a.id, dtn) + "<figcaption>Au niveau " + dn + "<b>" + E.DESIGN_NAMES[dtn] + "</b></figcaption></figure>" : '<p class="dsg-m">Design maximal atteint.</p>'); } }
@@ -330,7 +330,7 @@
           ["Total encaissé", money(s.st.earned)], ["Entretien payé", "−" + money(s.st.upkeep), "neg"], ["Dépenses (achats)", "−" + money(s.st.spent), "neg"], ["Récompenses reçues", "+" + money(s.st.rewards)]]);
       }
       if (ui.view === "goals") {
-        var lk = D.activities.filter(function (a) { return !E.actUnlocked(s, a); }).map(function (a) { return a.name + " : " + actName(a.unlock.id) + " niveau " + (s.owned[a.unlock.id] || 0) + " / " + a.unlock.lvl; });
+        var lk = D.activities.filter(function (a) { return !E.actUnlocked(s, a); }).map(function (a) { return a.name + " : " + actName(a.unlock.id) + " niveau " + (s.owned[a.unlock.id] || 0) + " / " + a.unlock.lvl + (a.unlock.emp ? ", empire " + E.level(s) + " / " + a.unlock.emp : ""); });
         D.upgrades.forEach(function (g) { if (!s.upg[g.id] && !E.unlocked(s, g) && lk.length < 6) lk.push(g.name + " : " + reqText(g.req)); });
         lk = lk.concat(BL.terrUI.unlockLines(s), BL.crewUI.unlockLines(s));
         var sg = lk.join("|"), ul = $("unlocks"); if (ul.dataset.sg !== sg) { ul.dataset.sg = sg; ul.innerHTML = ""; (lk.length ? lk : ["Tout est débloqué."]).forEach(function (m) { var li = document.createElement("li"); li.textContent = m; ul.appendChild(li); }); }

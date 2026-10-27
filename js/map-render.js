@@ -9,8 +9,9 @@
   function ease(p) { p = Math.max(0, Math.min(1, p)); return 1 - Math.pow(1 - p, 3); }
   var KIND = {
     backroom: { wall: "#5a3047", roof: "#2c1d26", base: 34, step: 10 }, freight: { wall: "#46586c", roof: "#566a80", base: 28, step: 6 },
-    fence: { wall: "#44605c", roof: "#52726d", base: 30, step: 8 }, estate: { wall: "#38455e", roof: "#4a5c80", base: 64, step: 22 }, holding: { wall: "#26505a", roof: "#34707c", base: 80, step: 28 }
-  };
+    fence: { wall: "#44605c", roof: "#52726d", base: 30, step: 8 }, estate: { wall: "#38455e", roof: "#4a5c80", base: 64, step: 22 }, holding: { wall: "#26505a", roof: "#34707c", base: 80, step: 28 },
+    maritime: { wall: "#2d4a58", roof: "#3a6274", base: 30, step: 7 }, shell: { wall: "#4a4f3e", roof: "#5e6650", base: 72, step: 24 }, guard: { wall: "#3a404c", roof: "#4b5262", base: 36, step: 9 }   /* Partie 19 · F */
+  }, TALL = { estate: 1, holding: 1, shell: 1 };
   var PEOPLE = ["#c8a45e", "#b9715f", "#7ea6c9", "#a58bd0", "#86c39b", "#d8d4c8", "#e08a6b"], CARS = ["#b9715f", "#7ea6c9", "#c8a45e", "#a58bd0", "#86c39b", "#d8d4c8", "#6b7280", "#d4574a"];
 
   function create(model, opts) {
@@ -291,17 +292,17 @@
       diamond(x - 8, y - 8, w + 16, d + 44, 0, "#222831", "#2c333d", 2);                                                    /* parcelle */
       if (p < 1) { ctx.strokeStyle = "rgba(241,194,75,.85)"; ctx.lineWidth = 2; [[x, y + d], [x + w, y + d], [x + w, y]].forEach(function (c) { ctx.beginPath(); ctx.moveTo(px(c[0], c[1]), py(c[0], c[1], 0)); ctx.lineTo(px(c[0], c[1]), py(c[0], c[1], full)); ctx.stroke(); }); }
       var roof = worn(k.roof, tier);
-      if (l.act === "holding" || l.act === "estate") {
-        var gold = l.act === "holding", pod = gold ? 26 : 22, tw = w * 0.62, td = d * 0.62, tx = x + (w - tw) / 2, ty = y + (d - td) / 2 - 2;
-        box(x, y, w, d, pod * Math.min(1, p * 1.5), 0, gold ? "#2c3a40" : "#34405a", gold ? "#3a4c54" : "#44527a", lm);
-        if (p > 0.5) { onL(x, y, d, 0, function () { for (var i = 0; i < 5; i++) { ctx.fillStyle = "#f1d98f"; ctx.globalAlpha = 0.9; ctx.fillRect(10 + i * 24, 6, 16, 13); } ctx.globalAlpha = 1; ctx.fillStyle = gold ? "#e3c680" : "#9ab4dd"; ctx.fillRect(0, pod - 4, w, 4); if (gold) { for (var c = 0; c < 4; c++) { ctx.fillStyle = "#e8e2d2"; ctx.fillRect(18 + c * 30, 0, 6, pod - 4); } } }); }
+      if (TALL[l.act]) {
+        var gold = l.act === "holding", bk = l.act === "shell", pod = gold ? 26 : 22, tw = w * 0.62, td = d * 0.62, tx = x + (w - tw) / 2, ty = y + (d - td) / 2 - 2;
+        box(x, y, w, d, pod * Math.min(1, p * 1.5), 0, gold ? "#2c3a40" : bk ? "#3a3e30" : "#34405a", gold ? "#3a4c54" : bk ? "#4a503e" : "#44527a", lm);
+        if (p > 0.5) { onL(x, y, d, 0, function () { for (var i = 0; i < 5; i++) { ctx.fillStyle = "#f1d98f"; ctx.globalAlpha = 0.9; ctx.fillRect(10 + i * 24, 6, 16, 13); } ctx.globalAlpha = 1; ctx.fillStyle = gold ? "#e3c680" : bk ? "#b9c7a0" : "#9ab4dd"; ctx.fillRect(0, pod - 4, w, 4); if (gold) { for (var c = 0; c < 4; c++) { ctx.fillStyle = "#e8e2d2"; ctx.fillRect(18 + c * 30, 0, 6, pod - 4); } } }); }
         box(tx, ty, tw, td, h - pod * 0.6, pod * 0.9, wallC, roof, lm, { noShadow: true });
         winGrid("L", tx, ty, tw, td, pod * 0.9, h - pod * 0.6, 0, tw, b.seed, gold ? "#bde6ee" : "#f6e3a8", gold ? 0.9 : 0.72, lm, z, 6); winGrid("R", tx, ty, tw, td, pod * 0.9, h - pod * 0.6, 0, td, b.seed + 5, gold ? "#a7d6e0" : "#e9c97a", 0.6, lm, z, 6);
         var top = h + pod * 0.3; if (gold) { onL(tx, ty, td, h - 10, function () { ctx.fillStyle = "#e3c680"; ctx.fillRect(0, 0, tw, 5); }); }
         if (tier >= 2) box(tx + tw * 0.2, ty + td * 0.2, tw * 0.6, td * 0.6, 6 + tier * 7, top, wallC, gold ? "#e3c680" : roof, lm, { noShadow: true });
         var ax = px(tx + tw / 2, ty + td / 2), ay = py(tx + tw / 2, ty + td / 2, top + (tier >= 2 ? 6 + tier * 7 : 0)); ctx.strokeStyle = "#8a93a2"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax, ay - 24); ctx.stroke(); ctx.fillStyle = gold ? "#e3c680" : "#ff4d4d"; ctx.globalAlpha = R.motion ? 0.5 + 0.5 * Math.sin(R.time * 2 + b.seed) : 1; ctx.beginPath(); ctx.arc(ax, ay - 25, 3, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;
         if (gold && z > 0.35) glow(px(tx + tw / 2, ty + td), py(tx + tw / 2, ty + td, h * 0.45), 70, "#e3c680", 0.14 + 0.05 * pu);
-        if (p > 0.6) { onL(x, y, d, 0, function () { signText(gold ? "HOLDING" : "ESTATE", w / 2 - 30, pod - 18, 60, 12, gold ? "rgba(140,110,50,.95)" : "rgba(70,90,140,.95)"); }); }
+        if (p > 0.6) { onL(x, y, d, 0, function () { signText(gold ? "HOLDING" : bk ? "BANQUE" : "ESTATE", w / 2 - 30, pod - 18, 60, 12, gold ? "rgba(140,110,50,.95)" : bk ? "rgba(90,104,70,.95)" : "rgba(70,90,140,.95)"); }); }
       } else if (l.act === "backroom") {
         box(x, y, w, d, h, 0, wallC, roof, lm);
         winGrid("L", x, y, w, d, 0, h, 0, w, b.seed, "#ff9bb8", 0.45, lm, z, 24); winGrid("R", x, y, w, d, 0, h, 0, d, b.seed + 2, "#d08bff", 0.5, lm, z, 24);
@@ -332,6 +333,30 @@
           var nC = Math.max(2, 7 - tier); for (var c = 0; c < nC; c++) { var cc = ["#7a3b34", "#35506b", "#6b5a2f", "#3d5a4a", "#5a3d6b"][(c + b.seed) % 5], cx2 = x + 4 + (c % 4) * 26, cy2 = y + d + 18 + Math.floor(c / 4) * 16; if (cx2 + 22 > x + w + 6) continue; box(cx2, cy2, 22, 12, 11, 0, cc, sh(cc, 1.2), lm, { noShadow: true }); }
           if (tier >= 2) { box(x + w + 4, y + 8, 30, 14, 14, 0, "#6b5a2f", "#7d6b38", lm); box(x + w + 4, y + 8, 30, 14, 14, 14, "#35506b", "#476a8c", lm, { noShadow: true }); }
         }
+      } else if (l.act === "maritime") {                                                                         /* Partie 19 · F : hangar de fret, grue et conteneurs */
+        box(x, y, w * 0.62, d, h, 0, wallC, roof, lm);
+        winGrid("R", x, y, w * 0.62, d, 0, h, 0, d, b.seed, "#9fd4de", 0.4, lm, z, h - 16);
+        if (p > 0.6) {
+          onL(x, y, d, 0, function () { var bw = (w * 0.62 - 12) / 2; for (var i = 0; i < 2; i++) { ctx.fillStyle = "#121a1f"; ctx.fillRect(6 + i * (bw + 4), 0, bw - 2, 24); } signText("FRET", w * 0.31 - 22, h - 18, 44, 12, "rgba(40,100,120,.95)"); glow(w * 0.31, h - 8, 26, "#5fb0c8", 0.4 * pu); });
+          var cn = Math.min(6, 2 + tier), cols = ["#7a3b34", "#35506b", "#6b5a2f", "#3d5a4a", "#5a3d6b", "#2f5f6f"];
+          for (var q = 0; q < cn; q++) { var qx = x + w * 0.66 + (q % 2) * 22, qy = y + 6 + Math.floor(q / 2) % 3 * 26, qz = q >= 6 ? 11 : 0; box(qx, qy, 20, 22, 11, qz, cols[(q + b.seed) % 6], sh(cols[(q + b.seed) % 6], 1.2), lm, { noShadow: q > 1 }); }
+          var cx0 = x + w - 8, cy0 = y + d + 4, ch = 46 + tier * 4, ca = px(cx0, cy0), cb = py(cx0, cy0, 0), ct = py(cx0, cy0, ch);
+          ctx.strokeStyle = "#c8a45e"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(ca, cb); ctx.lineTo(ca, ct); ctx.lineTo(px(cx0 - 70, cy0 - 40), py(cx0 - 70, cy0 - 40, ch)); ctx.stroke();
+          ctx.lineWidth = 1; ctx.strokeStyle = "rgba(200,164,94,.7)"; var hx = px(cx0 - 52, cy0 - 30), hy = py(cx0 - 52, cy0 - 30, ch); ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(hx, hy + 18 + (R.motion ? 4 * Math.sin(R.time) : 0)); ctx.stroke();
+          ctx.fillStyle = "#ff4d4d"; ctx.globalAlpha = 0.5 + 0.5 * pu; ctx.beginPath(); ctx.arc(ca, ct - 3, 2.4, 0, 6.3); ctx.fill(); ctx.globalAlpha = 1;
+        }
+      } else if (l.act === "guard") {                                                                           /* Partie 19 · F : caserne de vigiles, mirador et grillage */
+        box(x, y + 10, w - 34, d - 10, h, 0, wallC, roof, lm);
+        winGrid("L", x, y + 10, w - 34, d - 10, 0, h, 0, w - 34, b.seed, "#ffe08a", 0.5, lm, z, 22); winGrid("R", x, y + 10, w - 34, d - 10, 0, h, 0, d - 10, b.seed + 3, "#ffe08a", 0.4, lm, z, 22);
+        if (p > 0.6) {
+          onL(x, y + 10, d - 10, 0, function () { ctx.fillStyle = "#14161a"; ctx.fillRect((w - 34) / 2 - 10, 0, 20, 22); ctx.fillStyle = "#a4adbd"; ctx.fillRect(0, h - 5, w - 34, 3); signText("SENTINELLE", (w - 34) / 2 - 36, h - 20, 72, 12, "rgba(70,78,94,.95)"); });
+          var tx2 = x + w - 26, ty2 = y + 16, th = Math.max(40, h + 14 + tier * 3);
+          box(tx2 + 4, ty2 + 4, 12, 12, th, 0, "#4a505b", "#5a626e", lm); box(tx2, ty2, 20, 20, 10, th, "#2f343c", "#3f4650", lm, { noShadow: true });
+          onL(tx2, ty2, 20, th, function () { ctx.fillStyle = "#ffe9a0"; ctx.globalAlpha = 0.7 + 0.3 * pu; ctx.fillRect(3, 3, 14, 5); ctx.globalAlpha = 1; });
+          if (z > 0.35) glow(px(tx2 + 10, ty2 + 10), py(tx2 + 10, ty2 + 10, th + 6), 40, "#fff2c0", 0.22 + 0.06 * pu);
+          ctx.strokeStyle = "#5a606a"; ctx.lineWidth = 1.5; ctx.beginPath(); for (var f = 0; f <= 6; f++) { var fx = x - 4 + f * (w + 8) / 6, fa = px(fx, y + d + 14), fb = py(fx, y + d + 14, 0); ctx.moveTo(fa, fb); ctx.lineTo(fa, fb - 12); } ctx.moveTo(px(x - 4, y + d + 14), py(x - 4, y + d + 14, 10)); ctx.lineTo(px(x + w + 4, y + d + 14), py(x + w + 4, y + d + 14, 10)); ctx.stroke();
+          if (tier >= 1) { person(cxg - 26, y + d + 8, "#2f343c"); person(cxg + 20, y + d + 8, "#2f343c"); }
+        }
       }
       if (p > 0.6) tierFx(b, tier, h, z, pu, wallC);
       dk = 1; SGN = 1;
@@ -340,7 +365,7 @@
     }
     /* Détails propres à chaque palier de design : délabré (fissures, planches, sacs) → ultra soigné (dorures, jardinières, projecteurs). */
     function tierFx(b, tier, h, z, pu, wallC) {
-      var x = b.x, y = b.y, w = b.w, d = b.d, seed = b.seed, tall = b.lot.act === "estate" || b.lot.act === "holding", bx = tall ? x + w * 0.19 : x, bw = tall ? w * 0.62 : w, hh = tall ? h - 6 : h, i;
+      var x = b.x, y = b.y, w = b.w, d = b.d, seed = b.seed, tall = !!TALL[b.lot.act], bx = tall ? x + w * 0.19 : x, bw = tall ? w * 0.62 : w, hh = tall ? h - 6 : h, i;
       if (tier <= 1) {
         onL(bx, y, d, 0, function () { ctx.strokeStyle = "rgba(0,0,0,.45)"; ctx.lineWidth = 1.2; ctx.beginPath(); var cx = 12 + (seed * 11) % Math.max(10, bw - 40); ctx.moveTo(cx, hh); ctx.lineTo(cx + 5, hh - 12); ctx.lineTo(cx - 2, hh - 24); ctx.lineTo(cx + 4, hh - 34); ctx.stroke();
           if (tier === 0) { ctx.fillStyle = "#4a3a2a"; ctx.fillRect(bw * 0.25, hh * 0.45, 9, 11); ctx.fillStyle = "#5a4a38"; ctx.fillRect(bw * 0.25 - 1, hh * 0.45 + 3, 11, 2); ctx.fillStyle = "rgba(160,70,70,.55)"; ctx.fillRect(bw * 0.62, 6, 18, 6); ctx.fillStyle = "rgba(90,140,170,.5)"; ctx.fillRect(bw * 0.62 + 4, 12, 12, 4); } });
@@ -361,7 +386,7 @@
       if (tier >= 10) tierFxTop(b, tier, hh, bx, bw, z, pu);
     }
     /* Paliers 6 à 9 (niveaux 30, 35, 40, 45 et plus) : chaque palier ajoute une VRAIE nouvelle forme, pas seulement des couleurs. */
-    var ACC = { backroom: "#ff4f8b", freight: "#f1c24b", fence: "#6fb3c2", estate: "#9ab4dd", holding: "#e3c680" };
+    var ACC = { backroom: "#ff4f8b", freight: "#f1c24b", fence: "#6fb3c2", estate: "#9ab4dd", holding: "#e3c680", maritime: "#5fb0c8", shell: "#b9c7a0", guard: "#a4adbd" };
     function tierFxHigh(b, tier, hh, bx, bw, z, pu, wallC) {
       var x = b.x, y = b.y, w = b.w, d = b.d, ac = ACC[b.lot.act] || "#e3c680", i;
       if (tier >= 6) {                                                                                           /* 30 · Impérial : bandes lumineuses aux angles + toit-jardin */
@@ -631,7 +656,7 @@
     R.hit = function (sx, sy, s, skip) {
       var i, o; skip = skip || {};
       for (i = statics.length - 1; i >= 0; i--) { o = statics[i]; if (o.t !== "b") continue; var b = o.b; if (b.kind === "decor") continue; if (b.kind === "dlot") { if (T.lv(s, b.dlot.did) < 1) continue; var dh = dlotType(s, b.dlot) ? bh(b, s) : 4; if (inPoly(sx, sy, silhouette(b.x - 4, b.y - 4, b.w + 8, b.d + 8, dh))) { if (!skip["dlot:" + b.id]) return { type: "dlot", id: b.id, did: b.dlot.did, idx: b.dlot.idx }; } continue; } if (b.kind === "lot" && !isBuilt(b, s)) continue;
-        if (inPoly(sx, sy, silhouette(b.x, b.y, b.w, b.d, bh(b, s) + (b.kind === "hq" ? 16 : (b.lot.act === "estate" || b.lot.act === "holding") ? 24 : 6))) && !skip[b.kind === "hq" ? "hq:hq" : "lot:" + b.lot.id]) return b.kind === "hq" ? { type: "hq", id: "hq" } : { type: "lot", id: b.lot.id, act: b.lot.act }; }
+        if (inPoly(sx, sy, silhouette(b.x, b.y, b.w, b.d, bh(b, s) + (b.kind === "hq" ? 16 : TALL[b.lot.act] ? 24 : 6))) && !skip[b.kind === "hq" ? "hq:hq" : "lot:" + b.lot.id]) return b.kind === "hq" ? { type: "hq", id: "hq" } : { type: "lot", id: b.lot.id, act: b.lot.act }; }
       for (i = 0; i < model.lots.length; i++) { var l = model.lots[i]; if (!bt(s, l)) { var x = l.x - 4, y = l.y - 4, w = l.w + 8, d = l.d + 40; if (inPoly(sx, sy, [[px(x, y), py(x, y, 0)], [px(x + w, y), py(x + w, y, 0)], [px(x + w, y + d), py(x + w, y + d, 0)], [px(x, y + d), py(x, y + d, 0)]])) { if (!skip["lot:" + l.id]) return { type: "lot", id: l.id, act: l.act, plot: true }; } } }
       var gx = (sx - OX) + 2 * (sy - OY), gy = 2 * (sy - OY) - (sx - OX), c = Math.floor(gx / M.CELL), r = Math.floor(gy / M.CELL);
       if (M.isLand(c, r)) { var cl = model.cells[r * M.COLS + c]; if ((cl.deco === "park" || cl.deco === "plaza") && cl.district !== "hq") return { type: "decor", id: cl.district + ":" + cl.i, did: cl.district, cell: cl.i, deco: cl.deco }; if (cl.district !== "hq") return { type: "district", id: cl.district }; } return null;

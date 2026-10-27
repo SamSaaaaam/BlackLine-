@@ -16,7 +16,10 @@
       port: { name: "Capitaine Orsk", title: "Maître des quais", trophy: "Le compas d'Orsk" },
       residential: { name: "Madame Soriel", title: "Voisine de tout le monde", trophy: "Le trousseau de Mme Soriel" },
       business: { name: "Maître Ferrand", title: "Avocat du Consortium", trophy: "Le sceau de Ferrand" },
-      prestige: { name: "Comte Valmont", title: "Patriarche des hauteurs", trophy: "La bague de Valmont" }
+      prestige: { name: "Comte Valmont", title: "Patriarche des hauteurs", trophy: "La bague de Valmont" },
+      marina: { name: "Ilse Marrow", title: "Capitaine de la marina", trophy: "La longue-vue d'Ilse" },
+      franche: { name: "Monsieur Quade", title: "Douanier en chef", trophy: "Le tampon de Quade" },
+      faubourg: { name: "Mère Lanterne", title: "Doyenne du Faubourg", trophy: "La lanterne de la Mère" }
     }
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

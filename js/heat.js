@@ -9,7 +9,7 @@
   var P = {
     k: 0.03,                                    /* refroidissement naturel : 3 % de l'écart par minute */
     tiers: [{ id: "calm", name: "Calme", min: 0 }, { id: "watch", name: "Surveillé", min: 25 }, { id: "probe", name: "Sous enquête", min: 50 }, { id: "hunt", name: "Traqué", min: 75 }],
-    act: { backroom: 0.20, freight: 0.25, fence: 0.30, estate: -0.10, holding: -0.25 },   /* points/min par activité (×(1+0,5·log10(1+possédés))) */
+    act: { backroom: 0.20, freight: 0.25, fence: 0.30, estate: -0.10, holding: -0.25, maritime: 0.25, shell: -0.20, guard: -0.15 },   /* points/min par activité (×(1+0,5·log10(1+possédés))) */
     opMin: 0.6,                                 /* opération en cours : points/min */
     launder: 0.6,                               /* part maximale de la chaleur illégale absorbable */
     opPenalty: { probe: 0.05, hunt: 0.10 },     /* chances de réussite des opérations */

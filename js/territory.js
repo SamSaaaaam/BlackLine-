@@ -109,7 +109,9 @@
   }
 
   /* ---- Factions rivales ---- */
-  function held(s, fid) { return T().districts.filter(function (d) { return d.holder === fid && lv(s, d.id) === 0; }).length; }
+  /* Partie 19 · F : un quartier de la rive sud ne compte pour les factions qu'une fois son niveau d'empire atteint (les parties en cours gardent le même équilibre) */
+  function inPlay(s, d) { return !d.city || lv(s, d.id) > 0 || E().level(s) >= ((d.req && d.req.lvl) || 1); }
+  function held(s, fid) { return T().districts.filter(function (d) { return d.holder === fid && lv(s, d.id) === 0 && inPlay(s, d); }).length; }
   function target(s, f) { return f.base * (1 + P().powerPerLevel * (E().level(s) - 1)) * (1 + P().powerPerHeld * held(s, f.id)); }
   function tick(s, dt) {
     if (!(dt > 0) || !s.fac) return;
@@ -193,5 +195,5 @@
   BL.territory = { initState: initState, agg: agg, incMult: incMult, upkeepMult: upkeepMult, costMult: costMult, repBonus: repBonus, inflBonus: inflBonus, bonusText: bonusText, contribution: contribution,
     dist: dist, faction: faction, lv: lv, controlled: controlled, count: count, reqList: reqList, missing: missing, reqsOk: reqsOk, state: state,
     holderPower: holderPower, takeDefense: takeDefense, takeChance: takeChance, takeCost: takeCost, take: take, investCost: investCost, invest: invest, impCost: impCost, hasImp: hasImp, buyImp: buyImp,
-    held: held, target: target, tick: tick, defense: defense, defendChance: defendChance, defendCost: defendCost, truceCost: truceCost, startConflict: startConflict, resolve: resolve, step: step, sanitize: sanitize };
+    held: held, inPlay: inPlay, target: target, tick: tick, defense: defense, defendChance: defendChance, defendCost: defendCost, truceCost: truceCost, startConflict: startConflict, resolve: resolve, step: step, sanitize: sanitize };
 })(typeof globalThis !== "undefined" ? globalThis : this);
