@@ -1,4 +1,5 @@
-/* Portraits : bustes stylisés générés en SVG à partir d'une description (aucune image externe) + emblèmes de factions. */
+/* Portraits : bustes stylisés générés en SVG à partir d'une description (aucune image externe) + emblèmes de factions.
+   Ce sont des dessins de REPLI : le rendu « affiche » peinte viendra des illustrations déposées par le joueur dans assets/crew (voir README.txt). */
 (function (root) {
   var BL = root.BL = root.BL || {}, uid = 0;
   function mix(hex, to, k) {
@@ -43,6 +44,32 @@
     arches: function (a) { var o = ""; for (var i = 0; i < 3; i++) o += '<path d="M' + (i * 40 + 2) + ' 140V50C' + (i * 40 + 2) + ' 20 ' + (i * 40 + 38) + ' 20 ' + (i * 40 + 38) + ' 50V140" fill="#000" opacity=".22" stroke="' + a + '" stroke-width="1" /><path d="M' + (i * 40 + 8) + ' 140V54C' + (i * 40 + 8) + ' 30 ' + (i * 40 + 32) + ' 30 ' + (i * 40 + 32) + ' 54V140" fill="none" stroke="' + a + '" stroke-width=".6" opacity=".5"/>'; return o; },
     lights: function (a, c) { return bokeh([a, c || "#fff", a], [[14, 58, 12, .22], [34, 70, 7, .2], [100, 52, 13, .2], [84, 78, 8, .18], [108, 96, 6, .2], [8, 100, 8, .15]]) + '<path d="M0 108L120 98V140H0Z" fill="#000" opacity=".3"/>'; }
   };
+  /* Partie 17 · C : décor « affiche » de la grande illustration (variante full) quand aucune image n'est fournie : crépuscule orange / violet,
+     ville côtière fictive la nuit (collines éclairées, port, yachts, reflets), couronne dorée stylisée et traits de pinceau dorés. Simple et statique. */
+  function coast(id) {
+    var o = '<linearGradient id="' + id + 'sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b1236"/><stop offset=".42" stop-color="#4a2350"/><stop offset=".7" stop-color="#b8563c"/><stop offset=".86" stop-color="#f09a4a"/></linearGradient>'
+      + '<rect width="120" height="140" fill="url(#' + id + 'sky)"/>';
+    o += '<circle cx="96" cy="26" r="7" fill="#f6e2b4" opacity=".55"/><circle cx="96" cy="26" r="14" fill="#f6e2b4" opacity=".08"/>';
+    /* collines éclairées */
+    o += '<path d="M0 84C14 70 30 66 46 72C60 62 78 58 94 66C104 62 114 64 120 68V100H0Z" fill="#2a1630"/><path d="M0 92C18 82 36 84 52 88C70 80 92 80 120 86V104H0Z" fill="#1a0f22"/>';
+    var lights = [[6, 86], [12, 82], [20, 80], [27, 79], [34, 81], [41, 78], [50, 74], [57, 73], [64, 70], [71, 69], [79, 68], [86, 69], [93, 70], [101, 70], [109, 71], [116, 72], [16, 89], [30, 88], [45, 90], [60, 86], [74, 85], [88, 85], [103, 87]];
+    lights.forEach(function (q, i) { o += '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="' + (i % 3 ? 0.7 : 1) + '" fill="' + (i % 4 ? "#ffd27a" : "#fff1c8") + '" opacity=".85"/>'; });
+    /* immeubles du front de mer */
+    [[0, 92, 9], [10, 88, 7], [18, 94, 8], [86, 90, 8], [95, 86, 10], [106, 92, 14]].forEach(function (b) { o += '<rect x="' + b[0] + '" y="' + b[1] + '" width="' + b[2] + '" height="' + (106 - b[1]) + '" fill="#120a18"/>'; for (var y = b[1] + 3; y < 104; y += 4) o += '<rect x="' + (b[0] + 2) + '" y="' + y + '" width="1.4" height="1.2" fill="#ffcf73" opacity=".7"/><rect x="' + (b[0] + b[2] - 3.4) + '" y="' + (y + 1) + '" width="1.4" height="1.2" fill="#ffcf73" opacity=".45"/>'; });
+    /* mer, reflets, port et yachts */
+    o += '<rect x="0" y="104" width="120" height="36" fill="#120d24"/>';
+    for (var r = 0; r < 9; r++) o += '<path d="M' + (4 + r * 13) + " " + (108 + (r % 3) * 6) + 'h' + (5 + r % 4) + '" stroke="#f0a050" stroke-width=".8" opacity=".35"/>';
+    o += '<path d="M78 106H120" stroke="#3a2a3a" stroke-width="1.6"/>';
+    [[84, 104, 12], [100, 105, 9], [20, 109, 8]].forEach(function (y) { o += '<path d="M' + y[0] + " " + y[1] + 'h' + y[2] + 'l-2 3h-' + (y[2] - 3) + 'z" fill="#e8e2d6" opacity=".85"/><path d="M' + (y[0] + 3) + " " + y[1] + 'v-7l' + (y[2] * 0.5) + ' 7z" fill="#e8e2d6" opacity=".6"/><circle cx="' + (y[0] + y[2] - 2) + '" cy="' + (y[1] + 1) + '" r=".7" fill="#ffd27a"/>'; });
+    return o;
+  }
+  function crownBg(accent) {   /* couronne dorée stylisée derrière la tête */
+    return '<g opacity=".18" transform="translate(60 30) scale(1.15)"><path d="M-30 6L-30 -16L-15 -4L0 -24L15 -4L30 -16L30 6Z" fill="none" stroke="' + accent + '" stroke-width="2.4" stroke-linejoin="round"/><path d="M-30 11H30" stroke="' + accent + '" stroke-width="2.4"/><circle cx="0" cy="-24" r="2.4" fill="' + accent + '"/><circle cx="-30" cy="-16" r="2" fill="' + accent + '"/><circle cx="30" cy="-16" r="2" fill="' + accent + '"/></g>';
+  }
+  function brush(id) {   /* traits de pinceau dorés qui traversent l'image */
+    return '<linearGradient id="' + id + 'gb" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f6d98a" stop-opacity="0"/><stop offset=".3" stop-color="#f6d98a" stop-opacity=".75"/><stop offset=".75" stop-color="#c8963c" stop-opacity=".55"/><stop offset="1" stop-color="#c8963c" stop-opacity="0"/></linearGradient>'
+      + '<path d="M-6 118C30 104 64 112 128 88L128 93C70 116 34 110 -6 124Z" fill="url(#' + id + 'gb)"/><path d="M-4 30C26 20 60 26 124 6L124 9C62 30 30 25 -4 33Z" fill="url(#' + id + 'gb)" opacity=".6"/>';
+  }
   var FUR = function (fur) { var o = ""; for (var i = 0; i < 15; i++) { var t = Math.PI * (i / 14), y = 99 + Math.sin(t) * 15; o += '<circle cx="' + (60 + Math.cos(t) * 25).toFixed(1) + '" cy="' + (y + (i % 2 ? 1.5 : 0)).toFixed(1) + '" r="' + (5.2 + (i % 3) * 0.5) + '" fill="' + (i % 2 ? fur : light(fur, 0.14)) + '"/>'; } return o; };
 
   /* image si elle existe (assets/crew/manifest.js), dessin vectoriel sinon */
@@ -75,9 +102,11 @@
       '<linearGradient id="' + id + 'h" x1="0" y1="0" x2="0" y2="1"><stop offset=".12" stop-color="#000" stop-opacity=".34"/><stop offset=".5" stop-color="#000" stop-opacity=".1"/><stop offset=".75" stop-color="#000" stop-opacity="0"/></linearGradient>' +
       '<radialGradient id="' + id + 'v" cx=".5" cy=".46" r=".72"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></radialGradient>' +
       '<clipPath id="' + id + 'c"><path d="M6 140C8 114 34 102 60 102C86 102 112 114 114 140Z"/></clipPath></defs>';
-    /* fond : dégradé + rayons art déco + halo */
+    /* fond : dégradé + rayons art déco + halo ; grande illustration : décor « affiche » (Partie 17) */
+    var poster = o.variant === "full";
     o2 += '<rect width="120" height="140" fill="url(#' + id + 'b)"/>';
-    if (L.scene && SCENES[L.scene]) o2 += SCENES[L.scene](L.accent || "#c8a45e", L.accent2);
+    if (poster) o2 += coast(id) + crownBg(L.accent || "#e0c070");
+    else if (L.scene && SCENES[L.scene]) o2 += SCENES[L.scene](L.accent || "#c8a45e", L.accent2);
     else for (i = -5; i <= 5; i++) o2 += '<path d="M60 150L' + (60 + i * 30 - 6) + ' 0L' + (60 + i * 30 + 6) + ' 0Z" fill="#fff" opacity=".035"/>';
     o2 += '<circle cx="' + (L.light === "r" ? 50 : 70) + '" cy="62" r="46" fill="#fff" opacity=".05"/>';
     /* cheveux arrière */
@@ -170,6 +199,12 @@
       S("M42 78C44 88 52 93 60 93C68 93 76 88 78 78", skinD, 1.4, ' opacity=".18"');
     if (age >= 45) o2 += S("M50 40C55 38.6 65 38.6 70 40", skinD, .7, ' opacity="' + Math.min(0.4, (age - 40) * 0.012).toFixed(2) + '"') + S("M49.6 43C55 41.8 65 41.8 70.4 43", skinD, .6, ' opacity="' + Math.min(0.35, (age - 40) * 0.01).toFixed(2) + '"') + S("M49 72C46.6 77 46.6 81 49 85M71 72C73.4 77 73.4 81 71 85", skinD, .8, ' opacity="' + Math.min(0.45, (age - 40) * 0.013).toFixed(2) + '"') + S("M45 58L43.4 60M75 58L76.6 60", skinD, .6, ' opacity=".35"');
     if (age >= 55) o2 += S("M44 66C46 69 49 70 52 69.6M76 66C74 69 71 70 68 69.6", skinD, .6, ' opacity=".4"');
+    /* Partie 17 · C : relief (lumière de rebord du côté éclairé, reflets sur le nez, la pommette et le front) */
+    var rl = L.light === "r";
+    o2 += S(rl ? "M79 40C84 52 83 70 76 84" : "M41 40C36 52 37 70 44 84", light(skin, 0.55), 1.6, ' opacity=".45"') + '<ellipse cx="' + (rl ? 66 : 54) + '" cy="66" rx="3.4" ry="1.6" fill="#fff" opacity=".13"/><path d="M59.4 62C59 66 58.6 68 58.4 70" stroke="#fff" stroke-width="1" opacity=".22" stroke-linecap="round" fill="none"/><ellipse cx="' + (rl ? 64 : 56) + '" cy="40" rx="6" ry="2" fill="#fff" opacity=".08"/>';
+    if (has("scarbrow")) o2 += S("M70.5 46L68 56", "#9a4a46", 1.4) + S("M69.4 49.5L71.4 50.2", "#d9aaa0", .7);
+    if (has("bruise")) o2 += '<ellipse cx="' + (rl ? 51 : 69) + '" cy="64" rx="5" ry="3" fill="#5a3a6a" opacity=".22"/>';
+    if (has("bandage")) o2 += '<g transform="rotate(-24 70 41)"><rect x="61" y="38" width="18" height="6" rx="3" fill="#ead9bf"/><rect x="67.5" y="38.6" width="5" height="4.8" rx="1" fill="#d7c09c"/><circle cx="63.5" cy="41" r=".45" fill="#b49f80"/><circle cx="76.5" cy="41" r=".45" fill="#b49f80"/><path d="M61.5 39.4H78.5" stroke="#fff" stroke-width=".6" opacity=".45"/></g>';
     /* lunettes */
     if (L.glasses === "shades") o2 += '<rect x="43" y="53" width="15" height="10.5" rx="4" fill="#0c0c0f"/><rect x="62" y="53" width="15" height="10.5" rx="4" fill="#0c0c0f"/><path d="M58 57H62" stroke="#0c0c0f" stroke-width="2"/><path d="M46 56L52 54" stroke="#fff" stroke-width="1" opacity=".3"/><path d="M65 56L71 54" stroke="#fff" stroke-width="1" opacity=".3"/><path d="M43 57L39 57M77 57L81 57" stroke="#0c0c0f" stroke-width="1.6"/>';
     if (L.glasses === "round") { var gc = L.glassColor || "#222"; o2 += '<circle cx="51" cy="59" r="7" fill="#fff" fill-opacity=".07" stroke="' + gc + '" stroke-width="1.6"/><circle cx="69" cy="59" r="7" fill="#fff" fill-opacity=".07" stroke="' + gc + '" stroke-width="1.6"/>' + S("M58 58Q60 56.5 62 58", gc, 1.4) + S("M44 58L40 57M76 58L80 57", gc, 1.2); }
@@ -206,6 +241,7 @@
     /* étalonnage « nuit de ville » provisoire (violet en haut, lueur chaude du côté de la lumière) : à remplacer par de vraies illustrations (assets/crew) */
     o2 += '<linearGradient id="' + id + 'n" x1="' + (lx ? 1 : 0) + '" y1="0" x2="' + (lx ? 0 : 1) + '" y2="1"><stop offset="0" stop-color="#ff9a4a" stop-opacity=".16"/><stop offset=".45" stop-color="#7a4cff" stop-opacity=".08"/><stop offset="1" stop-color="#1a1040" stop-opacity=".22"/></linearGradient><rect width="120" height="140" fill="url(#' + id + 'n)"/>';
     o2 += '<rect width="120" height="140" fill="url(#' + id + 'v)"/>';
+    if (poster) o2 += brush(id);
     o2 += '<path d="' + (lx ? "M114 140C113 126 108 116 98 110" : "M6 140C7 126 12 116 22 110") + '" fill="none" stroke="' + (L.accent || "#c8a45e") + '" stroke-width="1.6" opacity=".5" stroke-linecap="round"/>';
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 140" class="' + (o.cls || "portrait") + '" role="img" aria-label="' + (o.label || "Portrait") + '"' + (o.id ? ' data-pid="' + o.id + '" data-var="' + (o.variant || "card") + '" data-src="svg"' : "") + '>' + defs + o2 + "</svg>";
   }

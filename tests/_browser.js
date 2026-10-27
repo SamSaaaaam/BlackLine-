@@ -36,6 +36,8 @@ async function open(browser, base, opts) {
   await p.waitForTimeout(opts.wait || 600);
   return p;
 }
+/* captures lisibles : masque bulles, bannières et petits messages qui passent par-dessus (n'affecte pas les vérifications) */
+async function calm(p) { await p.addStyleTag({ content: "#asst,#np,#toasts,#banner,.nbn,.tutcard,#rwheel{display:none!important}" }); }
 async function noHScroll(p) { return p.evaluate(() => { const d = document.documentElement; return d.scrollWidth <= innerWidth + 1 && document.body.scrollWidth <= innerWidth + 1; }); }
 /* éléments plus larges que l'écran ou texte plus petit que 12 px dans un conteneur visible */
 async function smallText(p, sel) {
@@ -47,4 +49,4 @@ function done(name) { console.log((fails ? "ÉCHEC" : "OK") + " " + name + " : "
 const WIDTHS = [[1366, 768], [390, 844], [320, 568]];
 const SHOTS = path.join(ROOT, "shots");
 function shotPath(n) { if (!fs.existsSync(SHOTS)) fs.mkdirSync(SHOTS); return path.join(SHOTS, n + ".png"); }
-module.exports = { serve, launch, open, saveEnv, noHScroll, smallText, check, done, WIDTHS, shotPath, ROOT };
+module.exports = { calm, serve, launch, open, saveEnv, noHScroll, smallText, check, done, WIDTHS, shotPath, ROOT };

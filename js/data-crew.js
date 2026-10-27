@@ -48,7 +48,7 @@
       { id: "rocco", name: "Rocco Moretti", nick: "Brique", role: "protecteur", rarity: 1, spec: "Portes fermées et gens qui comprennent vite",
         bio: "Il parle peu. Il n’a jamais eu besoin de parler plus.", st: { gest: 2, neg: 1, strat: 3, fin: 1, prot: 6, dipl: 2 }, cost: 800, upkeep: 0.3, trait: "loyal",
         passive: [{ type: "def", per: 0.1 }], unlock: { lvl: 3 },
-        look: { age: 45, eye: "#3a2a1c", bg: ["#4a2a22", "#150b09"], accent: "#ff9a4a", scene: "brick", light: "l", skin: "#c58f63", hair: "#1d1612", style: "bald", face: "square", beard: "full", suit: "#17171b", shirt: "#101014", outfit: "leather", extra: ["scar", "earring", "tattoo", "tape"], tie: null, brow: "#1d1612" } },
+        look: { age: 45, eye: "#3a2a1c", bg: ["#4a2a22", "#150b09"], accent: "#ff9a4a", scene: "brick", light: "l", skin: "#c58f63", hair: "#1d1612", style: "bald", face: "square", beard: "full", suit: "#17171b", shirt: "#101014", outfit: "leather", extra: ["scar", "earring", "tattoo", "tape", "bandage"], tie: null, brow: "#1d1612" } },
       { id: "ines", name: "Inès Marchand", nick: "La Plume", role: "financier", rarity: 2, spec: "Montages financiers et sociétés écrans",
         bio: "Elle signe à gauche pendant que la droite compte.", st: { gest: 3, neg: 3, strat: 2, fin: 8, prot: 2, dipl: 4 }, cost: 50000, upkeep: 20, trait: "greedy",
         passive: [{ type: "act", per: 0.04, targets: ["fence", "holding"] }], unlock: { lvl: 6 },
@@ -56,7 +56,7 @@
       { id: "theo", name: "Théo Valdès", nick: "Échec", role: "stratege", rarity: 2, spec: "Plans en trois coups et sorties de secours",
         bio: "Il joue avec trois coups d’avance, parfois quatre.", st: { gest: 2, neg: 3, strat: 8, fin: 3, prot: 3, dipl: 3 }, cost: 70000, upkeep: 30, trait: "impulsive",
         passive: [{ type: "force", per: 0.06 }], unlock: { lvl: 7, terr: 1 },
-        look: { age: 41, eye: "#3a2a1c", bg: ["#2e2840", "#100d18"], accent: "#b08cff", scene: "checker", light: "l", skin: "#a9744f", hair: "#17110d", style: "curly", hat: "flat", hatColor: "#3a3a42", face: "square", beard: "stache", suit: "#2b2f3a", shirt: "#ddd7ca", outfit: "vest", vest: "#6a3a8a", tie: "#d8d2c6", brow: "#17110d", extra: ["toothpick"] } },
+        look: { age: 41, eye: "#3a2a1c", bg: ["#2e2840", "#100d18"], accent: "#b08cff", scene: "checker", light: "l", skin: "#a9744f", hair: "#17110d", style: "curly", hat: "flat", hatColor: "#3a3a42", face: "square", beard: "stache", suit: "#2b2f3a", shirt: "#ddd7ca", outfit: "vest", vest: "#6a3a8a", tie: "#d8d2c6", brow: "#17110d", extra: ["toothpick", "bandage"] } },
       { id: "samira", name: "Samira Haddad", nick: "Colombe", role: "diplomate", rarity: 2, spec: "Contacts dans tous les camps, sans jamais choisir",
         bio: "Les ennemis la saluent. Les alliés aussi, c’est le plus étrange.", st: { gest: 2, neg: 4, strat: 2, fin: 2, prot: 3, dipl: 9 }, cost: 90000, upkeep: 30, trait: "patient",
         passive: [{ type: "relGain", per: 0.15 }], unlock: { lvl: 7, rel: { fid: "valcourt", min: 15 } },
@@ -72,7 +72,7 @@
       { id: "nadia", name: "Nadia Volkova", nick: "Faucon", role: "protecteur", rarity: 3, spec: "Surveillance, contre-filature et réflexes",
         bio: "Elle repère la filature avant qu’elle ne démarre.", st: { gest: 3, neg: 3, strat: 5, fin: 3, prot: 9, dipl: 5 }, cost: 3000000, upkeep: 900, trait: "paranoid",
         passive: [{ type: "loss", per: 0.1 }], unlock: { lvl: 14, dist: "port" },
-        look: { age: 31, eye: "#6a8aa0", bg: ["#4a2229", "#12090b"], accent: "#ff4a4a", scene: "docks", light: "l", skin: "#6a4330", hair: "#0f0b0a", style: "braids", hat: "beanie", hatColor: "#1a1a1f", face: "oval", female: true, glasses: "shades", lips: "#5e1f2c", suit: "#17171b", shirt: "#2b2c33", outfit: "leather", extra: ["earring", "earpiece"], tie: null } },
+        look: { age: 31, eye: "#6a8aa0", bg: ["#4a2229", "#12090b"], accent: "#ff4a4a", scene: "docks", light: "l", skin: "#6a4330", hair: "#0f0b0a", style: "braids", hat: "beanie", hatColor: "#1a1a1f", face: "oval", female: true, glasses: "shades", lips: "#5e1f2c", suit: "#17171b", shirt: "#2b2c33", outfit: "leather", extra: ["earring", "earpiece", "scarbrow"], tie: null } },
       { id: "sebastien", name: "Sébastien Roche", nick: "Le Notaire", role: "financier", rarity: 4, spec: "Fiducies, holdings et héritages bien arrangés",
         bio: "Un notaire à l’ancienne : tout est parfaitement légal, sur le papier.", st: { gest: 4, neg: 5, strat: 6, fin: 11, prot: 3, dipl: 5 }, cost: 60000000, upkeep: 25000, trait: "cold",
         passive: [{ type: "income", per: 0.03 }], unlock: { lvl: 20, dist: "market" },
@@ -88,7 +88,7 @@
       { id: "tom", name: "Tom Guiri", nick: "Le Cartographe", role: "stratege", rarity: 5, spec: "Cartes de la ville, itinéraires de fuite et coups décisifs",
         bio: "Il connaît chaque ruelle, chaque toit et chaque garde de nuit. Il dessine l’empire avant qu’il existe.", st: { gest: 6, neg: 5, strat: 12, fin: 7, prot: 5, dipl: 4 }, cost: 900000000, upkeep: 220000, trait: "visionary",
         passive: [{ type: "def", per: 0.12 }, { type: "atk", per: 0.1 }], unlock: { lvl: 38, terr: 6 },
-        look: { age: 40, eye: "#3a2a1c", bg: ["#1f3a5c", "#070d16"], accent: "#6fc0ff", scene: "map", light: "l", skin: "#d9ac84", hair: "#0d0a10", style: "pomp", hat: "trilby", hatColor: "#2a2f3a", band: "#c8a45e", face: "square", beard: "stubble", suit: "#2a3550", shirt: "#e7e1d2", outfit: "trench", extra: ["scar", "cig"], tie: null, brow: "#0d0a10" } }
+        look: { age: 40, eye: "#3a2a1c", bg: ["#1f3a5c", "#070d16"], accent: "#6fc0ff", scene: "map", light: "l", skin: "#d9ac84", hair: "#0d0a10", style: "pomp", hat: "trilby", hatColor: "#2a2f3a", band: "#c8a45e", face: "square", beard: "stubble", suit: "#2a3550", shirt: "#e7e1d2", outfit: "trench", extra: ["scar", "cig", "bruise"], tie: null, brow: "#0d0a10" } }
     ]
   };
 
