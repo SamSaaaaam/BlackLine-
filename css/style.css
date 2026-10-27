@@ -1797,3 +1797,17 @@ body.nomotion .wart *,body.lowfx .wart *,body.nomotion .winaug,body.nomotion .wi
 .sg-intl{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.sg-intb{display:grid;gap:3px;text-align:left;padding:10px 12px;min-height:44px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--txt);cursor:pointer;font:inherit}
 .sg-intb b{font:700 14px var(--font-display);color:var(--gold)}.sg-intb span{font-size:13px}.sg-intb small{font-size:12px;color:var(--mut)}.sg-intb:disabled{opacity:.6;cursor:default}
 @media(max-width:560px){.in-grid{grid-template-columns:minmax(0,1fr)}.mini-box{padding:12px}.ac-t th,.ac-t td{padding:5px 3px}.lp-set{min-width:140px}}
+
+/* menu : aucune barre de défilement visible sur la colonne (le menu reste défilable à la molette / au doigt / au clavier si l'écran est vraiment trop bas) ;
+   la seule barre visible est celle, fine et dorée, DANS le tableau du classement */
+.mbox2{scrollbar-width:none;-ms-overflow-style:none}.mbox2::-webkit-scrollbar{display:none;width:0;height:0}
+.mlb-rows,.lb-rows{scrollbar-width:thin;scrollbar-color:rgba(200,164,94,.55) transparent}
+.mlb-rows::-webkit-scrollbar,.lb-rows::-webkit-scrollbar{width:6px}
+.mlb-rows::-webkit-scrollbar-track,.lb-rows::-webkit-scrollbar-track{background:transparent}
+.mlb-rows::-webkit-scrollbar-thumb,.lb-rows::-webkit-scrollbar-thumb{background:rgba(200,164,94,.45);border-radius:6px}
+.mlb-rows::-webkit-scrollbar-thumb:hover,.lb-rows::-webkit-scrollbar-thumb:hover{background:rgba(200,164,94,.75)}
+/* fenêtre peu haute (ordinateur portable, navigateur avec barres) : le menu se compacte pour tenir sans défiler */
+@media(min-width:801px) and (max-height:860px){.mtag{margin:6px 0 10px}.mbtn{min-height:44px;padding:8px 16px}.mbtn.primary{min-height:54px}.mbtn small{display:none}.mnav{gap:6px}.mfoot{margin-top:8px}.mbox2{padding-top:12px;padding-bottom:12px}.mlogo{margin-bottom:6px}}
+@media(min-width:801px) and (max-height:820px){.msoon,.mcredit{display:none}.mtitle{font-size:clamp(30px,min(5vw,7vh),56px)}}
+@media(min-width:801px) and (max-height:600px){.mlogo{display:none}.mtag{display:none}}
+@media(min-width:1000px) and (max-height:980px){.mcredit{display:none}}
