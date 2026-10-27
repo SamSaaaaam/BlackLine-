@@ -112,11 +112,11 @@
   BL.city.build(document.getElementById("city"));
   U.init({
     /* Partie 17 · D : acheter ou améliorer un bâtiment lance un CHANTIER (payé tout de suite, niveau appliqué à la fin) */
-    buyActivity: function (id, idx) {
-      idx = idx || 0; if (locked("a" + id + "_" + idx)) return false; var W = BL.works, a = E.find(BL.data.activities, id), ck = W.canOrder(state, id, idx);
+    buyActivity: function (id, idx, qty) {   /* qty : quantité choisie (Partie 19 · A) ; sans qty (conseils, assistante, didacticiel) : un seul niveau */
+      idx = idx || 0; if (locked("a" + id + "_" + idx)) return false; var W = BL.works, a = E.find(BL.data.activities, id), q = qty === undefined ? 1 : qty === "max" ? "max" : Math.max(1, +qty || 1), ck = W.canOrder(state, id, idx, q);
       if (!ck.ok) { if (ck.why === "full") U.toast("File de chantiers pleine : attends qu’un ouvrier se libère.", "warn"); else if (ck.why === "busy") U.toast("Ce bâtiment est déjà en chantier.", "warn"); return false; }
-      var e = W.order(state, id, idx); if (!e) return false; arm("a" + id + "_" + idx); BL.audio.sfx(e.to === 1 ? "buy" : "upgrade");
-      var m = (e.to === 1 ? "Chantier lancé : " + a.name : a.name + " · bâtiment " + (idx + 1) + " : chantier vers le niveau " + e.to) + (e.at === null ? " (en file d’attente)" : " · " + SY.dur(e.dur)) + ".";
+      var e = W.order(state, id, idx, q); if (!e) return false; arm("a" + id + "_" + idx); BL.audio.sfx(e.to === 1 ? "buy" : "upgrade");
+      var m = (e.to === 1 ? "Chantier lancé : " + a.name : a.name + " · bâtiment " + (idx + 1) + " : chantier vers le niveau " + e.to + (ck.k > 1 ? " (×" + ck.k + ", −" + U.money(ck.cost) + ")" : "")) + (e.at === null ? " (en file d’attente)" : " · " + SY.dur(e.dur)) + ".";
       U.toast(m, "ok"); if (e.dur >= 60) E.addLog(state, m); doSave(false); return true;
     },
     buyBuilding: function (id) {

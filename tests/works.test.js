@@ -65,7 +65,8 @@ const imp = S.importText(JSON.stringify(v13), 5000); check(imp.ok && imp.state.w
 function san(works, extraState) { return S.sanitize({ v: 14, savedAt: 1, state: Object.assign({ money: 1e9, total: E.levelAt(W.P.workers[2]), bl: { backroom: [12, 3], freight: [6] }, owned: { backroom: 12, freight: 6 }, works: works }, extraState || {}) }, 2000).works; }
 const hostile = [null, 5, "x", [], { q: "x" }, { q: [null, 1, "a", [], {}] }, { clk: -5, q: [] }, { clk: NaN }, { clk: 1e300 }, { q: [{ id: "__proto__", i: 0, to: 13, at: 0, dur: 5 }] }, { q: [{ id: "constructor", i: 0, to: 1 }] }];
 hostile.forEach((h, k) => { let ok = true, w; try { w = san(h); } catch (e) { ok = false; } check(ok && w && Array.isArray(w.q) && w.q.length === 0 && isFinite(w.clk) && w.clk >= 0 && w.clk <= 1e11, "valeur hostile n°" + k + " → aucun chantier, horloge saine"); });
-let w = san({ clk: 100, q: [{ id: "backroom", i: 0, to: 14, at: 0, dur: 50 }] }); check(w.q.length === 0, "niveau incohérent (saut de 2 niveaux) : retiré");
+let w = san({ clk: 100, q: [{ id: "backroom", i: 0, to: 101, at: 0, dur: 50 }] }); check(w.q.length === 0, "niveau au-delà du maximum : retiré");
+w = san({ clk: 100, q: [{ id: "backroom", i: 0, to: 22, at: 0, dur: 50 }] }); check(w.q.length === 1 && w.q[0].to === 22, "achat ×10 (Partie 19) : chantier vers niveau +10 conservé");
 w = san({ clk: 100, q: [{ id: "backroom", i: 0, to: 12, at: 0, dur: 50 }] }); check(w.q.length === 0, "niveau déjà atteint : retiré");
 w = san({ clk: 100, q: [{ id: "backroom", i: 3, to: 1, at: 0, dur: 50 }] }); check(w.q.length === 0, "bâtiment inexistant / non débloqué : retiré");
 w = san({ clk: 100, q: [{ id: "backroom", i: 2, to: 1, at: 0, dur: 50 }] }); check(w.q.length === 1, "nouveau bâtiment débloqué (meilleur niveau 12 ≥ 10) : conservé");

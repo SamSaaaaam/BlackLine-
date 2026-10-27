@@ -13,7 +13,7 @@
   function del(k) { try { var st = store(); if (st) st.removeItem(k); } catch (e) {} }
 
   /* ---------- Paramètres ---------- */
-  function defaultSettings() { return { toasts: true, motion: true, large: false, sound: true, music: 0.6, sfx: 0.7, ambient: true, ambmode: "live", lbon: false, lbname: "", lbhome: true, amb: 0.5, fx: "full", numbers: "short", tips: true, name: "", notif: "full", avatar: "fedora", setup: false, radio: "mix", tutorial: "todo", tstep: 0, assistant: "on", wall: "all", boxspeed: "normal", opscene: "ask", exportAt: 0 }; }
+  function defaultSettings() { return { toasts: true, motion: true, large: false, sound: true, music: 0.6, sfx: 0.7, ambient: true, ambmode: "live", lbon: false, lbname: "", lbhome: true, buyqty: "1", amb: 0.5, fx: "full", numbers: "short", tips: true, name: "", notif: "full", avatar: "fedora", setup: false, radio: "mix", tutorial: "todo", tstep: 0, assistant: "on", wall: "all", boxspeed: "normal", opscene: "ask", exportAt: 0 }; }
   function sanitizeSettings(r) {
     var d = defaultSettings(); if (!r || typeof r !== "object") return d;
     ["toasts", "motion", "large", "sound", "tips", "ambient", "lbon", "lbhome"].forEach(function (k) { if (typeof r[k] === "boolean") d[k] = r[k]; });
@@ -28,6 +28,7 @@
     if (r.assistant === "on" || r.assistant === "quiet" || r.assistant === "off") d.assistant = r.assistant;
     d.exportAt = typeof r.exportAt === "number" && isFinite(r.exportAt) ? Math.max(0, Math.min(8.64e15, Math.floor(r.exportAt))) : 0;   /* Partie 13 : dernier export (rappel régulier) */
     if (typeof r.lbname === "string") d.lbname = r.lbname.normalize("NFKC").replace(/[^A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF0-9 _-]/g, "").replace(/\s+/g, " ").trim().slice(0, 16);
+    d.buyqty = BL.buy ? BL.buy.qty(r.buyqty) : "1";   /* Partie 19 · A : quantité d'achat (1, 10, 25, max) ; valeur hostile → 1 */
     if (d.lbon && !d.lbname) d.lbon = false;   /* classement activé sans pseudo : impossible */
     if (typeof r.name === "string") d.name = r.name.replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 20);
     return d;

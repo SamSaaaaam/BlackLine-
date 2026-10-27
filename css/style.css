@@ -55,7 +55,7 @@ main{padding:22px 24px 48px;max-width:1180px}
 .evo{font-size:12px;color:var(--mut);margin-bottom:12px;display:grid;gap:6px}.evo .meter{width:100%}
 .act .buy,.upg .buy{width:100%}
 .card.done{opacity:.6}
-.pulse::after{content:"";position:absolute;inset:-1px;border-radius:inherit;border:2px solid rgba(200,164,94,.6);pointer-events:none;animation:pulse .5s ease-out forwards}
+.pulse::after{content:"";position:absolute;inset:-1px;border-radius:inherit;border:2px solid rgba(200,164,94,.6);pointer-events:none;opacity:0;animation:pulse .5s ease-out}
 @keyframes pulse{from{transform:scale(1);opacity:.85}to{transform:scale(1.025);opacity:0}}
 .soon{display:flex;gap:14px;align-items:flex-start}.soon p{margin:0}
 .dl{display:grid;grid-template-columns:1fr auto;gap:0 20px;margin:0}.dl dt,.dl dd{margin:0;padding:10px 0;border-bottom:1px solid var(--line)}.dl dt{color:var(--mut)}.dl dd{font-weight:600;text-align:right}
@@ -1811,3 +1811,14 @@ body.nomotion .wart *,body.lowfx .wart *,body.nomotion .winaug,body.nomotion .wi
 @media(min-width:801px) and (max-height:820px){.msoon,.mcredit{display:none}.mtitle{font-size:clamp(30px,min(5vw,7vh),56px)}}
 @media(min-width:801px) and (max-height:600px){.mlogo{display:none}.mtag{display:none}}
 @media(min-width:1000px) and (max-height:980px){.mcredit{display:none}}
+
+/* ===== Partie 19 · A : achat rapide ===== */
+.bqbar{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;margin:0 0 14px}
+.bqsel{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex:none}
+.bqo{min-width:56px;min-height:44px;padding:6px 12px;border:0;border-right:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--mut);font:700 14px var(--font-display);cursor:pointer;font-variant-numeric:tabular-nums}
+.bqo:last-child{border-right:0}.bqo.on{background:rgba(200,164,94,.16);color:var(--gold);box-shadow:inset 0 -2px 0 var(--gold)}.bqo:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.bqbest{flex:1 1 260px;min-height:44px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;white-space:normal}
+.bqbest .bs,.card.act .btn.buy .bs,.brow .bbtn .bs{display:block;font-size:12px;font-weight:500;opacity:.85}.bqbest .bs:empty,.card.act .btn.buy .bs:empty,.brow .bbtn .bs:empty{display:none}
+.card.act .btn.buy,.brow .bbtn{white-space:normal;line-height:1.25}
+@media(max-width:480px){.bqsel{width:100%}.bqo{flex:1;min-width:0}}
+.bqbar{position:relative}

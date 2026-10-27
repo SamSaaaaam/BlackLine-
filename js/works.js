@@ -51,18 +51,29 @@
   /* démarre les chantiers en attente tant qu'il reste des ouvriers ; t = horloge de démarrage */
   function fill(s, t) { var w = workers(s), a = active(s).length; list(s).forEach(function (e) { if (e.at === null && a < w) { e.at = t; a++; } }); }
   /* commande : vérifie exactement ce que vérifiait l'achat instantané, paie, met en chantier (ou en file) */
-  function canOrder(s, id, i) {
+  /* Partie 19 · A : achat ×N. Prix = somme exacte des N prix successifs ; durée = somme des N durées successives (comme N chantiers à la suite).
+     Règle simple : si cette somme dépasse 24 h, la quantité est réduite au plus grand N qui tient dans 24 h (le plafond ne fait jamais gagner de temps).
+     qty : 1, 10, 25… ou "max" (le plus grand N abordable). Toujours plafonné au niveau maximal (100). */
+  function canOrder(s, id, i, qty) {
     var a = act(id); if (!a) return { ok: false, why: "inconnu" }; var e = E(), c0 = e.buildings(s, id);
     if (i === undefined) i = 0; if (!Number.isInteger(i) || i < 0 || i >= Math.max(1, c0) || !e.actUnlocked(s, a)) return { ok: false, why: "lot" };
     if (busyLot(s, id, i)) return { ok: false, why: "busy" };
     var n = e.bLevel(s, id, i); if (n >= a.maxLevel) return { ok: false, why: "max" };
     if (full(s)) return { ok: false, why: "full" };
-    var c = e.cost(a, n, s, i); return { ok: s.money + EPS >= c, why: s.money + EPS >= c ? "" : "money", cost: c, to: n + 1, i: i, dur: duration(id, i, n + 1) };
+    var max = qty === "max", want = max ? a.maxLevel - n : Math.max(1, Math.floor(+qty) || 1), cost = 0, dur = 0, k = 0, lim = "", best = null;
+    for (var j = 0; j < a.maxLevel - n; j++) {
+      var c1 = e.cost(a, n + j, s, i), d1 = duration(id, i, n + j + 1);
+      if (j > 0 && dur + d1 > P.maxDur) { lim = "dur"; break; }
+      if (max && j > 0 && s.money + EPS < cost + c1) break;
+      cost += c1; dur += d1; k = j + 1; if (!max && k >= want) break;
+    }
+    if (!max && k < want && !lim) lim = "lvl";
+    return { ok: s.money + EPS >= cost, why: s.money + EPS >= cost ? "" : "money", cost: cost, to: n + k, i: i, dur: dur, k: k, want: max ? "max" : want, lim: lim, missing: Math.max(0, cost - s.money) };
   }
-  function push(s, id, i, to, cost) {
-    E().spend(s, cost); var W = st(s), e = { id: id, i: i, to: to, at: null, dur: duration(id, i, to), b: 0 }; W.q.push(e); fill(s, W.clk); return e;
+  function push(s, id, i, to, cost, dur) {
+    E().spend(s, cost); var W = st(s), e = { id: id, i: i, to: to, at: null, dur: dur || duration(id, i, to), b: 0 }; W.q.push(e); fill(s, W.clk); return e;
   }
-  function order(s, id, i) { var c = canOrder(s, id, i); if (!c.ok) return null; return push(s, id, c.i, c.to, c.cost); }
+  function order(s, id, i, qty) { var c = canOrder(s, id, i, qty); if (!c.ok) return null; return push(s, id, c.i, c.to, c.cost, c.dur); }
   function canBuilding(s, id) {
     var a = act(id); if (!a) return { ok: false, why: "inconnu" }; var nb = E().nextBuilding(s, a); if (!nb || !nb.ok) return { ok: false, why: "lot" };
     if (busyLot(s, id, nb.idx)) return { ok: false, why: "busy" }; if (full(s)) return { ok: false, why: "full" };
@@ -116,7 +127,7 @@
       var i = x.i, to = x.to; if (!Number.isInteger(i) || i < 0 || i >= E().BLD_NEED.length || !Number.isInteger(to) || to < 1 || to > a.maxLevel) return;
       var k = a.id + "#" + i; if (seen[k]) return;
       var cnt = E().buildings(s, a.id), n = E().bLevel(s, a.id, i);
-      if (i < cnt) { if (to !== n + 1) return; }                                   /* amélioration : exactement le niveau suivant */
+      if (i < cnt) { if (to <= n) return; }                                        /* amélioration : un ou plusieurs niveaux au-dessus (achat ×N, Partie 19) */
       else if (i === cnt) { if (to !== 1) return; if (i > 0) { var nb = E().nextBuilding(s, a); if (!nb || !nb.ok || nb.idx !== i) return; } else if (!E().actUnlocked(s, a)) return; }   /* nouveau bâtiment */
       else return;
       var dur = typeof x.dur === "number" && isFinite(x.dur) && x.dur > 0 ? Math.min(P.maxDur, Math.max(1, x.dur)) : duration(a.id, i, to);
