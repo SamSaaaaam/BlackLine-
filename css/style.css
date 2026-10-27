@@ -1822,3 +1822,9 @@ body.nomotion .wart *,body.lowfx .wart *,body.nomotion .winaug,body.nomotion .wi
 .card.act .btn.buy,.brow .bbtn{white-space:normal;line-height:1.25}
 @media(max-width:480px){.bqsel{width:100%}.bqo{flex:1;min-width:0}}
 .bqbar{position:relative}
+
+/* ===== Partie 19 · B : navigation en 4 groupes, pastilles d'action numérotées ===== */
+.sntab .dot,.sntab .jbadge,.ngbtn .gdot{display:none!important}
+.nbadge{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;margin-left:6px;border-radius:10px;background:var(--gold);color:#14110a;font:700 12px var(--font-display);font-style:normal;font-variant-numeric:tabular-nums;line-height:1;flex:none}
+.ngbtn .nbadge{position:absolute;top:8px;right:10px;margin:0}
+.sntab:focus-visible,.ngbtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}

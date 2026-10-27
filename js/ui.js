@@ -17,9 +17,10 @@
     ["hq", "vault", "Coffre", "Ton quartier général et ton coffre de lingots d’or."], ["shop", "bag", "Boutique", "Dépense tes lingots d’or : décors, fonds de ville et boosts temporaires. Jamais d’argent réel."], ["boxes", "box", "Box", "Ouvre des box payées en lingots : équipement tiré au hasard, taux et contenu affichés."], ["radio", "radio", "Radio", "Choisis la musique du jeu."],
     ["dash", "dash", "Tableau de bord", "Le résumé de ton empire : chiffres clés, conseils, revenus et statistiques."], ["glossary", "book", "Glossaire", "Le sens de chaque mot et de chaque chiffre du jeu."], ["saga", "story", "Histoire", "La trame du parrain : chapitres, monde, personnages et fins."]];
   /* C14 : 4 entrées. Aucune vue supprimée : chaque ancienne vue reste atteignable (sous-onglets) et BL.ui.go(ancienne vue) fonctionne toujours. */
-  var GROUPS = [["empire", "Empire", "empire", "Bâtiments, améliorations, objectifs", ["dash", "empire", "upg", "goals", "glossary"]], ["field", "Terrain", "map", "Carte, opérations, événements, territoires", ["map", "ops", "terr"]], ["crew", "Équipe", "team", "Équipiers et Arsenal", ["team", "arsenal"]], ["hq", "QG", "vault", "Décor, Coffre, Boutique, Box, Radio", ["hq", "shop", "boxes", "radio"]], ["story", "Histoire", "story", "Chapitres, monde, personnages", ["saga"]]];
+  var GROUPS = BL.nav ? BL.nav.GROUPS : [["empire", "Empire", "empire", "Argent et objectifs", ["dash", "empire", "upg", "goals"]], ["field", "Terrain", "map", "Carte et territoires", ["map", "ops", "terr"]], ["crew", "Équipe", "team", "Équipiers et Arsenal", ["team", "arsenal"]], ["more", "Plus", "vault", "QG, histoire, aide", ["hq", "shop", "boxes", "radio", "saga", "board", "glossary"]]];   /* Partie 19 · B : 4 groupes (js/nav.js) */
   /* Classement en ligne : visible seulement si config-classement.js est rempli (sinon le jeu reste 100 % local, sans cette entrée) */
-  if (BL.lb && BL.lb.configured()) { NAV.push(["board", "trophy", "Classement", "Compare ton empire aux autres joueurs avec un simple pseudo. Facultatif."]); GROUPS[4][4].push("board"); GROUPS[4][3] = "Chapitres, monde, personnages, classement"; }
+  if (BL.lb && BL.lb.configured()) NAV.push(["board", "trophy", "Classement", "Compare ton empire aux autres joueurs avec un simple pseudo. Facultatif."]);
+  GROUPS.forEach(function (g) { g[4] = g[4].filter(function (v) { return NAV.some(function (n) { return n[0] === v; }); }); });   /* une vue absente (classement non configuré) n'apparaît pas */
   function groupOf(v) { for (var i = 0; i < GROUPS.length; i++) if (GROUPS[i][4].indexOf(v) >= 0) return GROUPS[i]; return GROUPS[0]; }
   var TIERS = { short: "mShort", mid: "mMid", long: "mLong" };
   function svg(n) { return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + IC[n] + '"/></svg>'; }
@@ -108,11 +109,11 @@
   function msCount(n) { var c = 0; B.milestones.forEach(function (m) { if (n >= m.lvl) c++; }); return c; }
 
   /* pastille sur l'entrée de groupe quand une de ses sections a quelque chose de nouveau (journal, nouvel équipier) */
-  function groupBadges() {
-    GROUPS.forEach(function (g) {
-      var on = g[4].some(function (v) { var b = document.querySelector('[data-view="' + v + '"]'); return b && b.querySelector(".jbadge,.dot"); }), gb = document.querySelector('[data-group="' + g[0] + '"]'); if (!gb) return;
-      var d = gb.querySelector(".gdot"); if (on && !d) { d = document.createElement("i"); d.className = "gdot"; d.setAttribute("aria-label", "Nouveauté"); gb.appendChild(d); } else if (!on && d) gb.removeChild(d);
-    });
+  function groupBadges() {   /* Partie 19 · B : pastilles d'action numérotées (vue) et somme par groupe ; jamais décoratives */
+    if (!BL.nav || !ui.s) return; var gc = BL.nav.groupCounts(ui.s, GROUPS);
+    function put(btn, n, label) { if (!btn) return; var d = btn.querySelector(".nbadge"); if (n > 0) { if (!d) { d = document.createElement("i"); d.className = "nbadge"; btn.appendChild(d); } set(d, String(n)); d.setAttribute("aria-label", n + " action" + (n > 1 ? "s" : "") + " possible" + (n > 1 ? "s" : "") + " : " + label); } else if (d) btn.removeChild(d); }
+    NAV.forEach(function (n) { put(document.querySelector('#subnav [data-view="' + n[0] + '"]'), gc.views[n[0]] || 0, n[2]); });
+    GROUPS.forEach(function (g) { put(document.querySelector('[data-group="' + g[0] + '"]'), gc.groups[g[0]] || 0, g[1]); });
   }
   /* Partie 17 · D : texte « en chantier » d'un bâtiment (ou null), et bouton bloqué si chantier ou file pleine */
   /* Partie 19 · A : quantité choisie, et texte d'un bouton d'achat : « Améliorer ×10 · $X » + « +$Y/s » ou « Il te manque $Z » (jamais un bouton grisé muet) */

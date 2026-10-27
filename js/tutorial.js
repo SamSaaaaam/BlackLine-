@@ -8,7 +8,7 @@
   function $(id) { return doc.getElementById(id); }
   function vis(id) { var e = $(id); return !!e && !e.hidden; }
   /* C14 : l'onglet visé est dans un groupe ; s'il est masqué, on montre l'entrée de groupe (QG, Terrain…) */
-  function navTarget(view) { var b = doc.querySelector('[data-view="' + view + '"]'); if (b && !b.hidden) return b; var g = view === "shop" || view === "radio" || view === "hq" ? "hq" : "empire"; return doc.querySelector('[data-group="' + g + '"]') || b; }
+  function navTarget(view) { var b = doc.querySelector('[data-view="' + view + '"]'); if (b && !b.hidden) return b; var g = view === "shop" || view === "radio" || view === "hq" ? "more" : "empire"; return doc.querySelector('[data-group="' + g + '"]') || b; }
   function mobile() { return root.innerWidth <= 900; }
 
   /* bouton « Construire » de la fiche de la carte, seulement s'il est réellement à l'écran */
