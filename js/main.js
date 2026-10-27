@@ -125,6 +125,11 @@
       var e = BL.works.orderBuilding(state, id); if (!e) { BL.audio.sfx("error"); return false; } arm("b" + id); BL.audio.sfx("buy");
       var m = "Chantier lancé : nouveau bâtiment " + a.name + " (" + (e.i + 1) + " / " + BL.mapData.LOTS.perActivity + ", −" + U.money(ck.cost) + ", " + (e.at === null ? "en file d’attente" : SY.dur(e.dur)) + ")."; E.addLog(state, m); U.toast(m, "ok"); doSave(false); return true;
     },
+    /* Partie 17 · E : mini-jeux (récompenses bornées, appliquées et enregistrées ici) */
+    miniHeistLock: function (score) { var r = BL.minigames.applyHeistLock(state, score); if (!r) return null; E.addLog(state, "Crochetage : serrure travaillée (+" + Math.round(r.b * 100) + " points sur l’exécution et la fuite, chaleur −" + r.h + " par étape)."); doSave(true); return r; },
+    miniPrep: function (opId, kind, score) { var r = BL.minigames.applyPrep(state, opId, kind, score); if (!r) return null; E.addLog(state, (kind === "plan" ? "Plan du coup" : "Crochetage") + " préparé pour « " + BL.equip.op(opId).name + " » : +" + Math.round(r.b * 100) + " points de chance, chaleur " + (r.h > 0 ? "+" + r.h : r.h < 0 ? "−" + (-r.h) : "0") + "."); doSave(true); return r; },
+    miniInterro: function (who, score) { var r = BL.minigames.applyInterro(state, who, score); if (!r) return null; E.addLog(state, "Interrogatoire (" + BL.minigames.IN[who].name + ") : score " + Math.round(score * 100) + " %."); doSave(true); return r; },
+    miniCompta: function (mode, score) { var r = BL.minigames.applyCompta(state, mode, score); if (!r) return null; E.addLog(state, "Comptes avec Gino : " + (r.mode === "heat" ? "chaleur " + Math.round(r.heat) : "revenus ×" + String(Math.round(r.mult * 1000) / 1000).replace(".", ",") + " pendant 10 min") + "."); doSave(true); return r; },
     worksBribe: function (id, i) {
       if (locked("wb" + id + i)) return null; var r = BL.works.bribe(state, id, i); if (!r) { BL.audio.sfx("error"); return null; } arm("wb" + id + i); BL.audio.sfx("buy");
       var m = "Pot-de-vin versé (−" + U.money(r.cost) + ") : le chantier gagne " + SY.dur(r.cut) + "."; E.addLog(state, m); U.toast(m, "ok"); doSave(false); return r;

@@ -23,6 +23,9 @@
     el.root = r; el.body = r.querySelector("#sgBody"); el.back = r.querySelector("#sgBack"); el.title = r.querySelector("#sgTitle");
     el.back.onclick = function () { st.sel = null; paint(true); };
     el.body.addEventListener("click", onBody);
+    el.body.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-int]"); if (!b || b.disabled || !BL.minigames) return; var who = b.dataset.int, I = BL.minigames.IN[who], hh = BL.ui && BL.ui.handlers;   /* Partie 17 · E */
+      BL.minigames.open("interro", { title: I.name, who: who, reward: I.reward, onClose: function () { paint(true); } }, function (sc) { var r = hh && hh.miniInterro(who, sc); if (!r) return null; var u0 = BL.ui.money;
+        return { text: who === "indic" ? (r.press ? "Renseignements : la pression du rival baisse de " + (-r.press) + "." : "Renseignements notés : aucun rival ne te presse pour l’instant.") + (r.heat ? " Chaleur " + Math.round(r.heat) + "." : "") : who === "rival" ? "Il « rembourse » le dérangement : +" + u0(r.money) + "." : (r.n ? "Ton équipe se resserre : loyauté +" + r.loy + " pour " + r.n + " équipier" + (r.n > 1 ? "s" : "") + "." : "Personne à rassurer pour l’instant : recrute une équipe.") }; }); });
     el.body.addEventListener("keydown", function (e) { var t = e.target.closest && e.target.closest(".sg-tab"); if (!t || (e.key !== "ArrowRight" && e.key !== "ArrowLeft" && e.key !== "Home" && e.key !== "End")) return; e.preventDefault(); var k = TABS.map(function (x) { return x[0]; }), i = k.indexOf(st.tab); i = e.key === "Home" ? 0 : e.key === "End" ? k.length - 1 : (i + (e.key === "ArrowRight" ? 1 : -1) + k.length) % k.length; st.tab = k[i]; paint(true); var nt = el.body.querySelector(".sg-tab.on"); if (nt) nt.focus(); });
   }
   /* ouvre la page ; toChapter : va directement au chapitre prêt */
@@ -84,7 +87,13 @@
       var done = G().complete(s, ch.id), isCur = cur && cur.ch.id === ch.id, state = done ? "done" : isCur && cur.ready ? "ready" : "lock", sub = done ? "Terminé · relire" : isCur && cur.ready ? (cur.started ? "En cours · continuer" : "Nouveau · à lire") : isCur ? "Verrouillé : " + need(ch, cur) : "Verrouillé : termine le chapitre précédent";
       o += '<li><button type="button" class="sg-ch ' + state + '" data-ch="' + ch.id + '"' + (state === "lock" ? " disabled" : "") + '><span class="sg-n">' + ROM[i] + '</span><span class="sg-t"><b>' + esc(ch.title) + "</b><em>" + esc(ch.blurb || "") + "</em><small>" + esc(whoName(ch) ? whoName(ch) + " · " + sub : sub) + "</small></span></button></li>";
     });
-    return o + "</ol></section></div>";
+    return o + "</ol></section>" + interroHtml(s) + "</div>";
+  }
+  /* Partie 17 · E : interrogatoires (mini-jeu facultatif) : un indic, un lieutenant rival, un inspecteur */
+  function interroHtml(s) {
+    if (!BL.minigames) return ""; var I = BL.minigames.IN, o = '<section class="sg-sec sg-int"><h4>Interrogatoires</h4><p class="sg-lead">Facultatif. Pose les bonnes questions, repère les mensonges. Une heure de jeu entre deux séances avec le même personnage.</p><div class="sg-intl">';
+    ["indic", "rival", "insp"].forEach(function (k) { var ok = BL.minigames.interroOk(s, k); o += '<button type="button" class="sg-intb" data-int="' + k + '"' + (ok.ok ? "" : " disabled") + "><b>" + esc(I[k].name) + "</b><span>" + esc(I[k].reward) + "</span><small>" + (ok.ok ? "Disponible" : esc(ok.why)) + "</small></button>"; });
+    return o + "</div></section>";
   }
   function endHtml(en) { return '<section class="sg-end" aria-label="Fin"><span>Ta fin</span><h3>' + esc(en.title) + "</h3><p>" + esc(en.text) + '</p><ul class="sg-fx">' + G().fxLines(en.fx).map(function (l) { return "<li>" + esc(l) + "</li>"; }).join("") + "</ul></section>"; }
   function sceneHtml(s, ch) {

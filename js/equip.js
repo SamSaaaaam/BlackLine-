@@ -111,7 +111,7 @@
   function preview(s, o, ids) {
     var tot = { pow: 0, def: 0, stl: 0, spd: 0 }; (ids || []).forEach(function (m) { var q = memberStats(s, m); KEYS.forEach(function (k) { tot[k] += q[k]; }); });
     var sumNeed = 0, sumHave = 0, rows = []; KEYS.forEach(function (k) { var nd = o.need[k]; sumNeed += nd; sumHave += Math.min(P().covCap * nd, tot[k]); rows.push({ k: k, have: tot[k], need: nd, ok: tot[k] + EPS >= nd }); });
-    var cov = sumNeed > 0 ? sumHave / sumNeed : 1, ch = (ids && ids.length) ? clamp(P().chanceBase + P().chanceSlope * cov - (BL.heat ? BL.heat.opPenalty(s) : 0), P().chanceMin, P().chanceMax) : 0;
+    var cov = sumNeed > 0 ? sumHave / sumNeed : 1, ch = (ids && ids.length) ? clamp(P().chanceBase + P().chanceSlope * cov - (BL.heat ? BL.heat.opPenalty(s) : 0) + (BL.minigames ? BL.minigames.opBonus(s, o.id) : 0), P().chanceMin, P().chanceMax) : 0;   /* Partie 17 · E : plan du coup / crochetage */
     return { tot: tot, rows: rows, cov: cov, chance: ch };
   }
   /* Meilleure équipe pour une opération : essaie toutes les équipes de 1 à maxTeam équipiers disponibles, garde la plus haute chance (à égalité : la plus petite équipe, puis le moins de stats gaspillées). Pure, aucun effet sur l'état. */
@@ -141,6 +141,7 @@
     var full = Math.min(inc * o.dur * P().rewardPerSec, inc * P().rewardCapSec), money = ok ? full : near ? full * P().partialShare : 0; money = Math.floor(money + EPS);
     if (money > 0) { s.money += money; s.total += money; if (s.st) s.st.rewards += money; }
     if (BL.heat) BL.heat.opDone(s, o.tier);          /* C9 : certaines opérations attirent l'attention */
+    if (BL.minigames) BL.minigames.opDone(s, o.id);   /* Partie 17 · E : chaleur du plan, préparation consommée */
     var loot = [], sold = [], nw = [], had = {}, hasLoot = ok ? (crit ? 2 : 1) : 0; e.inv.forEach(function (x) { had[x.id] = 1; });
     for (var i = 0; i < hasLoot; i++) { var id = rollLoot(o.loot, rng); if (space(s) > 0) { e.inv.push({ id: id, w: 100, on: null }); loot.push(id); nw.push(had[id] ? 0 : 1); had[id] = 1; } else { s.money += sellValue(s, id); sold.push(id); } }
     var wear = (P().wearBase + P().wearPerTier * o.tier) * (ok ? 1 : P().wearFail); e.inv.forEach(function (x) { if (ids.indexOf(x.on) >= 0) x.w = clamp(x.w - wear, 0, 100); });

@@ -143,6 +143,12 @@
   }
   function art(o, stamp) { return BL.opsArt ? '<div class="opimg">' + BL.opsArt.scene(o) + (stamp ? '<span class="opstamp">' + esc(stamp) + "</span>" : "") + "</div>" : ""; }
   function oddsText(o) { return o.loot.map(function (p, i) { return p > 0 ? D.RAR[i][0].toUpperCase() + D.RAR[i].slice(1) + " " + p + " %" : ""; }).filter(Boolean).join(" · "); }
+  /* Partie 17 · E : préparation facultative (plan du coup, et crochetage pour les braquages) */
+  function prepHtml(s, o, ok) {
+    if (!BL.minigames || !ok) return ""; var p = BL.minigames.prepOf(s, o.id);
+    return '<div class="mg-entry opprep"><div class="mg-bts"><button type="button" class="btn ghost" data-a="mplan" data-id="' + o.id + '">' + (p && p.plan >= 0 ? "Refaire le plan" : "Plan du coup") + "</button>" + (o.fam === "heist" ? '<button type="button" class="btn ghost" data-a="mlock" data-id="' + o.id + '">' + (p && p.lp >= 0 ? "Recrocheter" : "Crocheter") + "</button>" : "") + "</div>"
+      + "<small>" + (p ? "Préparé : +" + Math.round(p.b * 100) + " points de chance, chaleur " + (p.h > 0 ? "+" + p.h : p.h < 0 ? "−" + (-p.h) : "0") + " après l’opération." : "Facultatif : un bon plan ajoute jusqu’à +10 points de chance et réduit la chaleur.") + "</small></div>";
+  }
   function opCard(s, o, busy) {
     var un = Q.opUnlock(s, o), inc = Math.max(BL.economy.incomeBase(s), 0), full = Math.floor(Math.min(inc * o.dur * D.params.rewardPerSec, inc * D.params.rewardCapSec));
     var fi = o.fac && BL.factions ? BL.factions.info(o.fac) : null, fm = D.FAMS[o.fam], rel = fi ? Math.round(BL.factions.rel(s, o.fac)) : 0;
@@ -153,7 +159,7 @@
     return '<article class="card opc' + (un.ok ? "" : " lock") + (focusOp(s) === o ? " foc" : "") + '" data-op="' + o.id + '"><div class="mh"><h2>' + esc(o.name) + '</h2><span class="opstar" role="img" aria-label="Difficulté ' + o.tier + ' sur 4">' + stars + "</span></div>" + art(o) + "<p class=\"muted\">" + esc(o.text) + "</p>" +
       '<dl class="opkv"><dt>Durée</dt><dd>' + tm(o.dur) + "</dd><dt>Risque</dt><dd class=\"lng\">blessure possible (" + Math.round(o.inj * 100) + " % de base, plus en cas d’échec)</dd><dt>Récompense</dt><dd>≈ " + money(full) + " + butin</dd><dt>Butin</dt><dd>" + oddsText(o) + "</dd>" + tgt + "</dl>" +
       (un.ok ? '<ul class="opneed" aria-label="Statistiques requises">' + rows + '</ul><div class="opch"><span>Chances de réussite</span><b>' + (ui.team.length ? Math.round(pv.chance * 100) + " %" : "—") + '</b><div class="eqbar"><i style="width:' + Math.round(pv.chance * 100) + '%"></i></div></div>' : '<p class="oplock">🔒 ' + esc(un.why) + "</p>") +
-      '<div class="eqbtn"><button class="btn' + (can ? "" : " off") + '" data-a="go" data-id="' + o.id + '"' + (can ? "" : " disabled") + ">Lancer l’opération</button>" + (un.ok && !ui.team.length ? '<small class="muted">Choisis au moins un équipier ci-dessus.</small>' : "") + (busy && un.ok ? '<small class="muted">Une opération est déjà en cours.</small>' : "") + "</div></article>";
+      prepHtml(s, o, un.ok && !busy) + '<div class="eqbtn"><button class="btn' + (can ? "" : " off") + '" data-a="go" data-id="' + o.id + '"' + (can ? "" : " disabled") + ">Lancer l’opération</button>" + (un.ok && !ui.team.length ? '<small class="muted">Choisis au moins un équipier ci-dessus.</small>' : "") + (busy && un.ok ? '<small class="muted">Une opération est déjà en cours.</small>' : "") + "</div></article>";
   }
   function reportCard(s) {
     var r = Q.st(s).report; if (!r) return ""; var o = Q.op(r.op); if (!o) return "";
@@ -279,6 +285,9 @@
     else if (a === "last") { ui.team = ui.last.filter(function (id) { return Q.available(S, id); }); renderOps(true); }
     else if (a === "clear") { ui.team = []; renderOps(true); }
     else if (a === "foc") { ui.fop = b.dataset.id; renderOps(true); }
+    else if (a === "mplan" || a === "mlock") { var oid = b.dataset.id, o8 = Q.op(oid), kind = a === "mplan" ? "plan" : "lockpick", pv8 = Q.preview(S, o8, ui.team);
+      BL.minigames.open(kind, { title: o8.name, op: oid, base: ui.team.length ? pv8.chance - BL.minigames.opBonus(S, oid) : null, reward: kind === "plan" ? "Récompense : 0 à +10 points de chance pour ce lancement ; chaleur de +1 (plan bâclé) à −3." : "Récompense : jusqu’à +5 points de chance et −1 de chaleur pour ce lancement.", onClose: function () { renderOps(true); } },
+        function (sc) { var r = h.miniPrep(oid, kind, sc); return r ? { text: "Préparation enregistrée : +" + Math.round(r.b * 100) + " points de chance, chaleur " + (r.h > 0 ? "+" + r.h : r.h < 0 ? "−" + (-r.h) : "0") + " après l’opération." } : null; }); }
     else if (a === "go") { var tm0 = ui.team.slice(); if (h.opStart(b.dataset.id, tm0)) { saveLast(tm0); ui.team = []; ui.focus = ""; } renderOps(true); }
     else if (a === "cancel") { h.opCancel(); renderOps(true); }
     else if (a === "claim") { var r = h.opClaim(); renderOps(true); if (r) { var o9 = Q.op(r.op); if (!(BL.opsSceneUI && BL.opsSceneUI.play(r, o9, function () { showReveal(r); }))) showReveal(r); } }

@@ -22,6 +22,7 @@
     if (BL.war) BL.war.initState(s);
     if (BL.meta) BL.meta.initState(s);
     if (BL.works) BL.works.initState(s);   /* Partie 17 · D : chantiers */
+    if (BL.minigames) BL.minigames.initState(s);   /* Partie 17 · E : mini-jeux */
     return s;
   }
   function count(o) { var n = 0; for (var k in o) n += typeof o[k] === "number" ? o[k] : (o[k] ? 1 : 0); return n; }
@@ -94,7 +95,7 @@
     for (var i = 1; i < k; i++) { var tgt = BLD_LEGACY * N * msMult(N), n = 1; while (n < N && BLD_W[i] * n * msMult(n) + EPS < tgt) n++; out.push(n); }
     return out;
   }
-  function mults(s, id) { return upgMult(s, id) * repMult(s) * levelMult(s) * (tr() ? tr().incMult(s, id) : 1) * (cw() ? cw().incMult(s, id) : 1) * (fc() ? fc().incMult(s) : 1) * (sa() ? sa().incMult(s) : 1) * (BL.heat && BL.heat.incMul ? BL.heat.incMul(s) : 1) * (BL.war ? BL.war.incMult(s) : 1) * (BL.meta ? BL.meta.incMul(s) : 1); }
+  function mults(s, id) { return upgMult(s, id) * repMult(s) * levelMult(s) * (tr() ? tr().incMult(s, id) : 1) * (cw() ? cw().incMult(s, id) : 1) * (fc() ? fc().incMult(s) : 1) * (sa() ? sa().incMult(s) : 1) * (BL.heat && BL.heat.incMul ? BL.heat.incMul(s) : 1) * (BL.war ? BL.war.incMult(s) : 1) * (BL.meta ? BL.meta.incMul(s) : 1) * (BL.minigames ? BL.minigames.incMul(s) : 1); }
   function bldIncome(s, a, i, n) { return n * a.baseIncome * (BLD_W[i] || 0) * msMult(n) * mults(s, a.id); }
   function actIncome(s, a) { var m = mults(s, a.id), t = 0; levels(s, a.id).forEach(function (n, i) { t += n * a.baseIncome * (BLD_W[i] || 0) * msMult(n) * m; }); return t; }
   /* gain de revenu brut si le bâtiment i passe au niveau suivant */

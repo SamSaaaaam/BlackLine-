@@ -60,8 +60,8 @@
   function longest(s) { return W().active(s).slice().sort(function (a, b) { return W().left(s, b) - W().left(s, a); })[0] || null; }
   function foremanStart(target) {
     var s = S; if (!s || !W().foremanReady(s)) return; var e = target ? W().entry(s, target.id, target.i) : longest(s); if (!e || e.at === null) return;
-    var go = function (score) { if (h && h.worksForeman) h.worksForeman(e.id, e.i, score); paintCards(S); };
-    if (BL.minigames && BL.minigames.open) BL.minigames.open("foreman", { title: label(e), left: W().left(s, e) }, function (r) { if (r) go(r.score); });
+    var go = function (score) { var r = h && h.worksForeman ? h.worksForeman(e.id, e.i, score) : null; paintCards(S); return r ? { text: "Le chantier « " + label(e) + " » gagne " + dur(r.cut) + " (−" + Math.round(r.pct * 100) + " %). Prochain passage du contremaître dans 10 min." } : null; };
+    if (BL.minigames && BL.minigames.open) BL.minigames.open("foreman", { title: label(e), reward: "Récompense : −5 à −20 % du temps restant de ce chantier." }, go);
     else go(0.5);
   }
   function askBribe(id, i) {

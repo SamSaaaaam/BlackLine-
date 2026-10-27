@@ -101,6 +101,17 @@ if (AUDIT && base.BL.works) {
   goals.push(["chantiers : jamais plus de 10 min sans pouvoir commander un bâtiment pendant les 4 premières heures (sans aide) : " + hm(res[1].gapMax), res[1].gapMax <= 600]);
   goals.push(["chantiers : premier achat ≤ 10 s, niveau 10 ≤ 3 min, plafond 24 h", W.duration("backroom", 0, 1) <= 10 && acts.every(id => W.duration(id, 0, 1) >= 2 && W.duration(id, 0, 1) <= 10 && W.duration(id, 0, 10) <= 180 && W.duration(id, 0, 100) <= 86400)]);
 }
+/* ===== Partie 17 · E : mini-jeux, gains maximaux (bornes calculées depuis les réglages) ===== */
+if (AUDIT && base.BL.minigames) {
+  const BL = base.BL, R = BL.minigames.R, EP = BL.data.equip.params, HP = BL.data.heist.params, W = BL.works;
+  const compta = (R.compta.inc * R.compta.dur) / R.compta.cd, rival = R.interro.money / R.interro.cd, ops = 0.15 * EP.rewardPerSec, heist = 2 * R.lockpick.heist * (HP.loot[3] - HP.loot[2]) * HP.rewardMin * 60 / HP.cdSec;
+  const rows = [["Comptabilité « optimiser » (+6 % pendant 10 min, toutes les 30 min)", compta], ["Interrogatoire du rival (120 s de revenus, toutes les heures)", rival], ["Plan du coup + crochetage sur les opérations (+15 points de chance en continu)", ops], ["Crochetage du braquage (+8 points sur 2 étapes, un braquage toutes les 8 h)", heist]];
+  console.log("\n# Mini-jeux (Partie 17 · E) : gain maximal en jouant parfaitement\n\nEn % du revenu net, moyenné sur une heure de jeu actif (borne haute : score parfait à chaque fois, sans compter le temps passé à jouer). « Résoudre automatiquement » donne la moitié des bonus.\n\n| Mini-jeu | Gain maximal |\n|---|---|");
+  rows.forEach(r => console.log("| " + r[0] + " | +" + (r[1] * 100).toFixed(1).replace(".", ",") + " % |"));
+  const tot = rows.reduce((a, r) => a + r[1], 0); console.log("| **Total si tout est joué parfaitement** | **+" + (tot * 100).toFixed(1).replace(".", ",") + " %** |");
+  console.log("\nNon monétaires : indic (pression d'un rival −5 à −20, chaleur −0 à −3), inspecteur (loyauté +2 à +10, plafonnée à 100), comptabilité « traces » (chaleur −2 à −10). Contremaître : voir le tableau des chantiers (−5 à −20 % du temps restant, une fois toutes les " + Math.round(W.P.foreman.cd / 60) + " min). Aucun lingot n'est jamais gagné ni dépensé.");
+  goals.push(["mini-jeux : gain monétaire maximal ≤ 10 % du revenu actif : +" + (tot * 100).toFixed(1).replace(".", ",") + " %", tot <= 0.10]);
+}
 if (process.env.JSON_OUT) require("fs").writeFileSync(process.env.JSON_OUT, JSON.stringify({ firstAt: base.bot.stats.firstAt, snaps: Object.fromEntries(Object.entries(base.snaps).map(([k, v]) => [k, { inc: v.inc, lvl: v.lvl, total: v.total }])), stats: base.bot.stats }));
 if (AUDIT) { console.log("\n## Objectifs\n"); goals.forEach(g => console.log("- " + (g[1] ? "✔" : "✘") + " " + g[0])); console.log("\n(" + ((Date.now() - t0) / 1000).toFixed(1) + " s de calcul)"); }
 module.exports = { activeRun, offlineVsActive, sessions };

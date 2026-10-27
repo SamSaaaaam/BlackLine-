@@ -36,7 +36,7 @@
   function chance(s, def, i, choiceId, runX) {
     var step = stepOf(def, i), c = step && choiceOf(step, choiceId); if (!c) return 0; var run = runX || h(s).run, stat = c.stat || step.stat, ids = i === 1 ? topN(s, c.n || 2) : (run && run.team) || [];
     var cov = ids.length && stat ? cover(s, ids, stat) : 1, extra = i >= 3 ? sizeBonus(run) : 0;
-    return clamp(P().base + P().slope * (cov - 1) + c.bonus + extra - heatPen(s), P().chanceMin, P().chanceMax);
+    return clamp(P().base + P().slope * (cov - 1) + c.bonus + extra - heatPen(s) + (BL.minigames ? BL.minigames.heistBonus(s, run, i) : 0), P().chanceMin, P().chanceMax);   /* Partie 17 · E : serrure crochetée */
   }
   /* ---- Disponibilité ---- */
   function why(s) {
@@ -65,7 +65,7 @@
     var def = cur.def, i = run.step, step = cur.step, cd = choiceOf(step, choiceId), ch = c.chance;
     if (c.cost > 0) { E().spend(s, c.cost); run.cost += c.cost; }
     if (i === 1) run.team = c.team.slice();
-    var rolled = rng(run.seed ^ hash(step.id + ":" + choiceId))(), ok = rolled < ch, hp = (cd.heat || 0) + (ok ? 0 : P().failHeat);
+    var rolled = rng(run.seed ^ hash(step.id + ":" + choiceId))(), ok = rolled < ch, hp = Math.max(0, (cd.heat || 0) + (ok ? 0 : P().failHeat) - (BL.minigames ? BL.minigames.heistHeatCut(s, run, i) : 0));
     if (BL.heat && hp) { var hs = BL.heat.state(s); hs.v = clamp(hs.v + hp, 0, 100); } run.heat += hp;
     run.pick.push(choiceId); run.ok.push(ok ? 1 : 0); run.ch.push(Math.round(ch * 1000) / 10); run.step = i + 1;
     var res = { ok: ok, step: step, choice: cd, chance: ch, heat: hp, cost: c.cost, last: false };

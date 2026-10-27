@@ -30,7 +30,7 @@
       '<p class="hd-lead">L’attention que ton empire attire, côté police comme côté rivaux. Elle monte avec les activités illégales, retombe avec le temps et les actions ci-dessous. Fiction : aucune vraie police, aucune vraie personne.</p>' +
       '<div class="hd-gauge" role="img" aria-label="" id="hdG"><i id="hdGi"></i><span style="left:25%"></span><span style="left:50%"></span><span style="left:75%"></span></div>' +
       '<div class="hd-val"><b id="hdV"></b><span id="hdT"></span></div><p class="hd-eff" id="hdE"></p><p class="hd-raid" id="hdR" hidden></p><div class="hd-def" id="hdD" hidden><button type="button" class="btn buy" id="hdDB"></button><p class="hd-note" id="hdDN"></p></div>' +
-      '<div class="hd-acts"><button type="button" class="btn buy" id="hdB"></button><button type="button" class="btn ghost" id="hdL"></button></div><p class="hd-note" id="hdN" role="status" aria-live="polite"></p>' +
+      '<div class="hd-acts"><button type="button" class="btn buy" id="hdB"></button><button type="button" class="btn ghost" id="hdL"></button><button type="button" class="btn ghost" id="hdA"></button></div><p class="hd-note" id="hdN" role="status" aria-live="polite"></p>' +
       '<section class="hd-cons" id="hdC" aria-label="Conséquences en cours" hidden><h3>Conséquences en cours</h3><ul id="hdCL"></ul></section><details class="hd-why" id="hdW" open><summary>Pourquoi cette chaleur ?</summary><div id="hdS"></div></details>' +
       '<div class="hd-tiers" id="hdTiers"></div>' +
       '</div>';
@@ -38,6 +38,7 @@
     ["hdG", "hdGi", "hdV", "hdT", "hdE", "hdR", "hdS", "hdTiers", "hdB", "hdL", "hdN", "hdD", "hdDB", "hdDN", "hdC", "hdCL"].forEach(function (id) { el[id] = r.querySelector("#" + id); });
     r.querySelector("#hdX").onclick = close; r.onclick = function (e) { if (e.target === r) close(); };
     el.hdB.onclick = function () { var x = h.heatBribe && h.heatBribe(); el.hdN.textContent = x ? "Un inspecteur a perdu un dossier : chaleur −" + BL.heat.params.bribe.drop + "." : "Impossible pour l’instant."; paint(true); };
+    el.hdA = r.querySelector("#hdA"); el.hdA.onclick = function () { if (!BL.minigames || !BL.minigames.comptaOk(S).ok) return; BL.minigames.open("compta", { reward: "Gino : « Deux erreurs, patron. Toujours deux. »", onClose: function () { paint(true); } }, function (sc, c) { var r = h.miniCompta(c.mode === "inc" ? "inc" : "heat", sc); return r ? { text: r.mode === "heat" ? "Les comptes sont propres : chaleur " + Math.round(r.heat) + "." : "Les comptes sont optimisés : revenus +" + String(Math.round((r.mult - 1) * 1000) / 10).replace(".", ",") + " % pendant 10 min." } : null; }); };   /* Partie 17 · E */
     el.hdL.onclick = function () { var x = h.heatLay && h.heatLay(); el.hdN.textContent = x ? "Vous faites profil bas : chaleur −" + BL.heat.params.lay.drop + "." : "Impossible pour l’instant."; paint(true); };
     el.hdDB.onclick = function () { var x = h.heatDefend && h.heatDefend(); el.hdN.textContent = x ? "Le quartier se prépare : amende réduite de moitié, aucune fermeture ni saisie." : "Impossible pour l’instant."; paint(true); };
     el.hdCL.onclick = function (e) { var b = e.target.closest && e.target.closest("button[data-act]"); if (!b || b.disabled) return; var ok = b.dataset.act === "ransom" ? h.heatRansom && h.heatRansom(b.dataset.id) : h.heatRedeem && h.heatRedeem(+b.dataset.i); el.hdN.textContent = ok ? "Fait." : "Impossible pour l’instant."; paint(true); };
@@ -57,6 +58,7 @@
   function paint(force) {
     if (!open || !S) return; var hs = H.state(S), t = H.tier(S), src = H.sources(S), v = Math.round(hs.v * 10) / 10;
     el.hdGi.style.transform = "scaleX(" + (hs.v / 100).toFixed(3) + ")"; el.hdGi.style.background = COL[t.id]; el.hdG.setAttribute("aria-label", "Chaleur " + pc(v) + " sur 100, palier " + t.name);
+    if (el.hdA && BL.minigames) { var ck = BL.minigames.comptaOk(S); u.set(el.hdA, ck.ok ? "Comptes avec Gino (mini-jeu)" : "Gino : " + Math.ceil(ck.left / 60) + " min"); el.hdA.disabled = !ck.ok; }
     u.set(el.hdV, pc(v) + " / 100"); u.set(el.hdT, t.name); el.hdT.style.color = COL[t.id]; u.set(el.hdE, TXT[t.id]);
     Array.prototype.forEach.call(el.hdTiers.children, function (d) { d.classList.toggle("on", d.dataset.id === t.id); });
     if (hs.raid > S.t) { var dn = H.districtName(hs.tg); el.hdR.hidden = false; u.set(el.hdR, "Descente annoncée" + (dn ? " sur " + dn : "") + " dans " + dur(hs.raid - S.t) + ". Fais redescendre la chaleur sous 70 pour l’éviter."); } else el.hdR.hidden = true;

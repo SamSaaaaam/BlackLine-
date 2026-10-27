@@ -34,6 +34,9 @@
     }
     o += '<ol class="hs-prog" aria-label="Étapes">'; cur.def.steps.forEach(function (stp, i) { var k = i < cur.index ? (cur.run.ok[i] ? "ok" : "ko") : i === cur.index ? "cur" : ""; o += '<li class="' + k + '"' + (i === cur.index ? ' aria-current="step"' : "") + "><span>" + (i + 1) + "</span><b>" + esc(stp.title) + "</b></li>"; }); o += "</ol>";
     if (cur.run.team.length) o += '<p class="hs-team">Équipe : ' + cur.run.team.map(name).map(esc).join(", ") + "</p>";
+    if (BL.minigames) { var lk = BL.minigames.heistLockOk(s), hl = s.mini && s.mini.hlp && s.mini.hlp.seed === cur.run.seed ? s.mini.hlp : null;   /* Partie 17 · E : crochetage facultatif avant l'exécution */
+      if (hl) o += '<p class="mg-done">Serrure travaillée : +' + Math.round(hl.b * 100) + " points de chance sur l’exécution et la fuite, chaleur −" + hl.h + " par étape.</p>";
+      else if (lk.ok) o += '<div class="mg-entry"><button type="button" class="btn" data-act="lockpick">Crocheter la serrure (mini-jeu facultatif)</button><small>Jusqu’à +8 points de chance sur l’exécution et la fuite, et moins de bruit.</small></div>'; }
     o += '<section class="mt-card"><h3>Étape ' + (cur.index + 1) + " sur " + cur.total + " · " + esc(cur.step.title) + '</h3><p class="sg-lead">' + esc(cur.step.scene) + '</p><div class="hs-ch">';
     cur.choices.forEach(function (c) {
       var m = []; if (c.stat) m.push(SN[c.stat]); if (c.cost) m.push("coût " + u.money(c.cost)); m.push(c.heat ? "chaleur +" + c.heat : "aucune chaleur");
@@ -51,6 +54,7 @@
     var b = e.target.closest("[data-act]"); if (!b || b.disabled || !S) return; var a = b.dataset.act;
     if (a === "start") { st.flash = h.heistStart() ? "" : "Impossible pour l’instant."; }
     else if (a === "pick") { var r = h.heistChoose(b.dataset.id); st.flash = r ? (r.ok ? "Réussi : " : "Raté : ") + r.step.title + " (" + Math.round(r.chance * 100) + " % de chance)." : "Impossible pour l’instant."; }
+    else if (a === "lockpick") { BL.minigames.open("lockpick", { title: "La nuit d’Aurelle", reward: "Récompense : jusqu’à +8 points de chance sur l’exécution et la fuite, chaleur −2 par étape.", onClose: function () { paint(true); } }, function (sc) { var r = h.miniHeistLock(sc); return r ? { text: "Serrure travaillée : +" + Math.round(r.b * 100) + " points de chance sur l’exécution et la fuite, chaleur −" + r.h + " par étape." } : null; }); return; }
     else if (a === "ab1") st.ab = true; else if (a === "ab0") st.ab = false; else if (a === "ab2") { h.heistAbandon(); st.ab = false; st.flash = "Braquage abandonné."; }
     paint(true); var f = el.root.querySelector("button:not(:disabled)"); if (f && (a === "start" || a === "pick")) f.focus();
   }

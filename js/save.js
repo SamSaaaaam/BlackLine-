@@ -73,6 +73,7 @@
     if (BL.state10) BL.state10.sanitize(r, s);      /* v10 : historique des box, quartiers construits, casino, chaleur, rivalités, récit, notifications vues */
     if (BL.dbuild) BL.dbuild.clean(s);          /* constructions de quartier : types inconnus, quartiers non contrôlés, emplacements */
     if (BL.works) BL.works.sanitize(r, s);      /* v14 (Partie 17) : chantiers, vérifiés contre les niveaux reconstruits ci-dessus */
+    if (BL.minigames) BL.minigames.sanitize(r, s);   /* v14 (Partie 17) : mini-jeux (délais, bonus préparés, bonus de revenus temporaire) */
     if (typeof r.pending === "string") {
       var ev = BL.economy.find(D.events, r.pending);
       if (ev) {
@@ -105,7 +106,7 @@
     9: function (e) { e.v = 10; return e; },
     11: function (e) { e.v = 12; return e; },
     12: function (e) { e.v = 13; return e; },
-    13: function (e) { e.v = 14; return e; },   /* v14 (Partie 17) : s.works (chantiers en cours / en file) ajouté, vide par défaut via sanitize ; rien n'est supprimé */   /* v13 (Partie 15) : s.razed (parcs / places démolis) ajouté, liste vide par défaut via sanitize */
+    13: function (e) { e.v = 14; return e; },   /* v14 (Partie 17) : s.works (chantiers en cours / en file) et s.mini (mini-jeux) ajoutés, vides par défaut via sanitize ; rien n'est supprimé */   /* v13 (Partie 15) : s.razed (parcs / places démolis) ajouté, liste vide par défaut via sanitize */
    /* v12 (Partie 13) : s.saga ajouté avec valeurs par défaut par sanitize */   /* v10 : boxHist, districts, casino, heat, rivals, story, notifSeen ajoutés avec valeurs par défaut par sanitize ; niveaux jusqu'à 100 (les niveaux existants ne bougent pas) ; prix du lingot fixe (goldLife.bought conservé comme simple statistique) */
     10: function (e) { e.v = 11; return e; }   /* v11 (Partie 12) : style du QG (hq.style, hq.styles) ajouté avec la valeur par défaut « classic » par sanitize ; rien n'est supprimé */
                                     /* v9 : historique des comptes rendus d'opération (s.eq.hist, comptes rendus « vus ») ; l'ancien dernier compte rendu y est recopié par sanitize. Rien n'est supprimé */                                   /* v8 : rareté Mythique, boxs (s.boxes : pitié, historique), marque b sur les objets de box, décors de ville (s.walls) et réglage settings.wall : champs ajoutés avec valeurs par défaut par sanitize, rien n'est supprimé */
